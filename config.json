@@ -1,0 +1,111 @@
+{
+  "bot": {
+    "name": "Nazzel Bot",
+    "version": "1.0.0",
+    "prefix": "N!",
+    "description": "Advanced Facebook Messenger User-Bot",
+    "selfListen": false,
+    "listenEvents": true,
+    "autoMarkRead": true,
+    "autoMarkDelivery": true
+  },
+  "features": {
+    "xp": {
+      "enabled": true,
+      "minGain": 3,
+      "maxGain": 10,
+      "cooldown": 45000,
+      "levelUpMultiplier": 100
+    },
+    "welcome": {
+      "enabled": true,
+      "message": "Welcome! 👋 {name}\nType {prefix}help to see commands."
+    },
+    "autoLeave": {
+      "detectEnabled": true,
+      "logEnabled": true
+    },
+    "music": {
+      "enabled": true,
+      "maxQueueSize": 50,
+      "audioBitrate": 128,
+      "maxDuration": 600
+    },
+    "logging": {
+      "consoleLevel": "info",
+      "fileLevel": "debug",
+      "maxLogAge": 7,
+      "maxLogsInMemory": 500
+    }
+  },
+  "server": {
+    "port": 5000,
+    "host": "0.0.0.0",
+    "enableStatusEndpoint": true,
+    "enableLogsEndpoint": true,
+    "rateLimit": {
+      "windowMs": 60000,
+      "maxRequests": 100
+    }
+  },
+  "database": {
+    "poolSize": 10,
+    "idleTimeout": 30000,
+    "connectionTimeout": 10000
+  },
+  "redis": {
+    "enabled": true,
+    "keyPrefix": "nazzel:",
+    "defaultTTL": 3600
+  },
+  "commands": {
+    "categories": {
+      "general": {
+        "name": "📋 General",
+        "description": "Basic bot commands",
+        "emoji": "📋"
+      },
+      "admin": {
+        "name": "👑 Admin",
+        "description": "Administrative commands",
+        "emoji": "👑"
+      },
+      "music": {
+        "name": "🎵 Music",
+        "description": "Music player commands",
+        "emoji": "🎵"
+      },
+      "level": {
+        "name": "⭐ Level",
+        "description": "XP and leveling commands",
+        "emoji": "⭐"
+      },
+      "utility": {
+        "name": "🔧 Utility",
+        "description": "Utility commands",
+        "emoji": "🔧"
+      },
+      "fun": {
+        "name": "🎮 Fun",
+        "description": "Fun and entertainment commands",
+        "emoji": "🎮"
+      }
+    },
+    "helpPerPage": 5,
+    "cooldown": {
+      "default": 3000,
+      "music": 5000,
+      "admin": 1000
+    }
+  },
+  "permissions": {
+    "ownerOnly": ["restart", "eval", "shutdown"],
+    "adminOnly": ["kick", "ban", "mute", "announce"]
+  },
+  "messages": {
+    "noPermission": "❌ You don't have permission to use this command.",
+    "cooldown": "⏳ Please wait {time}s before using this command again.",
+    "error": "❌ An error occurred while executing this command.",
+    "unknownCommand": "❓ Unknown command: {command}. Try {prefix}help"
+  }
+}
