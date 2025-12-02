@@ -4,9 +4,10 @@
 
 An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
+- **ws3-fca 3.4.2** - Modern Facebook Chat API replacement
 - **PostgreSQL Database** (Neon) - Persistent storage for users, XP/levels, logs
 - **Redis Caching** - Performance optimization (optional)
-- **Modular Commands** - Organized by categories with paginated help
+- **Modular Commands** - 63 commands organized by categories with paginated help
 - **XP & Leveling** - Automatic XP system with level-up notifications
 - **Music Player** - YouTube audio download and playback
 - **Comprehensive Logging** - Winston-based categorized logging
@@ -15,13 +16,13 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
 ```
 src/
-├── commands/           # Command modules by category
-│   ├── admin/          # Admin commands (restart, logs, kick, addmember)
-│   ├── fun/            # Fun commands (8ball, dice, coin, choose)
-│   ├── general/        # General commands (help, ping, profile, info)
-│   ├── level/          # Level commands (level, xp, leaderboard)
-│   ├── music/          # Music commands (play, queue, stop)
-│   └── utility/        # Utility commands (id, thread, clear)
+├── commands/           # Command modules by category (63 total)
+│   ├── admin/          # Admin commands (14 commands)
+│   ├── fun/            # Fun commands (16 commands)
+│   ├── general/        # General commands (10 commands)
+│   ├── level/          # Level commands (5 commands)
+│   ├── music/          # Music commands (6 commands)
+│   └── utility/        # Utility commands (12 commands)
 ├── database/           # Drizzle ORM schema and queries
 ├── lib/                # Core libraries (logger, redis, commandHandler)
 ├── services/           # Express server for status/logs API
@@ -31,9 +32,19 @@ src/
 
 ## Recent Changes
 
-- **2024-12-02**: Initial release v1.0.0
+- **2024-12-02**: v1.1.0
+  - Migrated from facebook-chat-api to ws3-fca 3.4.2
+  - Added 36 new commands (27 → 63 total)
+  - New Fun: joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate
+  - New Utility: avatar, remind, poll, calc, time, translate, shorten, memberlist
+  - New Admin: ban, unban, setname, setemoji, setnickname, adminlist, broadcast
+  - New General: about, changelog, rules, invite
+  - New Level: givexp, rank
+  - New Music: skip, nowplaying, shuffle
+
+- **2024-12-01**: v1.0.0
+  - Initial release with 27 commands
   - Full TypeScript implementation
-  - 27 commands across 6 categories
   - PostgreSQL + Redis integration
   - Express API server
 
@@ -58,16 +69,16 @@ src/
 - `REDIS_URL` - Redis connection (optional)
 - `OWNER_ID` - Bot owner's Facebook ID
 
-## Commands Quick Reference
+## Commands Quick Reference (63 Total)
 
 | Category | Commands |
 |----------|----------|
-| General | help, ping, info, uptime, profile, say |
-| Admin | restart, logs, addmember, kick, announce, groups, stats |
-| Music | play, queue, stop |
-| Level | level, xp, leaderboard |
-| Utility | thread, id, clear, prefix |
-| Fun | 8ball, coin, dice, choose |
+| General (10) | help, ping, info, uptime, profile, say, about, changelog, rules, invite |
+| Admin (14) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast |
+| Music (6) | play, queue, stop, skip, nowplaying, shuffle |
+| Level (5) | level, xp, leaderboard, givexp, rank |
+| Utility (12) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist |
+| Fun (16) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate |
 
 ## API Endpoints
 

@@ -214,6 +214,14 @@ export class Database {
     }
   }
 
+  async removeFromMusicQueue(id: number): Promise<void> {
+    try {
+      await db.delete(schema.musicQueue).where(eq(schema.musicQueue.id, id));
+    } catch (error) {
+      logger.error('Failed to remove from music queue', { id, error });
+    }
+  }
+
   async clearMusicQueue(threadId: string): Promise<void> {
     try {
       await db.delete(schema.musicQueue).where(eq(schema.musicQueue.threadId, threadId));
@@ -242,6 +250,48 @@ export class Database {
         });
     } catch (error) {
       logger.error('Failed to set setting', { key, error });
+    }
+  }
+
+  async deleteSetting(key: string): Promise<void> {
+    try {
+      await db.delete(schema.settings).where(eq(schema.settings.key, key));
+    } catch (error) {
+      logger.error('Failed to delete setting', { key, error });
+    }
+  }
+
+  async getTotalUsers(): Promise<number> {
+    try {
+      const result = await db.select({ count: sql<number>`count(*)::int` })
+        .from(schema.users);
+      return result[0]?.count || 0;
+    } catch (error) {
+      logger.error('Failed to get total users', { error });
+      return 0;
+    }
+  }
+
+  async getTotalThreads(): Promise<number> {
+    try {
+      const result = await db.select({ count: sql<number>`count(*)::int` })
+        .from(schema.threads);
+      return result[0]?.count || 0;
+    } catch (error) {
+      logger.error('Failed to get total threads', { error });
+      return 0;
+    }
+  }
+
+  async getTopUsers(limit: number = 5): Promise<schema.User[]> {
+    try {
+      return await db.select()
+        .from(schema.users)
+        .orderBy(desc(schema.users.totalMessages))
+        .limit(limit);
+    } catch (error) {
+      logger.error('Failed to get top users', { error });
+      return [];
     }
   }
 }

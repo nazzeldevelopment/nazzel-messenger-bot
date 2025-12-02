@@ -35,7 +35,7 @@ export class CommandHandler {
         try {
           const filePath = path.join(categoryPath, file);
           const module = await import(`file://${filePath}`);
-          const command: Command = module.default || module;
+          const command: Command = module.command || module.default || module;
           
           if (command && command.name && typeof command.execute === 'function') {
             command.category = category as Command['category'];
@@ -100,11 +100,44 @@ export class CommandHandler {
     const userId = context.event.senderID;
     const threadId = context.event.threadID;
 
+    const banData = await database.getSetting(`banned_${userId}`);
+    if (banData) {
+      await context.reply('❌ You are banned from using bot commands.');
+      return;
+    }
+
     if (command.ownerOnly) {
       const ownerId = process.env.OWNER_ID;
       if (!ownerId || userId !== ownerId) {
         await context.reply(this.config.messages.noPermission);
         return;
+      }
+    }
+
+    if (command.adminOnly) {
+      const ownerId = process.env.OWNER_ID;
+      const isOwner = ownerId && userId === ownerId;
+      
+      if (!isOwner) {
+        try {
+          const threadInfo = await new Promise<any>((resolve, reject) => {
+            context.api.getThreadInfo(threadId, (err: Error | null, info: any) => {
+              if (err) reject(err);
+              else resolve(info);
+            });
+          });
+          
+          const adminIDs = (threadInfo.adminIDs || []).map((a: any) => a.id || a);
+          const isAdmin = adminIDs.includes(userId);
+          
+          if (!isAdmin) {
+            await context.reply(this.config.messages.noPermission);
+            return;
+          }
+        } catch (error) {
+          await context.reply(this.config.messages.noPermission);
+          return;
+        }
       }
     }
 
