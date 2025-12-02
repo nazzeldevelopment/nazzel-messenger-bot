@@ -1,5 +1,3 @@
-import type { Api, MessageEvent } from 'facebook-chat-api';
-
 export interface BotConfig {
   bot: {
     name: string;
@@ -123,8 +121,8 @@ export interface Command {
 }
 
 export interface CommandContext {
-  api: Api;
-  event: MessageEvent;
+  api: any;
+  event: any;
   args: string[];
   prefix: string;
   commands: Map<string, Command>;

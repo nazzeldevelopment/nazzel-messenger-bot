@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import login from 'facebook-chat-api';
+import login from 'ws3-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database } from './database/index.js';
