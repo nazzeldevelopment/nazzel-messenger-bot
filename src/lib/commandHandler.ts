@@ -4,18 +4,25 @@ import { fileURLToPath } from 'url';
 import type { Command, CommandContext, BotConfig } from '../types/index.js';
 import { logger, BotLogger } from './logger.js';
 import { database } from '../database/index.js';
+import { antiSpam } from './antiSpam.js';
 import config from '../../config.json' with { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+interface CommandCooldowns {
+  [key: string]: number;
+}
+
 export class CommandHandler {
   private commands: Map<string, Command> = new Map();
   private aliases: Map<string, string> = new Map();
   private readonly config: BotConfig;
+  private readonly commandCooldowns: CommandCooldowns;
 
   constructor() {
     this.config = config as BotConfig;
+    this.commandCooldowns = (config as any).commands?.commandCooldowns || {};
   }
 
   async loadCommands(): Promise<void> {
@@ -87,6 +94,23 @@ export class CommandHandler {
     return Array.from(categories);
   }
 
+  private getCommandCooldown(command: Command): number {
+    if (this.commandCooldowns[command.name]) {
+      return this.commandCooldowns[command.name];
+    }
+    
+    if (command.cooldown) {
+      return command.cooldown;
+    }
+    
+    const categoryCooldowns = (config as any).commands?.cooldown || {};
+    if (categoryCooldowns[command.category]) {
+      return categoryCooldowns[command.category];
+    }
+    
+    return categoryCooldowns.default || 5000;
+  }
+
   async executeCommand(context: CommandContext, commandName: string): Promise<void> {
     const command = this.getCommand(commandName);
     
@@ -100,6 +124,34 @@ export class CommandHandler {
 
     const userId = context.event.senderID;
     const threadId = context.event.threadID;
+
+    const globalCheck = await antiSpam.checkGlobalCooldown(userId);
+    if (!globalCheck.allowed) {
+      const message = (this.config.messages as any).globalCooldown
+        ?.replace('{time}', globalCheck.remaining.toString())
+        || `⏳ Please wait ${globalCheck.remaining}s`;
+      await context.reply(message);
+      return;
+    }
+
+    const rateCheck = await antiSpam.checkRateLimit(userId);
+    if (!rateCheck.allowed) {
+      const message = (this.config.messages as any).rateLimited
+        ?.replace('{time}', rateCheck.remaining.toString())
+        || `🚫 Rate limited. Wait ${rateCheck.remaining}s`;
+      await context.reply(message);
+      return;
+    }
+
+    if (rateCheck.warning) {
+      logger.warn(`User ${userId} approaching rate limit`);
+    }
+
+    const threadRateCheck = await antiSpam.checkThreadRateLimit(threadId);
+    if (!threadRateCheck.allowed) {
+      logger.warn(`Thread ${threadId} rate limited`);
+      return;
+    }
 
     const banData = await database.getSetting(`banned_${userId}`);
     if (banData) {
@@ -142,14 +194,16 @@ export class CommandHandler {
       }
     }
 
-    const cooldownMs = command.cooldown || this.config.commands.cooldown.default;
-    const cooldownCheck = await database.checkCommandCooldown(userId, command.name, cooldownMs);
+    const cooldownMs = this.getCommandCooldown(command);
+    const cooldownCheck = await antiSpam.checkCommandCooldown(userId, command.name);
     
     if (cooldownCheck.onCooldown) {
       const message = this.config.messages.cooldown.replace('{time}', cooldownCheck.remaining.toString());
       await context.reply(message);
       return;
     }
+
+    await antiSpam.setCommandCooldown(userId, command.name, cooldownMs);
 
     const startTime = Date.now();
     
@@ -199,8 +253,10 @@ export class CommandHandler {
     
     for (const cmd of pageCommands) {
       const aliases = cmd.aliases?.length ? ` (${cmd.aliases.join(', ')})` : '';
+      const cooldown = this.getCommandCooldown(cmd) / 1000;
       help += `║ ${this.config.bot.prefix}${cmd.name}${aliases}\n`;
       help += `║ └─ ${cmd.description}\n`;
+      help += `║    ⏱️ ${cooldown}s cooldown\n`;
       if (cmd.usage) {
         help += `║    Usage: ${cmd.usage}\n`;
       }
@@ -254,6 +310,7 @@ export class CommandHandler {
     
     const prefix = this.config.bot.prefix;
     const categoryConfig = this.config.commands.categories[command.category];
+    const cooldown = this.getCommandCooldown(command) / 1000;
     
     let help = `╔═══════════════════════════════╗\n`;
     help += `║ 📖 COMMAND: ${command.name.toUpperCase()}\n`;
@@ -262,6 +319,7 @@ export class CommandHandler {
     help += `║ ${command.description}\n`;
     help += `║\n`;
     help += `║ Category: ${categoryConfig?.emoji || ''} ${categoryConfig?.name || command.category}\n`;
+    help += `║ Cooldown: ⏱️ ${cooldown}s\n`;
     
     if (command.aliases?.length) {
       help += `║ Aliases: ${command.aliases.join(', ')}\n`;
@@ -276,10 +334,6 @@ export class CommandHandler {
       for (const example of command.examples) {
         help += `║ • ${prefix}${example}\n`;
       }
-    }
-    
-    if (command.cooldown) {
-      help += `║\n║ Cooldown: ${command.cooldown / 1000}s\n`;
     }
     
     if (command.ownerOnly) {

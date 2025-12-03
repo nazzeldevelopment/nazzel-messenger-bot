@@ -2,6 +2,8 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { BotLogger, logger } from '../lib/logger.js';
 import { database } from '../database/index.js';
 import { commandHandler } from '../lib/commandHandler.js';
+import { redis } from '../lib/redis.js';
+import { antiSpam } from '../lib/antiSpam.js';
 import config from '../../config.json' with { type: 'json' };
 
 export function createServer(): Express {
@@ -66,6 +68,16 @@ export function createServer(): Express {
           },
           database: {
             type: 'MongoDB',
+            connected: true,
+          },
+          redis: {
+            connected: redis.connected,
+            mode: redis.connected ? 'Redis' : 'In-memory',
+          },
+          antiSpam: {
+            enabled: (config as any).antiSpam?.enabled ?? true,
+            globalCooldown: (config as any).antiSpam?.globalCooldown ?? 2000,
+            maxMessagesPerMinute: (config as any).antiSpam?.maxMessagesPerMinute ?? 15,
           },
           timestamp: new Date().toISOString(),
         });

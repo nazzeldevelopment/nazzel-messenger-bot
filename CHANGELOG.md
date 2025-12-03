@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.3.0] - 2025-12-03
+
+### Added
+- **Redis Anti-Spam System**: Re-added Redis for fast in-memory cooldown tracking to prevent Facebook spam detection
+- **Anti-Spam Manager**: New comprehensive rate limiting system with:
+  - Global cooldown (2s between commands per user)
+  - Rate limiting (max 15 commands per minute per user)
+  - Thread rate limiting (max 10 commands per minute per thread)
+  - Automatic user blocking for rate limit violations
+- **Per-Command Cooldowns**: Individual cooldowns for all 57 commands in config.json
+- **In-Memory Fallback**: If Redis is unavailable, uses local memory cache for cooldowns
+
+### Changed
+- **Command Handler**: Updated to use Redis-based anti-spam system
+- **Cooldown Display**: Help pages now show cooldown time for each command
+- **Config Updated**: Added commandCooldowns section with individual cooldowns for all commands
+- **Version**: Bumped to 1.3.0
+
+### Technical
+- Redis with ioredis for fast cooldown operations
+- Fallback to in-memory Map when Redis unavailable
+- Automatic cleanup of expired cooldown entries
+- TTL-based key expiration
+
 ## [1.2.0] - 2025-12-03
 
 ### Changed
@@ -23,7 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - **PostgreSQL/Drizzle**: Removed @neondatabase/serverless, drizzle-orm, drizzle-kit dependencies
-- **Redis**: Removed ioredis dependency (cooldowns now handled by MongoDB)
 - **Drizzle Scripts**: Removed db:push, db:generate, db:studio npm scripts
 - **Custom User Agent**: Removed hardcoded Chrome Mobile user agent
 

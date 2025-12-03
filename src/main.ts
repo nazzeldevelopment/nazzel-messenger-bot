@@ -6,6 +6,8 @@ import { BotLogger, logger } from './lib/logger.js';
 const login = (fca as any).login || fca;
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
+import { redis } from './lib/redis.js';
+import { antiSpam } from './lib/antiSpam.js';
 import { createServer, startServer } from './services/server.js';
 import config from '../config.json' with { type: 'json' };
 import type { CommandContext, MessageOptions } from './types/index.js';
@@ -23,10 +25,12 @@ async function main(): Promise<void> {
     BotLogger.info('Set MONGODB_URI environment variable to enable database.');
   }
   
+  await redis.connect();
+  
   await commandHandler.loadCommands();
   BotLogger.printLoadedCommands(commandHandler.getAllCommands().size);
   
-  BotLogger.printDatabaseInfo(dbInitialized, false);
+  BotLogger.printDatabaseInfo(dbInitialized, redis.connected);
   
   const app = createServer();
   startServer(app);
@@ -312,9 +316,9 @@ async function handleMessage(api: any, event: any): Promise<void> {
 }
 
 async function handleXP(api: any, senderId: string, threadId: string): Promise<void> {
-  const canGainXP = await database.checkXPCooldown(senderId, config.features.xp.cooldown);
+  const xpCheck = await antiSpam.checkXpCooldown(senderId, config.features.xp.cooldown);
   
-  if (!canGainXP) return;
+  if (xpCheck.onCooldown) return;
   
   const xpGain = Math.floor(
     Math.random() * (config.features.xp.maxGain - config.features.xp.minGain + 1)
@@ -416,12 +420,14 @@ process.on('unhandledRejection', (reason) => {
 
 process.on('SIGINT', async () => {
   BotLogger.shutdown('Received SIGINT, shutting down...');
+  await redis.disconnect();
   await database.disconnect();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   BotLogger.shutdown('Received SIGTERM, shutting down...');
+  await redis.disconnect();
   await database.disconnect();
   process.exit(0);
 });

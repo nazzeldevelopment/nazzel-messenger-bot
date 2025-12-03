@@ -1,7 +1,7 @@
 {
   "bot": {
     "name": "Nazzel Bot",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "prefix": "N!",
     "description": "Advanced Facebook Messenger User-Bot",
     "selfListen": true,
@@ -14,7 +14,7 @@
       "enabled": true,
       "minGain": 3,
       "maxGain": 10,
-      "cooldown": 45000,
+      "cooldown": 60000,
       "levelUpMultiplier": 100
     },
     "welcome": {
@@ -51,44 +51,115 @@
   "database": {
     "connectionTimeout": 10000
   },
+  "antiSpam": {
+    "enabled": true,
+    "globalCooldown": 2000,
+    "maxMessagesPerMinute": 15,
+    "maxMessagesPerThread": 10,
+    "warningThreshold": 12,
+    "blockDuration": 30000
+  },
   "commands": {
     "categories": {
       "general": {
         "name": "General",
         "description": "Basic bot commands",
-        "emoji": ""
+        "emoji": "📋"
       },
       "admin": {
         "name": "Admin",
         "description": "Administrative commands",
-        "emoji": ""
+        "emoji": "⚙️"
       },
       "music": {
         "name": "Music",
         "description": "Music player commands",
-        "emoji": ""
+        "emoji": "🎵"
       },
       "level": {
         "name": "Level",
         "description": "XP and leveling commands",
-        "emoji": ""
+        "emoji": "📊"
       },
       "utility": {
         "name": "Utility",
         "description": "Utility commands",
-        "emoji": ""
+        "emoji": "🔧"
       },
       "fun": {
         "name": "Fun",
         "description": "Fun and entertainment commands",
-        "emoji": ""
+        "emoji": "🎮"
       }
     },
     "helpPerPage": 5,
     "cooldown": {
-      "default": 3000,
-      "music": 5000,
-      "admin": 1000
+      "default": 5000,
+      "general": 3000,
+      "fun": 5000,
+      "utility": 4000,
+      "level": 5000,
+      "music": 8000,
+      "admin": 3000
+    },
+    "commandCooldowns": {
+      "help": 3000,
+      "ping": 3000,
+      "info": 5000,
+      "uptime": 5000,
+      "profile": 8000,
+      "say": 5000,
+      "about": 5000,
+      "changelog": 5000,
+      "rules": 5000,
+      "invite": 10000,
+      "restart": 30000,
+      "logs": 5000,
+      "addmember": 10000,
+      "kick": 10000,
+      "announce": 15000,
+      "groups": 10000,
+      "stats": 10000,
+      "ban": 10000,
+      "unban": 10000,
+      "setname": 15000,
+      "setemoji": 15000,
+      "setnickname": 10000,
+      "adminlist": 8000,
+      "broadcast": 30000,
+      "level": 5000,
+      "xp": 5000,
+      "leaderboard": 10000,
+      "givexp": 10000,
+      "rank": 5000,
+      "thread": 5000,
+      "id": 3000,
+      "clear": 10000,
+      "prefix": 10000,
+      "avatar": 8000,
+      "remind": 5000,
+      "poll": 15000,
+      "calc": 3000,
+      "time": 3000,
+      "translate": 5000,
+      "shorten": 5000,
+      "memberlist": 10000,
+      "8ball": 5000,
+      "coin": 3000,
+      "dice": 3000,
+      "choose": 3000,
+      "joke": 8000,
+      "quote": 8000,
+      "trivia": 10000,
+      "rps": 5000,
+      "fact": 8000,
+      "roast": 8000,
+      "compliment": 8000,
+      "horoscope": 10000,
+      "lucky": 5000,
+      "ship": 5000,
+      "rate": 5000,
+      "gayrate": 5000
     }
   },
   "permissions": {
@@ -97,7 +168,9 @@
   },
   "messages": {
     "noPermission": "You don't have permission to use this command.",
-    "cooldown": "Please wait {time}s before using this command again.",
+    "cooldown": "⏳ Please wait {time}s before using this command again.",
+    "globalCooldown": "⚠️ Slow down! Please wait {time}s before sending another command.",
+    "rateLimited": "🚫 You are sending commands too fast. Please wait {time}s.",
     "error": "An error occurred while executing this command.",
     "unknownCommand": "Unknown command: {command}. Try {prefix}help"
   }

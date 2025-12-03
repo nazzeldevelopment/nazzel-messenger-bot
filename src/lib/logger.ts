@@ -166,9 +166,10 @@ export class BotLogger {
     this.printLine('BOT NAME:', config.bot.name, chalk.yellow, chalk.cyan);
   }
 
-  static printDatabaseInfo(dbConnected: boolean, _unused?: boolean): void {
+  static printDatabaseInfo(dbConnected: boolean, redisConnected: boolean): void {
     this.printSection('DATABASE');
     this.printLine('MONGODB:', dbConnected ? 'Successfully connected!' : 'Not connected', chalk.yellow, dbConnected ? chalk.green : chalk.red);
+    this.printLine('REDIS:', redisConnected ? 'Successfully connected!' : 'In-memory mode', chalk.yellow, redisConnected ? chalk.green : chalk.yellow);
   }
 
   static printLoadingCommand(name: string, category: string): void {

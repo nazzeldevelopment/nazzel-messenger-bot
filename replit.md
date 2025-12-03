@@ -6,6 +6,7 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
 - **ws3-fca 3.4.2** - Modern Facebook Chat API replacement
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns
+- **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
 - **Modular Commands** - 57 commands organized by categories with paginated help
 - **XP & Leveling** - Automatic XP system with level-up notifications
 - **Music Player** - YouTube audio download and playback
@@ -22,7 +23,7 @@ src/
 │   ├── level/          # Level commands (5 commands)
 │   └── utility/        # Utility commands (12 commands)
 ├── database/           # MongoDB native driver and schema
-├── lib/                # Core libraries (logger, commandHandler)
+├── lib/                # Core libraries (logger, redis, antiSpam, commandHandler)
 ├── services/           # Express server for status/logs API
 ├── types/              # TypeScript type definitions
 └── main.ts             # Bot entry point
@@ -30,22 +31,20 @@ src/
 
 ## Recent Changes
 
+- **2025-12-03**: v1.3.0
+  - Re-added Redis for anti-spam cooldown tracking
+  - Added comprehensive rate limiting system to prevent Facebook bans
+  - Individual cooldowns for all 57 commands
+  - In-memory fallback when Redis unavailable
+
 - **2025-12-03**: v1.2.0 (BREAKING)
   - Migrated from PostgreSQL (Neon + Drizzle ORM) to MongoDB
-  - Removed Redis dependency - cooldowns now tracked in MongoDB with TTL indexes
   - Removed hardcoded user agent from Facebook login
   - Enhanced message sending with detailed success/failure confirmation logging
-  - All 57 commands fully functional
 
 - **2025-12-03**: v1.1.3
   - Fixed bot not responding to commands in Group Chats and Private Messages
   - Enhanced message handling with detailed debug logging
-  - Improved command execution with better error handling
-  - Fixed XP system to not trigger on bot's own messages
-
-- **2025-12-03**: v1.1.0
-  - Migrated from facebook-chat-api to ws3-fca 3.4.2
-  - Added many new commands across all categories
 
 - **2025-12-02**: v1.0.0
   - Initial release with TypeScript implementation
@@ -63,15 +62,27 @@ src/
 - Bot name, prefix, feature toggles
 - XP system settings (min/max gain, cooldown)
 - Server settings (port, rate limiting)
-- Command categories and cooldowns
+- Command categories and individual cooldowns
+- Anti-spam settings (global cooldown, rate limits)
 
 **Sensitive settings**: Environment Variables
 - `MONGODB_URI` - MongoDB connection string (required for database features)
+- `REDIS_URL` - Redis connection string (optional, uses in-memory fallback)
 - `OWNER_ID` - Bot owner's Facebook ID
 
 **Authentication**: `appstate.json`
 - Contains Facebook session cookies for login
 - Must be obtained by logging into Facebook and exporting cookies
+
+## Anti-Spam System
+
+The bot includes a comprehensive anti-spam system to prevent Facebook account bans:
+
+- **Global Cooldown**: 2 seconds between commands per user
+- **Rate Limiting**: Max 15 commands per minute per user
+- **Thread Limiting**: Max 10 commands per minute per thread
+- **Auto-Block**: Users exceeding limits are blocked for 30 seconds
+- **Per-Command Cooldowns**: Individual cooldowns ranging from 3s to 30s
 
 ## Commands Quick Reference (57 Total)
 
@@ -86,7 +97,7 @@ src/
 ## API Endpoints
 
 - `GET /` - Bot status
-- `GET /status` - Detailed status
+- `GET /status` - Detailed status (includes anti-spam settings)
 - `GET /health` - Health check
 - `GET /logs` - Recent logs
 - `GET /stats` - Statistics
@@ -101,3 +112,12 @@ src/
 - `cooldowns` - Command cooldowns with TTL auto-expiration
 - `xp_cooldowns` - XP gain cooldowns with TTL auto-expiration
 - `appstate` - Facebook session persistence
+
+## Cooldown Storage (Redis/In-Memory)
+
+- `global_cooldown:{userId}` - Global command cooldown
+- `rate_count:{userId}` - Command count per minute
+- `blocked:{userId}` - Temporary block status
+- `thread_rate:{threadId}` - Thread command count
+- `cmd_cooldown:{userId}:{command}` - Per-command cooldown
+- `xp_cooldown:{userId}` - XP gain cooldown
