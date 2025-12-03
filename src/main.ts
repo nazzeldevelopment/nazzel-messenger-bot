@@ -241,12 +241,31 @@ async function handleMessage(api: any, event: any): Promise<void> {
           BotLogger.debug(`Sending message to ${targetThread}...`);
           
           const startTime = Date.now();
+          let callbackCalled = false;
+          
+          const timeout = setTimeout(() => {
+            if (!callbackCalled) {
+              const elapsed = Date.now() - startTime;
+              BotLogger.error(`Message send timeout after ${elapsed}ms - callback never fired`);
+              BotLogger.warn(`This may indicate Facebook is blocking messages or the account needs verification`);
+              database.logEntry({
+                type: 'message_timeout',
+                level: 'error',
+                message: `Message send timeout - no callback from Facebook API`,
+                threadId: targetThread,
+                metadata: { elapsed },
+              }).catch(() => {});
+              resolve();
+            }
+          }, 30000);
           
           try {
             api.sendMessage(
               messageContent,
               targetThread,
               async (err: Error | null, messageInfo: any) => {
+                callbackCalled = true;
+                clearTimeout(timeout);
                 const elapsed = Date.now() - startTime;
                 
                 if (err) {
@@ -278,6 +297,8 @@ async function handleMessage(api: any, event: any): Promise<void> {
               }
             );
           } catch (sendError) {
+            callbackCalled = true;
+            clearTimeout(timeout);
             BotLogger.error(`Exception in sendMessage`, sendError);
             reject(sendError);
           }
