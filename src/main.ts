@@ -170,13 +170,21 @@ async function main(): Promise<void> {
   });
 }
 
+function normalizeId(id: any): string {
+  if (id === null || id === undefined) return '';
+  return ('' + id).trim();
+}
+
 async function handleEvent(api: any, event: any): Promise<void> {
-  if (event.threadID) event.threadID = String(event.threadID);
-  if (event.senderID) event.senderID = String(event.senderID);
-  if (event.userID) event.userID = String(event.userID);
-  if (event.messageID) event.messageID = String(event.messageID);
-  if (event.messageReply?.senderID) event.messageReply.senderID = String(event.messageReply.senderID);
-  if (event.messageReply?.messageID) event.messageReply.messageID = String(event.messageReply.messageID);
+  if (event.threadID) event.threadID = normalizeId(event.threadID);
+  if (event.senderID) event.senderID = normalizeId(event.senderID);
+  if (event.userID) event.userID = normalizeId(event.userID);
+  if (event.messageID) event.messageID = normalizeId(event.messageID);
+  if (event.messageReply?.senderID) event.messageReply.senderID = normalizeId(event.messageReply.senderID);
+  if (event.messageReply?.messageID) event.messageReply.messageID = normalizeId(event.messageReply.messageID);
+  if (event.participantIDs && Array.isArray(event.participantIDs)) {
+    event.participantIDs = event.participantIDs.map((id: any) => normalizeId(id));
+  }
   
   switch (event.type) {
     case 'message':
@@ -241,115 +249,89 @@ async function handleMessage(api: any, event: any): Promise<void> {
       const commands = commandHandler.getAllCommands();
       
       const sendMessage = async (message: string | MessageOptions, tid?: string): Promise<void> => {
-        const targetThread = String(tid || threadId);
-        const messageContent = typeof message === 'string' ? message : message;
+        const targetThread = normalizeId(tid || threadId);
+        
+        let messageContent: any;
+        if (typeof message === 'string') {
+          messageContent = message;
+        } else {
+          messageContent = { ...message };
+          if (messageContent.body) messageContent.body = String(messageContent.body);
+        }
         
         BotLogger.debug(`Sending message to ${targetThread}...`);
         
         const startTime = Date.now();
         
-        // Try sending typing indicator first to warm up the connection
-        try {
-          api.sendTypingIndicator(targetThread, (err: Error | null) => {
-            if (err) BotLogger.debug(`Typing indicator failed: ${err.message}`);
-          });
-        } catch (e) {
-          BotLogger.debug(`Typing indicator exception: ${e}`);
-        }
-        
-        // Small delay to let Facebook process
-        await new Promise(r => setTimeout(r, 500));
-        
-        // Try primary sendMessage method
-        const primaryResult = await new Promise<{ success: boolean; error?: Error; messageInfo?: any }>((resolve) => {
-          let callbackCalled = false;
-          
-          const timeout = setTimeout(() => {
-            if (!callbackCalled) {
-              BotLogger.debug(`Primary sendMessage timeout after 15s, trying fallback...`);
-              resolve({ success: false });
-            }
-          }, 15000);
-          
-          try {
-            api.sendMessage(
-              messageContent,
-              targetThread,
-              (err: Error | null, messageInfo: any) => {
+        const sendWithRetry = async (attempt: number = 1): Promise<{ success: boolean; error?: Error; messageInfo?: any }> => {
+          return new Promise((resolve) => {
+            let callbackCalled = false;
+            const timeoutMs = attempt === 1 ? 20000 : 15000;
+            
+            const timeout = setTimeout(() => {
+              if (!callbackCalled) {
                 callbackCalled = true;
-                clearTimeout(timeout);
-                if (err) {
-                  resolve({ success: false, error: err });
-                } else {
-                  resolve({ success: true, messageInfo });
-                }
+                BotLogger.debug(`sendMessage attempt ${attempt} timeout after ${timeoutMs/1000}s`);
+                resolve({ success: false, error: new Error('Timeout') });
               }
-            );
-          } catch (e) {
-            callbackCalled = true;
-            clearTimeout(timeout);
-            resolve({ success: false, error: e as Error });
-          }
-        });
-        
-        if (primaryResult.success) {
-          const elapsed = Date.now() - startTime;
-          const preview = typeof message === 'string' ? message.substring(0, 50) : 'attachment/complex message';
-          const msgId = primaryResult.messageInfo?.messageID || 'unknown';
-          BotLogger.info(`Message sent successfully to ${targetThread} [ID: ${msgId}] in ${elapsed}ms`);
-          BotLogger.messageSent(targetThread, preview);
-          return;
-        }
-        
-        // Try fallback: httpPost method if available
-        BotLogger.debug(`Primary method failed, trying httpPost fallback...`);
-        
-        if (api.httpPost) {
-          try {
-            const form: Record<string, string> = {
-              message_batch: JSON.stringify([{
-                thread_id: targetThread,
-                message: { text: typeof message === 'string' ? message : (message as any).body || '' }
-              }])
-            };
+            }, timeoutMs);
             
-            const httpResult = await new Promise<boolean>((resolve) => {
-              const timeout = setTimeout(() => resolve(false), 10000);
-              
-              api.httpPost('https://www.facebook.com/messaging/send/', form, (err: Error | null, data: any) => {
-                clearTimeout(timeout);
-                if (err) {
-                  BotLogger.debug(`httpPost failed: ${err.message}`);
-                  resolve(false);
-                } else {
-                  BotLogger.debug(`httpPost response: ${JSON.stringify(data).substring(0, 100)}`);
-                  resolve(true);
+            try {
+              api.sendMessage(
+                messageContent,
+                targetThread,
+                (err: Error | null, messageInfo: any) => {
+                  if (callbackCalled) return;
+                  callbackCalled = true;
+                  clearTimeout(timeout);
+                  
+                  if (err) {
+                    BotLogger.debug(`sendMessage attempt ${attempt} error: ${err.message}`);
+                    resolve({ success: false, error: err });
+                  } else {
+                    resolve({ success: true, messageInfo });
+                  }
                 }
-              });
-            });
-            
-            if (httpResult) {
-              const elapsed = Date.now() - startTime;
-              BotLogger.info(`Message sent via httpPost fallback in ${elapsed}ms`);
-              return;
+              );
+            } catch (e) {
+              if (callbackCalled) return;
+              callbackCalled = true;
+              clearTimeout(timeout);
+              resolve({ success: false, error: e as Error });
             }
-          } catch (e) {
-            BotLogger.debug(`httpPost exception: ${e}`);
-          }
+          });
+        };
+        
+        let result = await sendWithRetry(1);
+        
+        if (!result.success && result.error?.message !== 'Timeout') {
+          await new Promise(r => setTimeout(r, 1000));
+          result = await sendWithRetry(2);
         }
         
-        // All methods failed
-        const elapsed = Date.now() - startTime;
-        BotLogger.error(`All send methods failed after ${elapsed}ms`);
-        BotLogger.warn(`Facebook may be blocking messages. Try getting fresh appstate cookies.`);
+        if (!result.success) {
+          await new Promise(r => setTimeout(r, 2000));
+          result = await sendWithRetry(3);
+        }
         
-        database.logEntry({
-          type: 'message_timeout',
-          level: 'error',
-          message: `All message send methods failed`,
-          threadId: targetThread,
-          metadata: { elapsed, primaryError: primaryResult.error?.message },
-        }).catch(() => {});
+        const elapsed = Date.now() - startTime;
+        
+        if (result.success) {
+          const preview = typeof message === 'string' ? message.substring(0, 50) : 'attachment/complex message';
+          const msgId = result.messageInfo?.messageID || 'sent';
+          BotLogger.info(`Message sent to ${targetThread} [ID: ${msgId}] in ${elapsed}ms`);
+          BotLogger.messageSent(targetThread, preview);
+        } else {
+          BotLogger.error(`Failed to send message after 3 attempts (${elapsed}ms): ${result.error?.message}`);
+          
+          database.logEntry({
+            type: 'message_timeout',
+            level: 'error',
+            message: `Message send failed after 3 attempts`,
+            threadId: targetThread,
+            metadata: { elapsed, error: result.error?.message },
+          }).catch(() => {});
+        }
       };
       
       const reply = async (message: string | MessageOptions): Promise<void> => {
@@ -384,8 +366,8 @@ async function handleMessage(api: any, event: any): Promise<void> {
 }
 
 async function handleXP(api: any, senderId: string, threadId: string): Promise<void> {
-  const senderIdStr = String(senderId);
-  const threadIdStr = String(threadId);
+  const senderIdStr = normalizeId(senderId);
+  const threadIdStr = normalizeId(threadId);
   
   const xpCheck = await antiSpam.checkXpCooldown(senderIdStr, config.features.xp.cooldown);
   
@@ -429,14 +411,14 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
 
 async function handleGroupEvent(api: any, event: any): Promise<void> {
   const { logMessageType, logMessageData, threadID } = event;
-  const threadIdStr = String(threadID);
+  const threadIdStr = normalizeId(threadID);
   
   BotLogger.event(logMessageType, { threadId: threadIdStr, data: logMessageData });
   
   if (logMessageType === 'log:subscribe' && logMessageData?.addedParticipants) {
     if (config.features.welcome.enabled) {
       for (const participant of logMessageData.addedParticipants) {
-        const userId = String(participant.userFbId || participant.id?.split(':').pop() || '');
+        const userId = normalizeId(participant.userFbId || participant.id?.split(':').pop() || '');
         const userName = participant.fullName || 'Member';
         
         const welcomeMessage = config.features.welcome.message
@@ -469,7 +451,7 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
   }
   
   if (logMessageType === 'log:unsubscribe' && config.features.autoLeave.logEnabled) {
-    const leftUser = String(logMessageData?.leftParticipantFbId || '');
+    const leftUser = normalizeId(logMessageData?.leftParticipantFbId || '');
     
     await database.logEntry({
       type: 'event',

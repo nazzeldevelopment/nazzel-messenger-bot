@@ -47,12 +47,14 @@ export const command: Command = {
       return;
     }
 
-    const senderId = String(event.senderID);
-    const threadId = String(event.threadID);
+    const senderId = ('' + event.senderID).trim();
+    const threadId = ('' + event.threadID).trim();
     const reminderId = `${senderId}-${Date.now()}`;
 
     const timeout = setTimeout(() => {
-      api.sendMessage(`⏰ *Reminder!*\n\n📝 ${message}`, threadId);
+      api.sendMessage(`⏰ *Reminder!*\n\n📝 ${message}`, threadId, (err: Error | null) => {
+        if (err) console.error('Reminder send failed:', err);
+      });
       reminders.delete(reminderId);
     }, ms);
 

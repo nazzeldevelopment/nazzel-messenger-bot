@@ -20,10 +20,10 @@ export const command: Command = {
     let nickname = '';
 
     if (event.messageReply) {
-      targetId = String(event.messageReply.senderID);
+      targetId = ('' + event.messageReply.senderID).trim();
       nickname = args.join(' ');
     } else if (event.mentions && Object.keys(event.mentions).length > 0) {
-      targetId = String(Object.keys(event.mentions)[0]);
+      targetId = ('' + Object.keys(event.mentions)[0]).trim();
       const mentionName = event.mentions[targetId];
       nickname = args.join(' ').replace(`@${mentionName}`, '').trim();
     } else {
@@ -42,18 +42,19 @@ export const command: Command = {
     }
 
     try {
+      const normalizedTargetId = ('' + targetId).trim();
       const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
-        api.getUserInfo(targetId, (err: Error | null, info: any) => {
+        api.getUserInfo(normalizedTargetId, (err: Error | null, info: any) => {
           if (err) reject(err);
           else resolve(info);
         });
       });
 
-      const userName = userInfo[targetId]?.name || 'Unknown User';
+      const userName = userInfo[normalizedTargetId]?.name || 'Unknown User';
 
-      const threadId = String(event.threadID);
+      const threadId = ('' + event.threadID).trim();
       await new Promise<void>((resolve, reject) => {
-        api.changeNickname(nickname, threadId, String(targetId), (err: Error | null) => {
+        api.changeNickname(nickname, threadId, normalizedTargetId, (err: Error | null) => {
           if (err) reject(err);
           else resolve();
         });

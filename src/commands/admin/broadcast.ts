@@ -10,7 +10,7 @@ export const command: Command = {
   cooldown: 60,
   ownerOnly: true,
 
-  async execute({ api, args, reply }) {
+  async execute({ api, args, reply, sendMessage }) {
     if (!args.length) {
       await reply('❌ Please provide a message to broadcast.\n\nUsage: broadcast <message>');
       return;
@@ -34,15 +34,10 @@ export const command: Command = {
 
       for (const thread of groupThreads) {
         try {
-          const threadId = String(thread.threadID);
-          await new Promise<void>((resolve, reject) => {
-            api.sendMessage(broadcastMessage, threadId, (err: Error | null) => {
-              if (err) reject(err);
-              else resolve();
-            });
-          });
+          const threadId = ('' + thread.threadID).trim();
+          await sendMessage(broadcastMessage, threadId);
           sent++;
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 1500));
         } catch {
           failed++;
         }

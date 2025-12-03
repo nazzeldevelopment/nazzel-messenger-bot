@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.3.3] - 2025-12-03
+
+### Fixed
+- **Critical: MessageID Type Error (Final Fix)**: Implemented robust ID normalization using `('' + id).trim()` pattern to guarantee primitive strings
+- **Bot Commands Not Responding**: Fixed all commands to properly use the centralized `reply()` function with retry logic
+- **Message Sending Timeouts**: Added 3-retry system with progressive delays (1s, 2s waits between retries)
+- **Ping Command**: Simplified to use `reply()` function instead of direct API calls
+- **Announce Command**: Fixed to use centralized reply function for reliable message delivery
+- **Broadcast Command**: Fixed to use `sendMessage()` function with proper ID normalization
+- **Remind Command**: Fixed timer callback to use normalized threadId
+- **Kick Command**: Added explicit ID normalization for target user and thread
+- **AddMember Command**: Added explicit ID normalization for user IDs being added
+- **SetNickname Command**: Fixed ID normalization for both target user and thread
+- **Profile Command**: Fixed ID normalization for target user lookup
+- **Level Command**: Fixed ID normalization for user stats lookup
+
+### Changed
+- **New `normalizeId()` Function**: Added centralized helper function in main.ts: `('' + id).trim()` for guaranteed primitive strings
+- **Enhanced Event Normalization**: Now normalizes `participantIDs` array in addition to all other IDs
+- **Improved sendMessage Retry Logic**: 
+  - First attempt: 20s timeout
+  - Second/Third attempts: 15s timeout with 1-2s delays
+  - Progressive retry with detailed logging
+- **Removed Typing Indicator**: Removed problematic typing indicator that could cause delays
+- **All Commands**: Updated to use `reply()` and `sendMessage()` instead of direct `api.sendMessage()` calls
+
+### Technical
+- Using `('' + id).trim()` instead of `String(id)` to avoid any edge cases with String wrapper objects
+- All API callbacks now handle cases where callback was already called (prevents double-resolve)
+- Message content is now properly stringified before sending
+- Timeout handling improved to prevent memory leaks
+
 ## [1.3.2] - 2025-12-03
 
 ### Fixed

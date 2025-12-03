@@ -16,9 +16,9 @@ const command: Command = {
     let targetId: string | null = null;
     
     if (event.mentions && Object.keys(event.mentions).length > 0) {
-      targetId = Object.keys(event.mentions)[0];
+      targetId = ('' + Object.keys(event.mentions)[0]).trim();
     } else if (args[0] && /^\d+$/.test(args[0])) {
-      targetId = args[0];
+      targetId = ('' + args[0]).trim();
     }
     
     if (!targetId) {
@@ -32,18 +32,19 @@ const command: Command = {
     }
     
     try {
+      const normalizedTargetId = ('' + targetId).trim();
       const userInfo = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
-        api.getUserInfo(targetId!, (err: Error | null, info: Record<string, { name: string }>) => {
+        api.getUserInfo(normalizedTargetId, (err: Error | null, info: Record<string, { name: string }>) => {
           if (err) reject(err);
           else resolve(info);
         });
       });
       
-      const userName = userInfo[targetId]?.name || 'Unknown';
+      const userName = userInfo[normalizedTargetId]?.name || 'Unknown';
       
-      const threadId = String(event.threadID);
+      const threadId = ('' + event.threadID).trim();
       await new Promise<void>((resolve, reject) => {
-        api.removeUserFromGroup(String(targetId!), threadId, (err: Error | null) => {
+        api.removeUserFromGroup(normalizedTargetId, threadId, (err: Error | null) => {
           if (err) reject(err);
           else resolve();
         });

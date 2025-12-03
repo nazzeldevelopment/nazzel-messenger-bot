@@ -3,7 +3,7 @@ import { BotLogger } from '../../lib/logger.js';
 
 const command: Command = {
   name: 'announce',
-  aliases: ['ann', 'broadcast'],
+  aliases: ['ann'],
   description: 'Send an announcement message to the group',
   category: 'admin',
   usage: 'announce <message>',
@@ -11,7 +11,7 @@ const command: Command = {
   adminOnly: true,
 
   async execute(context: CommandContext): Promise<void> {
-    const { api, event, args, reply } = context;
+    const { event, args, reply } = context;
     
     if (args.length === 0) {
       await reply('❌ Please provide an announcement message.\nUsage: announce <message>');
@@ -31,15 +31,8 @@ const command: Command = {
 ╚═══════════════════════════════╝`;
     
     try {
-      const threadId = String(event.threadID);
-      await new Promise<void>((resolve, reject) => {
-        api.sendMessage(announcement, threadId, (err: Error | null) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
-      
-      BotLogger.info(`Announcement sent to ${threadId}`, { message });
+      await reply(announcement);
+      BotLogger.info(`Announcement sent to ${event.threadID}`, { message });
     } catch (error) {
       BotLogger.error('Failed to send announcement', error);
       await reply('❌ Failed to send announcement.');

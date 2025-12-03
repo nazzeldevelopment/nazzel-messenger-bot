@@ -9,16 +9,10 @@ const command: Command = {
   examples: ['ping'],
 
   async execute(context: CommandContext): Promise<void> {
-    const { api, event, reply } = context;
+    const { reply } = context;
     const start = Date.now();
-    const threadId = String(event.threadID);
     
-    await new Promise<void>((resolve, reject) => {
-      api.sendMessage('🏓 Pinging...', threadId, (err: Error | null) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    await reply('🏓 Pinging...');
     
     const latency = Date.now() - start;
     

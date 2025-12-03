@@ -40,11 +40,12 @@ const command: Command = {
     
     await reply(`🔄 Adding ${userIds.length} member(s)...`);
     
-    const threadId = String(event.threadID);
+    const threadId = ('' + event.threadID).trim();
     for (const userId of userIds) {
       try {
+        const normalizedUserId = ('' + userId).trim();
         await new Promise<void>((resolve, reject) => {
-          api.addUserToGroup(String(userId), threadId, (err: Error | null) => {
+          api.addUserToGroup(normalizedUserId, threadId, (err: Error | null) => {
             if (err) reject(err);
             else resolve();
           });
