@@ -83,7 +83,7 @@ This license shall be governed by and construed in accordance with applicable la
 For licensing inquiries, permissions, or questions:
 
 - GitHub: [Your GitHub Profile]
-- Email: [Your Contact Email]
+- Email: [nazzelv.quinto@gmail.com]
 
 ---
 
@@ -91,5 +91,5 @@ For licensing inquiries, permissions, or questions:
 
 ---
 
-Last Updated: December 2, 2024
+Last Updated: December 2, 2025
 Version: 1.0.0
