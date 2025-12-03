@@ -1,0 +1,100 @@
+[08:21:16] [DEBUG] Loaded command: level (level)
+[08:21:16] [DEBUG] Loaded command: rank (level)
+[08:21:16] [DEBUG] Loaded command: xp (level)
+[08:21:16] [DEBUG] Loaded command: avatar (utility)
+[08:21:16] [DEBUG] Loaded command: calc (utility)
+[08:21:16] [DEBUG] Loaded command: clear (utility)
+[08:21:16] [DEBUG] Loaded command: id (utility)
+[08:21:16] [DEBUG] Loaded command: memberlist (utility)
+[08:21:16] [DEBUG] Loaded command: poll (utility)
+[08:21:16] [DEBUG] Loaded command: prefix (utility)
+[08:21:16] [DEBUG] Loaded command: remind (utility)
+[08:21:16] [DEBUG] Loaded command: shorten (utility)
+[08:21:16] [DEBUG] Loaded command: thread (utility)
+[08:21:16] [DEBUG] Loaded command: time (utility)
+[08:21:16] [DEBUG] Loaded command: translate (utility)
+08:21:16 2025/03/12    SUCCESS: Loaded 57 commands
+══════════════════════ LOAD COMMANDS ═══════════════════════
+08:21:16 2025/03/12    COMMANDS:            Successfully loaded 57 commands!
+═════════════════════════ DATABASE ═════════════════════════
+08:21:16 2025/03/12    POSTGRESQL:          Successfully connected!
+08:21:16 2025/03/12    REDIS:               Successfully connected!
+══════════════════════ EXPRESS SERVER ══════════════════════
+08:21:16 2025/03/12    STATUS:              Server running
+08:21:16 2025/03/12    PORT:                5000
+08:21:16 2025/03/12    DASHBOARD:           http://0.0.0.0:5000
+[08:21:17] [ERROR] Failed to get setting {"key":"appstate","error":{"name":"NeonDbError","severity":"ERROR","code":"42P01","position":"42","file":"parse_relation.c","line":"1449","routine":"parserOpenTable"}}
+08:21:17 2025/03/12    APPSTATE: Appstate loaded from file - From file
+[08:21:17] [ERROR] Failed to set setting {"key":"appstate","error":{"name":"NeonDbError","severity":"ERROR","code":"42P01","position":"13","file":"parse_relation.c","line":"1449","routine":"parserOpenTable"}}
+08:21:17 2025/03/12    INFO: Appstate synced to database for persistence
+[08:21:17] [INFO] Appstate synced to database for persistence
+08:21:17 2025/03/12    LOGIN FACEBOOK:      Attempting login...
+ws3-fca [LOG] Logging in...
+Instance is healthy. All health checks are passing.
+══════════════════════ LOGIN FACEBOOK ══════════════════════
+08:21:23 2025/03/12    LOGIN FACEBOOK:      Successful login
+08:21:23 2025/03/12    ACCOUNT NAME:        Unknown
+08:21:23 2025/03/12    ACCOUNT ID:          61559381730491
+═════════════════════════ BOT INFO ═════════════════════════
+08:21:23 2025/03/12    NODE VERSION:        v24.0.2
+08:21:23 2025/03/12    PROJECT VERSION:     1.1.3
+08:21:23 2025/03/12    BOT ID:              61559381730491
+08:21:23 2025/03/12    PREFIX:              N!
+08:21:23 2025/03/12    BOT NAME:            Nazzel Bot
+[08:21:23] [ERROR] Failed to set setting {"key":"appstate","error":{"name":"NeonDbError","severity":"ERROR","code":"42P01","position":"13","file":"parse_relation.c","line":"1449","routine":"parserOpenTable"}}
+08:21:23 2025/03/12    APPSTATE: Appstate saved successfully - To file and database
+═══════════════════════ BOT STARTED ════════════════════════
+08:21:23 2025/03/12    LOAD TIME:           6.81s
+08:21:23 2025/03/12    STATUS:              Bot has been started successfully!
+08:21:23 2025/03/12    LISTENING:           Start receiving messages from users
+════════════════════════ COPYRIGHT ═════════════════════════
+COPYRIGHT: Project Nazzel Bot v1.1.3
+Created for educational and personal use.
+
+═══════════════════════ LISTEN MQTT ════════════════════════
+08:21:23 2025/03/12    MQTT STATUS:         ListenMQTT restart enabled
+ws3-fca [LOG] Connecting to MQTT with new IDs... wss://edge-chat.messenger.com/chat?region=prn&sid=8139805154190341&cid=9d4174d8-fe32-46d9-a970-d08e44515f63
+ws3-fca [LOG] Scheduled reconnect in 40 minutes...
+ws3-fca [LOG] Successfully connected to MQTT.
+ws3-fca [LOG] Fetching account info...
+ws3-fca [LOG] Hello, Wisdom Sphere (61559381730491)
+08:23:03 2025/03/12    MESSAGE: Thread: 2566374933... | "N!help"
+08:23:03 2025/03/12    DEBUG: Message details: threadType=group, isSelf=false, body="N!help"
+[08:23:03] [DEBUG] Message details: threadType=group, isSelf=false, body="N!help"
+[08:23:03] [ERROR] Redis set error {"key":"xp:100055456757551","error":{"command":{"name":"setex","args":["nazzel:xp:100055456757551","45","1764750183412"]}}}
+[08:23:03] [ERROR] Failed to get user {"userId":"100055456757551","error":{"name":"NeonDbError","severity":"ERROR","code":"42P01","position":"102","file":"parse_relation.c","line":"1449","routine":"parserOpenTable"}}
+[08:23:03] [ERROR] Failed to create user {"userId":"100055456757551","error":{"name":"NeonDbError","severity":"ERROR","code":"42P01","position":"13","file":"parse_relation.c","line":"1449","routine":"parserOpenTable"}}
+08:23:03 2025/03/12    DEBUG: Command detected: "N!help" from 100055456757551
+[08:23:03] [DEBUG] Command detected: "N!help" from 100055456757551
+08:23:03 2025/03/12    DEBUG: Executing command: help with args: []
+[08:23:03] [DEBUG] Executing command: help with args: []
+Failed to log entry NeonDbError: relation "logs" does not exist
+    at execute (file:///layers/heroku_nodejs-pnpm-install/virtual/store/@neondatabase+serverless@0.10.4/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Database.logEntry (/workspace/src/database/index.ts:133:7)
+    at async handleMessage (/workspace/src/main.ts:207:3)
+    at async handleEvent (/workspace/src/main.ts:170:7)
+    at async <anonymous> (/workspace/src/main.ts:152:9) {
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '13',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable',
+  sourceError: undefined
+}
+[08:23:03] [ERROR] Failed to get setting {"key":"banned_100055456757551","error":{"name":"NeonDbError","severity":"ERROR","code":"42P01","position":"42","file":"parse_relation.c","line":"1449","routine":"parserOpenTable"}}
+[08:23:03] [ERROR] Redis set error {"key":"cooldown:100055456757551:help","error":{"command":{"name":"setex","args":["nazzel:cooldown:100055456757551:help","3","1764750183516"]}}}
+08:23:03 2025/03/12    COMMAND: help | User: 100055456757551 | Thread: 25663749339885440
+08:23:03 2025/03/12    DEBUG: Attempting to send message to 25663749339885440...
+[08:23:03] [DEBUG] Attempting to send message to 25663749339885440...

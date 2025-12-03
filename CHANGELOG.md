@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.1.4] - 2025-12-03
+
+### Fixed
+- **Database Tables Not Found (42P01)**: Fixed "relation does not exist" error on external hosting platforms
+- **Auto Database Migration**: Added `postinstall` script to automatically create database tables on deployment
+- **Graceful Database Handling**: Bot now continues running even if database tables don't exist
+- **Removed composer.json**: Removed unnecessary PHP file that caused errors on Node.js hosting platforms
+
+### Changed
+- Database methods now gracefully handle missing tables
+- Added `initDatabase()` function to check table existence at startup
+- Build script now includes `db:push` for automatic schema migration
+- Cleaner error handling for database operations
+
 ## [1.1.3] - 2025-12-03
 
 ### Fixed

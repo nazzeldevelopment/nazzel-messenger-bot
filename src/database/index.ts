@@ -18,18 +18,45 @@ if (connectionString.includes('/nazzelmessengerbot')) {
 const client = neon(connectionString);
 export const db = drizzle(client, { schema });
 
+let tablesExist = true;
+
+async function checkTablesExist(): Promise<boolean> {
+  try {
+    await db.select().from(schema.settings).limit(1);
+    return true;
+  } catch (error: any) {
+    if (error?.code === '42P01') {
+      logger.warn('Database tables do not exist. Run "npm run db:push" to create them.');
+      return false;
+    }
+    return true;
+  }
+}
+
+export async function initDatabase(): Promise<boolean> {
+  tablesExist = await checkTablesExist();
+  if (!tablesExist) {
+    logger.error('Database tables not found! Please run: npm run db:push');
+    logger.info('The bot will continue but database features will be disabled.');
+  }
+  return tablesExist;
+}
+
 export class Database {
   async getUser(userId: string): Promise<schema.User | null> {
+    if (!tablesExist) return null;
     try {
       const result = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
       return result[0] || null;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === '42P01') { tablesExist = false; return null; }
       logger.error('Failed to get user', { userId, error });
       return null;
     }
   }
 
   async createUser(userId: string, name?: string): Promise<schema.User | null> {
+    if (!tablesExist) return null;
     try {
       const result = await db.insert(schema.users).values({
         id: userId,
@@ -39,7 +66,8 @@ export class Database {
         totalMessages: 0,
       }).returning();
       return result[0] || null;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === '42P01') { tablesExist = false; return null; }
       logger.error('Failed to create user', { userId, error });
       return null;
     }
@@ -54,6 +82,7 @@ export class Database {
   }
 
   async updateUserXP(userId: string, xpGain: number): Promise<{ user: schema.User; leveledUp: boolean } | null> {
+    if (!tablesExist) return null;
     try {
       const user = await this.getOrCreateUser(userId);
       if (!user) return null;
@@ -129,10 +158,11 @@ export class Database {
   }
 
   async logEntry(entry: Omit<schema.NewLog, 'id' | 'timestamp'>): Promise<void> {
+    if (!tablesExist) return;
     try {
       await db.insert(schema.logs).values(entry);
-    } catch (error) {
-      console.error('Failed to log entry', error);
+    } catch (error: any) {
+      if (error?.code === '42P01') { tablesExist = false; return; }
     }
   }
 
@@ -157,6 +187,7 @@ export class Database {
   }
 
   async logCommandExecution(commandName: string, userId: string, threadId: string, success: boolean, executionTime: number): Promise<void> {
+    if (!tablesExist) return;
     try {
       await db.insert(schema.commandStats).values({
         commandName,
@@ -165,7 +196,8 @@ export class Database {
         success,
         executionTime,
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === '42P01') { tablesExist = false; return; }
       logger.error('Failed to log command execution', { commandName, error });
     }
   }
@@ -236,16 +268,19 @@ export class Database {
   }
 
   async getSetting<T>(key: string): Promise<T | null> {
+    if (!tablesExist) return null;
     try {
       const result = await db.select().from(schema.settings).where(eq(schema.settings.key, key)).limit(1);
       return result[0]?.value as T || null;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === '42P01') { tablesExist = false; return null; }
       logger.error('Failed to get setting', { key, error });
       return null;
     }
   }
 
   async setSetting(key: string, value: unknown): Promise<void> {
+    if (!tablesExist) return;
     try {
       await db.insert(schema.settings)
         .values({ key, value, updatedAt: new Date() })
@@ -253,7 +288,8 @@ export class Database {
           target: schema.settings.key,
           set: { value, updatedAt: new Date() },
         });
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === '42P01') { tablesExist = false; return; }
       logger.error('Failed to set setting', { key, error });
     }
   }

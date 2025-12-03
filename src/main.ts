@@ -5,7 +5,7 @@ import { BotLogger, logger } from './lib/logger.js';
 
 const login = (fca as any).login || fca;
 import { commandHandler } from './lib/commandHandler.js';
-import { database } from './database/index.js';
+import { database, initDatabase } from './database/index.js';
 import { redis } from './lib/redis.js';
 import { createServer, startServer } from './services/server.js';
 import config from '../config.json' with { type: 'json' };
@@ -17,7 +17,13 @@ const prefix = config.bot.prefix;
 async function main(): Promise<void> {
   BotLogger.startup(`Starting ${config.bot.name} v${config.bot.version}`);
   
+  const dbInitialized = await initDatabase();
   const redisConnected = await redis.connect();
+  
+  if (!dbInitialized) {
+    BotLogger.warn('Database tables not found. Run: npm run db:push');
+    BotLogger.info('Bot will continue with limited functionality.');
+  }
   
   await commandHandler.loadCommands();
   BotLogger.printLoadedCommands(commandHandler.getAllCommands().size);
