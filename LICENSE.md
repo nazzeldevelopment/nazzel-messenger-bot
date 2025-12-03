@@ -82,7 +82,7 @@ This license shall be governed by and construed in accordance with applicable la
 
 For licensing inquiries, permissions, or questions:
 
-- GitHub: [Your GitHub Profile]
+- GitHub: [https://github.com/nazzeldevelopment]
 - Email: [nazzelv.quinto@gmail.com]
 
 ---
