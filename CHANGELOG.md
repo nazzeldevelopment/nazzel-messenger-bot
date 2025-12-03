@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.3.1] - 2025-12-03
+
+### Fixed
+- **Critical: Bot Not Responding to Commands**: Fixed issue where sendMessage callback never fired causing messages to hang
+- **Node.js Version Mismatch**: Upgraded from Node.js 20.x to Node.js 22.x to match ws3-fca@3.4.2 engine requirement (`>=22.x`)
+- **Redis URL Permission Error**: Fixed Redis "NOPERM" errors by using the correct read-write Redis URL instead of read-only
+- **pnpm Lockfile Sync**: Regenerated pnpm-lock.yaml to fix deployment failures on Heroku/Koyeb
+
+### Changed
+- **Runtime Upgrade**: Node.js 20.19.3 → Node.js 22.17.0
+- **Message Timeout Detection**: Added 30-second timeout to detect when Facebook API doesn't respond
+- **TypeScript Config**: Added explicit Node.js types to tsconfig.json
+
+### Technical
+- ws3-fca requires Node.js 22+ for sendMessage callbacks to work properly
+- Added timeout wrapper around sendMessage to catch silent failures
+- Redis URL format: Use `rediss://default:...` (read-write) not `rediss://default_ro:...` (read-only)
+
 ## [1.3.0] - 2025-12-03
 
 ### Added
