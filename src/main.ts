@@ -413,16 +413,41 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
     }
   }
   
-  if (logMessageType === 'log:unsubscribe' && config.features.autoLeave.logEnabled) {
+  if (logMessageType === 'log:unsubscribe') {
     const leftUser = normalizeId(logMessageData?.leftParticipantFbId || '');
     
-    await database.logEntry({
-      type: 'event',
-      level: 'info',
-      message: `User ${leftUser} left the group`,
-      threadId: threadIdStr,
-      userId: leftUser,
-    });
+    if (config.features.autoLeave.logEnabled) {
+      await database.logEntry({
+        type: 'event',
+        level: 'info',
+        message: `User ${leftUser} left the group`,
+        threadId: threadIdStr,
+        userId: leftUser,
+      });
+    }
+    
+    const antiLeaveEnabled = await database.getSetting<boolean>(`antileave_${threadIdStr}`);
+    if (antiLeaveEnabled && leftUser) {
+      BotLogger.info(`Anti-leave triggered: Adding ${leftUser} back to ${threadIdStr}`);
+      try {
+        await api.addUserToGroup(leftUser, threadIdStr);
+        
+        const userInfo = await api.getUserInfo(leftUser);
+        const userName = userInfo[leftUser]?.name || 'Member';
+        
+        await api.sendMessage(`🛡️ Anti-Leave: ${userName} has been added back to the group.`, threadIdStr);
+        
+        await database.logEntry({
+          type: 'event',
+          level: 'info',
+          message: `Anti-leave: Added ${userName} back to group`,
+          threadId: threadIdStr,
+          userId: leftUser,
+        });
+      } catch (error) {
+        BotLogger.error(`Failed to add ${leftUser} back to group`, error);
+      }
+    }
   }
 }
 

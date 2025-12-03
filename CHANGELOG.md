@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.3.5] - 2025-12-04
+
+### Added
+- **Anti-Leave Protection**: New `antileave` command (on/off/status) to automatically add back members who leave the group
+- **30 New Commands**: Expanded command library from 57 to 87 total commands!
+
+#### New Fun Commands (20 new):
+- `meme` - Random programming memes/jokes
+- `mood` - Check your current mood/vibe
+- `love` - Calculate love percentage between two people
+- `hack` - Fake hack someone (just for fun)
+- `emojify` - Convert text to emojis
+- `slap` - Slap someone playfully
+- `hug` - Give someone a warm hug
+- `kiss` - Give someone a kiss
+- `punch` - Punch someone playfully
+- `poke` - Poke/boop someone
+- `kill` - Fake eliminate someone (fun)
+- `waifu` - Get a random waifu
+- `husbando` - Get a random husbando
+- `simp` - Check simp meter
+- `iq` - Check IQ (for fun)
+- `age` - Guess mental age
+- `uwu` - UwU-ify text
+- `binary` - Convert text to binary
+- `reverse` - Reverse text
+- `mock` - SpongeBob mocking text
+
+#### New Utility Commands (9 new):
+- `weather` - Get simulated weather
+- `qr` - Generate QR code links
+- `define` - Get internet slang definitions
+- `flip` - Flip text upside down
+- `countdown` - Start countdown timer
+- `password` - Generate random password
+- `color` - Get color info/random color
+- `ascii` - ASCII art/kaomoji
+- `base64` - Encode/decode base64
+
+### Changed
+- **Anti-Leave Event Handler**: Bot now listens for group leave events and re-adds users when anti-leave is enabled
+- **Command Count**: Total commands increased from 57 to 87
+- **Help Categories Updated**: 
+  - Fun: 16 → 36 commands
+  - Utility: 12 → 21 commands
+  - Admin: 14 → 15 commands (antileave added)
+
+### Technical
+- Added `handleGroupEvent()` integration with database settings for per-thread anti-leave toggle
+- Anti-leave uses `api.addUserToGroup()` to automatically re-add leaving members
+- Settings stored in MongoDB with key format `antileave_{threadId}`
+
+---
+
 ## [1.3.4] - 2025-12-04
 
 ### Fixed

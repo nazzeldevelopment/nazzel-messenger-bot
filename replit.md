@@ -4,24 +4,25 @@
 
 An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
-- **ws3-fca 3.4.2** - Modern Facebook Chat API replacement
+- **ws3-fca 3.5.2** - Modern Facebook Chat API replacement
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
-- **Modular Commands** - 57 commands organized by categories with paginated help
+- **Modular Commands** - 87 commands organized by categories with paginated help
 - **XP & Leveling** - Automatic XP system with level-up notifications
 - **Music Player** - YouTube audio download and playback
+- **Anti-Leave Protection** - Automatic re-adding of members who leave groups
 - **Comprehensive Logging** - Winston-based categorized logging
 
 ## Architecture
 
 ```
 src/
-├── commands/           # Command modules by category (57 total)
-│   ├── admin/          # Admin commands (14 commands)
-│   ├── fun/            # Fun commands (16 commands)
+├── commands/           # Command modules by category (87 total)
+│   ├── admin/          # Admin commands (15 commands)
+│   ├── fun/            # Fun commands (36 commands)
 │   ├── general/        # General commands (10 commands)
 │   ├── level/          # Level commands (5 commands)
-│   └── utility/        # Utility commands (12 commands)
+│   └── utility/        # Utility commands (21 commands)
 ├── database/           # MongoDB native driver and schema
 ├── lib/                # Core libraries (logger, redis, antiSpam, commandHandler)
 ├── services/           # Express server for status/logs API
@@ -30,6 +31,12 @@ src/
 ```
 
 ## Recent Changes
+
+- **2025-12-04**: v1.3.5
+  - Added Anti-Leave Protection (N!antileave on/off/status)
+  - Added 30 new commands (total now 87 commands)
+  - New Fun: meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock
+  - New Utility: weather, qr, define, flip, countdown, password, color, ascii, base64
 
 - **2025-12-04**: v1.3.4
   - Fixed private message commands showing "undefined" values
@@ -104,15 +111,15 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 - **Auto-Block**: Users exceeding limits are blocked for 30 seconds
 - **Per-Command Cooldowns**: Individual cooldowns ranging from 3s to 30s
 
-## Commands Quick Reference (57 Total)
+## Commands Quick Reference (87 Total)
 
 | Category | Commands |
 |----------|----------|
 | General (10) | help, ping, info, uptime, profile, say, about, changelog, rules, invite |
-| Admin (14) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast |
+| Admin (15) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave |
 | Level (5) | level, xp, leaderboard, givexp, rank |
-| Utility (12) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist |
-| Fun (16) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate |
+| Utility (21) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64 |
+| Fun (36) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock |
 
 ## API Endpoints
 
