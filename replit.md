@@ -31,6 +31,12 @@ src/
 
 ## Recent Changes
 
+- **2025-12-04**: v1.3.4
+  - Fixed private message commands showing "undefined" values
+  - Changed `rank` command to use `getOrCreateUser()` for proper user data creation
+  - Bot now works in any Messenger group chat without restrictions
+  - Added progress bar visualization to rank command output
+
 - **2025-12-03**: v1.3.3
   - Final fix for MessageID type error using `('' + id).trim()` pattern
   - Added 3-retry message sending system with progressive delays
