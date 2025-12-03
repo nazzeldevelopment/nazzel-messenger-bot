@@ -1,6 +1,6 @@
 {
   "name": "nazzel-messenger-userbot",
-  "version": "1.3.4",
+  "version": "1.3.6",
   "description": "Advanced Facebook Messenger User-Bot with TypeScript, MongoDB, and comprehensive logging",
   "main": "dist/main.js",
   "type": "module",

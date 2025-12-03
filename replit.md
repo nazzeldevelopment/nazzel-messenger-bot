@@ -4,7 +4,7 @@
 
 An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
-- **ws3-fca 3.5.2** - Modern Facebook Chat API replacement
+- **@dongdev/fca-unofficial 3.0.8** - Latest Facebook Chat API with improved MQTT support for all group chats
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
 - **Modular Commands** - 87 commands organized by categories with paginated help
@@ -31,6 +31,11 @@ src/
 ```
 
 ## Recent Changes
+
+- **2025-12-04**: v1.3.6
+  - Migrated from ws3-fca to @dongdev/fca-unofficial v3.0.8
+  - Improved MQTT support for receiving messages in all group chats
+  - Fixed group chat message receiving issues
 
 - **2025-12-04**: v1.3.5
   - Added Anti-Leave Protection (N!antileave on/off/status)
@@ -81,7 +86,7 @@ src/
 - Prefix: `N!` (configurable in config.json)
 - Language: TypeScript with strict mode
 - Package Manager: npm
-- Node.js: v20.x
+- Node.js: v22.x
 
 ## Configuration
 
