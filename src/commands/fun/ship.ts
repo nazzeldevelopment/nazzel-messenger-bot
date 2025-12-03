@@ -11,16 +11,16 @@ export const command: Command = {
 
   async execute({ api, event, args, reply }) {
     const mentions = Object.keys(event.mentions || {});
-    let user1Id = event.senderID;
+    let user1Id = String(event.senderID);
     let user2Id = '';
 
     if (mentions.length >= 2) {
-      user1Id = mentions[0];
-      user2Id = mentions[1];
+      user1Id = String(mentions[0]);
+      user2Id = String(mentions[1]);
     } else if (mentions.length === 1) {
-      user2Id = mentions[0];
+      user2Id = String(mentions[0]);
     } else if (event.messageReply) {
-      user2Id = event.messageReply.senderID;
+      user2Id = String(event.messageReply.senderID);
     } else {
       await reply('❌ Please mention two users or reply to someone\'s message.\n\nUsage: ship @user1 @user2');
       return;

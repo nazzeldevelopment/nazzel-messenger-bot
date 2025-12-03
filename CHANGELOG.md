@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.3.2] - 2025-12-03
+
+### Fixed
+- **Critical: MessageID Type Error**: Fixed "MessageID should be of type string and not String" error by converting all IDs to primitive strings
+- **Bot Not Responding to Commands**: Fixed issue where the bot receives messages but doesn't reply
+- **String Object vs Primitive String**: All threadID, senderID, and messageID values are now properly converted using `String()` before passing to ws3-fca API
+- **Admin Commands**: Fixed String type issues in announce, kick, addmember, setemoji, setname, setnickname, ban, adminlist, broadcast, unban commands
+- **Utility Commands**: Fixed memberlist, thread, avatar, remind commands with proper ID conversion
+- **Fun Commands**: Fixed ship, gayrate commands with proper user ID handling
+- **Level Commands**: Fixed level, xp, rank, leaderboard, givexp commands with proper sender ID conversion
+- **General Commands**: Fixed profile, ping commands with proper ID handling
+- **Group Events**: Fixed type conversion in welcome messages and leave notifications
+
+### Changed
+- **Centralized ID Normalization**: Added ID normalization in event dispatcher (handleEvent) to convert all IDs to primitive strings before any handlers run
+- **ID Handling**: All event IDs (threadID, senderID, userID, messageID, messageReply.senderID, messageReply.messageID) are now explicitly converted to primitive strings
+- **Message Sending**: Improved sendMessage function with proper type handling
+- **Comprehensive Coverage**: Applied String() conversion to all 25+ command files that interact with ws3-fca API
+
+### Technical
+- ws3-fca internally checks `typeof messageID === 'string'` which fails for String objects
+- JavaScript's `String()` function converts String objects to primitive strings
+- This is a common issue when Facebook's API returns String objects instead of primitive strings
+- All API calls (getThreadInfo, getUserInfo, sendMessage, changeNickname, etc.) now receive primitive strings
+- Centralized event normalization ensures consistent ID handling across all event types (message, reaction, typing, group events)
+
 ## [1.3.1] - 2025-12-03
 
 ### Fixed

@@ -34,8 +34,9 @@ export const command: Command = {
 
       for (const thread of groupThreads) {
         try {
+          const threadId = String(thread.threadID);
           await new Promise<void>((resolve, reject) => {
-            api.sendMessage(broadcastMessage, thread.threadID, (err: Error | null) => {
+            api.sendMessage(broadcastMessage, threadId, (err: Error | null) => {
               if (err) reject(err);
               else resolve();
             });

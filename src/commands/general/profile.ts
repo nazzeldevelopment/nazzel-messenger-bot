@@ -12,12 +12,12 @@ const command: Command = {
   async execute(context: CommandContext): Promise<void> {
     const { api, event, args, reply } = context;
     
-    let targetId = event.senderID;
+    let targetId = String(event.senderID);
     
     if (event.mentions && Object.keys(event.mentions).length > 0) {
-      targetId = Object.keys(event.mentions)[0];
+      targetId = String(Object.keys(event.mentions)[0]);
     } else if (args[0] && /^\d+$/.test(args[0])) {
-      targetId = args[0];
+      targetId = String(args[0]);
     }
     
     try {

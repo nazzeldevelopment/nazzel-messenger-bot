@@ -16,8 +16,9 @@ export const command: Command = {
     }
 
     try {
+      const threadId = String(event.threadID);
       const threadInfo = await new Promise<any>((resolve, reject) => {
-        api.getThreadInfo(event.threadID, (err: Error | null, info: any) => {
+        api.getThreadInfo(threadId, (err: Error | null, info: any) => {
           if (err) reject(err);
           else resolve(info);
         });
@@ -30,7 +31,7 @@ export const command: Command = {
         return;
       }
 
-      const adminIds = adminIDs.map((admin: any) => admin.id || admin);
+      const adminIds = adminIDs.map((admin: any) => String(admin.id || admin));
       
       const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
         api.getUserInfo(adminIds, (err: Error | null, info: any) => {

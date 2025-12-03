@@ -17,7 +17,7 @@ export const command: Command = {
       return;
     }
 
-    const targetId = args[0].replace(/[^0-9]/g, '');
+    const targetId = String(args[0].replace(/[^0-9]/g, ''));
 
     if (!targetId) {
       await reply('❌ Invalid user ID.');

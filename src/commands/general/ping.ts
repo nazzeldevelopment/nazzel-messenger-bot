@@ -11,9 +11,10 @@ const command: Command = {
   async execute(context: CommandContext): Promise<void> {
     const { api, event, reply } = context;
     const start = Date.now();
+    const threadId = String(event.threadID);
     
     await new Promise<void>((resolve, reject) => {
-      api.sendMessage('🏓 Pinging...', event.threadID, (err: Error | null) => {
+      api.sendMessage('🏓 Pinging...', threadId, (err: Error | null) => {
         if (err) reject(err);
         else resolve();
       });

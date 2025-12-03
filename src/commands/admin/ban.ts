@@ -17,12 +17,12 @@ export const command: Command = {
       return;
     }
 
-    let targetId = args[0].replace(/[^0-9]/g, '');
+    let targetId = String(args[0].replace(/[^0-9]/g, ''));
     
     if (event.messageReply) {
-      targetId = event.messageReply.senderID;
+      targetId = String(event.messageReply.senderID);
     } else if (event.mentions && Object.keys(event.mentions).length > 0) {
-      targetId = Object.keys(event.mentions)[0];
+      targetId = String(Object.keys(event.mentions)[0]);
     }
 
     if (!targetId) {
@@ -31,6 +31,7 @@ export const command: Command = {
     }
 
     const reason = args.slice(1).join(' ') || 'No reason provided';
+    const senderId = String(event.senderID);
 
     try {
       const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
@@ -43,7 +44,7 @@ export const command: Command = {
       const userName = userInfo[targetId]?.name || 'Unknown User';
 
       await database.setSetting(`banned_${targetId}`, JSON.stringify({
-        bannedBy: event.senderID,
+        bannedBy: senderId,
         reason,
         timestamp: new Date().toISOString(),
       }));

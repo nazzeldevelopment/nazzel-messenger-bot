@@ -17,12 +17,12 @@ export const command: Command = {
       return;
     }
 
-    let targetId = args[0].replace(/[^0-9]/g, '');
+    let targetId = String(args[0].replace(/[^0-9]/g, ''));
     
     if (event.messageReply) {
-      targetId = event.messageReply.senderID;
+      targetId = String(event.messageReply.senderID);
     } else if (event.mentions && Object.keys(event.mentions).length > 0) {
-      targetId = Object.keys(event.mentions)[0];
+      targetId = String(Object.keys(event.mentions)[0]);
     }
 
     const amount = parseInt(args[args.length - 1]);

@@ -13,7 +13,8 @@ const command: Command = {
     const { event, reply } = context;
     
     try {
-      const userData = await database.getOrCreateUser(event.senderID);
+      const senderId = String(event.senderID);
+      const userData = await database.getOrCreateUser(senderId);
       
       if (!userData) {
         await reply('❌ Could not fetch XP data.');

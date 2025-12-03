@@ -16,8 +16,9 @@ export const command: Command = {
     }
 
     try {
+      const threadId = String(event.threadID);
       const threadInfo = await new Promise<any>((resolve, reject) => {
-        api.getThreadInfo(event.threadID, (err: Error | null, info: any) => {
+        api.getThreadInfo(threadId, (err: Error | null, info: any) => {
           if (err) reject(err);
           else resolve(info);
         });

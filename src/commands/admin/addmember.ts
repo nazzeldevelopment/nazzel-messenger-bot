@@ -40,16 +40,17 @@ const command: Command = {
     
     await reply(`🔄 Adding ${userIds.length} member(s)...`);
     
+    const threadId = String(event.threadID);
     for (const userId of userIds) {
       try {
         await new Promise<void>((resolve, reject) => {
-          api.addUserToGroup(userId, event.threadID, (err: Error | null) => {
+          api.addUserToGroup(String(userId), threadId, (err: Error | null) => {
             if (err) reject(err);
             else resolve();
           });
         });
         results.success.push(userId);
-        BotLogger.info(`Added user ${userId} to group ${event.threadID}`);
+        BotLogger.info(`Added user ${userId} to group ${threadId}`);
       } catch (error) {
         results.failed.push(userId);
         BotLogger.error(`Failed to add user ${userId}`, error);

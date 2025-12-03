@@ -12,6 +12,7 @@ const command: Command = {
     const { api, event, reply } = context;
     
     try {
+      const threadId = String(event.threadID);
       const threadInfo = await new Promise<{
         threadID: string;
         threadName: string;
@@ -21,7 +22,7 @@ const command: Command = {
         emoji: string;
         color: string;
       }>((resolve, reject) => {
-        api.getThreadInfo(event.threadID, (err: Error | null, info: any) => {
+        api.getThreadInfo(threadId, (err: Error | null, info: any) => {
           if (err) reject(err);
           else resolve(info);
         });

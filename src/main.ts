@@ -171,6 +171,13 @@ async function main(): Promise<void> {
 }
 
 async function handleEvent(api: any, event: any): Promise<void> {
+  if (event.threadID) event.threadID = String(event.threadID);
+  if (event.senderID) event.senderID = String(event.senderID);
+  if (event.userID) event.userID = String(event.userID);
+  if (event.messageID) event.messageID = String(event.messageID);
+  if (event.messageReply?.senderID) event.messageReply.senderID = String(event.messageReply.senderID);
+  if (event.messageReply?.messageID) event.messageReply.messageID = String(event.messageReply.messageID);
+  
   switch (event.type) {
     case 'message':
     case 'message_reply':
@@ -200,9 +207,9 @@ async function handleEvent(api: any, event: any): Promise<void> {
 
 async function handleMessage(api: any, event: any): Promise<void> {
   const body = event.body || '';
-  const threadId = event.threadID;
-  const senderId = event.senderID;
-  const currentUserId = api.getCurrentUserID();
+  const threadId = String(event.threadID);
+  const senderId = String(event.senderID);
+  const currentUserId = String(api.getCurrentUserID());
   
   if (!body.trim()) return;
   
@@ -234,7 +241,7 @@ async function handleMessage(api: any, event: any): Promise<void> {
       const commands = commandHandler.getAllCommands();
       
       const sendMessage = async (message: string | MessageOptions, tid?: string): Promise<void> => {
-        const targetThread = tid || threadId;
+        const targetThread = String(tid || threadId);
         const messageContent = typeof message === 'string' ? message : message;
         
         BotLogger.debug(`Sending message to ${targetThread}...`);
@@ -377,7 +384,10 @@ async function handleMessage(api: any, event: any): Promise<void> {
 }
 
 async function handleXP(api: any, senderId: string, threadId: string): Promise<void> {
-  const xpCheck = await antiSpam.checkXpCooldown(senderId, config.features.xp.cooldown);
+  const senderIdStr = String(senderId);
+  const threadIdStr = String(threadId);
+  
+  const xpCheck = await antiSpam.checkXpCooldown(senderIdStr, config.features.xp.cooldown);
   
   if (xpCheck.onCooldown) return;
   
@@ -385,30 +395,30 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
     Math.random() * (config.features.xp.maxGain - config.features.xp.minGain + 1)
   ) + config.features.xp.minGain;
   
-  const result = await database.updateUserXP(senderId, xpGain);
+  const result = await database.updateUserXP(senderIdStr, xpGain);
   
   if (result?.leveledUp) {
-    BotLogger.xp(senderId, xpGain, result.user.level);
+    BotLogger.xp(senderIdStr, xpGain, result.user.level);
     
     try {
       const userInfo = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
-        api.getUserInfo(senderId, (err: Error | null, info: any) => {
+        api.getUserInfo(senderIdStr, (err: Error | null, info: any) => {
           if (err) reject(err);
           else resolve(info);
         });
       });
       
-      const userName = userInfo[senderId]?.name || 'User';
+      const userName = userInfo[senderIdStr]?.name || 'User';
       
       const levelUpMessage = `🎉 Congratulations ${userName}!\n\n⭐ You've reached **Level ${result.user.level}**!\n\nKeep chatting to earn more XP!`;
       
-      api.sendMessage(levelUpMessage, threadId, (err: Error | null, messageInfo: any) => {
+      api.sendMessage(levelUpMessage, threadIdStr, (err: Error | null, messageInfo: any) => {
         if (err) {
           BotLogger.error('Failed to send level up message', err);
         } else {
-          const msgId = messageInfo?.messageID || 'unknown';
-          BotLogger.info(`Level up message sent to ${threadId} [ID: ${msgId}]`);
-          BotLogger.messageSent(threadId, `Level up notification for ${userName}`);
+          const msgId = String(messageInfo?.messageID || 'unknown');
+          BotLogger.info(`Level up message sent to ${threadIdStr} [ID: ${msgId}]`);
+          BotLogger.messageSent(threadIdStr, `Level up notification for ${userName}`);
         }
       });
     } catch (error) {
@@ -419,13 +429,14 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
 
 async function handleGroupEvent(api: any, event: any): Promise<void> {
   const { logMessageType, logMessageData, threadID } = event;
+  const threadIdStr = String(threadID);
   
-  BotLogger.event(logMessageType, { threadId: threadID, data: logMessageData });
+  BotLogger.event(logMessageType, { threadId: threadIdStr, data: logMessageData });
   
   if (logMessageType === 'log:subscribe' && logMessageData?.addedParticipants) {
     if (config.features.welcome.enabled) {
       for (const participant of logMessageData.addedParticipants) {
-        const userId = participant.userFbId || participant.id?.split(':').pop();
+        const userId = String(participant.userFbId || participant.id?.split(':').pop() || '');
         const userName = participant.fullName || 'Member';
         
         const welcomeMessage = config.features.welcome.message
@@ -433,13 +444,13 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
           .replace('{prefix}', prefix);
         
         try {
-          api.sendMessage(welcomeMessage, threadID, (err: Error | null, messageInfo: any) => {
+          api.sendMessage(welcomeMessage, threadIdStr, (err: Error | null, messageInfo: any) => {
             if (err) {
               BotLogger.error('Failed to send welcome message', err);
             } else {
-              const msgId = messageInfo?.messageID || 'unknown';
-              BotLogger.info(`Welcome message sent to ${threadID} [ID: ${msgId}]`);
-              BotLogger.messageSent(threadID, `Welcome message for ${userName}`);
+              const msgId = String(messageInfo?.messageID || 'unknown');
+              BotLogger.info(`Welcome message sent to ${threadIdStr} [ID: ${msgId}]`);
+              BotLogger.messageSent(threadIdStr, `Welcome message for ${userName}`);
             }
           });
           
@@ -447,7 +458,7 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
             type: 'event',
             level: 'info',
             message: `Welcome sent to ${userName}`,
-            threadId: threadID,
+            threadId: threadIdStr,
             userId,
           });
         } catch (error) {
@@ -458,13 +469,13 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
   }
   
   if (logMessageType === 'log:unsubscribe' && config.features.autoLeave.logEnabled) {
-    const leftUser = logMessageData?.leftParticipantFbId;
+    const leftUser = String(logMessageData?.leftParticipantFbId || '');
     
     await database.logEntry({
       type: 'event',
       level: 'info',
       message: `User ${leftUser} left the group`,
-      threadId: threadID,
+      threadId: threadIdStr,
       userId: leftUser,
     });
   }

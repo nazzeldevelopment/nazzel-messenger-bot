@@ -31,14 +31,15 @@ const command: Command = {
 ╚═══════════════════════════════╝`;
     
     try {
+      const threadId = String(event.threadID);
       await new Promise<void>((resolve, reject) => {
-        api.sendMessage(announcement, event.threadID, (err: Error | null) => {
+        api.sendMessage(announcement, threadId, (err: Error | null) => {
           if (err) reject(err);
           else resolve();
         });
       });
       
-      BotLogger.info(`Announcement sent to ${event.threadID}`, { message });
+      BotLogger.info(`Announcement sent to ${threadId}`, { message });
     } catch (error) {
       BotLogger.error('Failed to send announcement', error);
       await reply('❌ Failed to send announcement.');

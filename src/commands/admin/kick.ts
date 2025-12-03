@@ -41,14 +41,15 @@ const command: Command = {
       
       const userName = userInfo[targetId]?.name || 'Unknown';
       
+      const threadId = String(event.threadID);
       await new Promise<void>((resolve, reject) => {
-        api.removeUserFromGroup(targetId!, event.threadID, (err: Error | null) => {
+        api.removeUserFromGroup(String(targetId!), threadId, (err: Error | null) => {
           if (err) reject(err);
           else resolve();
         });
       });
       
-      BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${event.threadID}`);
+      BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
       
       await reply(`✅ Successfully removed ${userName} from the group.`);
     } catch (error) {
