@@ -4,7 +4,7 @@
     "version": "1.3.4",
     "prefix": "N!",
     "description": "Advanced Facebook Messenger User-Bot",
-    "selfListen": false,
+    "selfListen": true,
     "listenEvents": true,
     "autoMarkRead": true,
     "autoMarkDelivery": true

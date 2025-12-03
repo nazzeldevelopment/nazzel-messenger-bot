@@ -133,21 +133,27 @@ async function main(): Promise<void> {
       listenEvents: config.bot.listenEvents,
       autoMarkRead: config.bot.autoMarkRead,
       autoMarkDelivery: config.bot.autoMarkDelivery,
+      forceLogin: true,
+      logLevel: 'verbose',
     });
     
     BotLogger.printBotStarted();
     
-    api.listenMqtt(async (err: any, event: any) => {
+    const stopListening = api.listenMqtt(async (err: any, event: any) => {
       if (err) {
         BotLogger.error('Listen error', err);
-        await database.logEntry({
-          type: 'error',
-          level: 'error',
-          message: `Listen error: ${err.message || err}`,
-          metadata: { error: String(err) },
-        });
+        if (err && (err.type === 'stop_listening' || err.error === 'Connection closed')) {
+          BotLogger.warn('MQTT connection lost, attempting to reconnect...');
+        }
         return;
       }
+      
+      if (!event) {
+        BotLogger.debug('[EVENT] Received null/undefined event, skipping');
+        return;
+      }
+      
+      BotLogger.info(`[EVENT RECEIVED] Type: ${event.type || 'unknown'}, ThreadID: ${event.threadID || 'none'}, SenderID: ${event.senderID || 'none'}`);
       
       try {
         await handleEvent(api, event);
@@ -161,6 +167,10 @@ async function main(): Promise<void> {
         });
       }
     });
+    
+    if (stopListening) {
+      BotLogger.info('MQTT listener started successfully');
+    }
   });
 }
 
