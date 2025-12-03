@@ -1,0 +1,108 @@
+[
+  {
+    "key": "datr",
+    "value": "ksgvaV4dG2ha_tJymbse6iTa",
+    "domain": ".facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "creation": "2025-01-01T00:00:00.000Z",
+    "lastAccessed": "2025-01-01T00:00:00.000Z",
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "key": "fr",
+    "value": "0c68H3xY8ii2d9UUU.AWf9rpMhtTd0NIZtSYXazIFTcD3ayMSI-SVTaEFAHFcSxOWmmd4.BpL8iS..AAA.0.0.BpL8kY.AWebek3HPK8wNXbI4wsJO5Z56b0",
+    "domain": ".facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "creation": "2025-01-01T00:00:00.000Z",
+    "lastAccessed": "2025-01-01T00:00:00.000Z",
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "key": "vpd",
+    "value": "v1%3B616x360x2",
+    "domain": ".facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "key": "xs",
+    "value": "43%3Aqu1umhKK2BlqPg%3A2%3A1764739324%3A-1%3A-1",
+    "domain": ".facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "key": "fbl_st",
+    "value": "101717735%3BT%3A29412322",
+    "domain": ".facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "key": "locale",
+    "value": "en_US",
+    "domain": ".facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "key": "m_pixel_ratio",
+    "value": "2",
+    "domain": ".facebook.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "key": "c_user",
+    "value": "61559381730491",
+    "domain": ".facebook.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "key": "pas",
+    "value": "61559381730491%3AXJMSwo5Lsl",
+    "domain": ".facebook.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "key": "sb",
+    "value": "ksgvaW_QL7GFgwPRXM_xGq6f",
+    "domain": ".facebook.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "key": "wd",
+    "value": "360x800",
+    "domain": ".facebook.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "key": "wl_cbv",
+    "value": "v2%3Bclient_version%3A3005%3Btimestamp%3A1764739353",
+    "domain": ".facebook.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": false
+  }
+]
