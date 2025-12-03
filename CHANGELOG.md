@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.2.0] - 2025-12-03
+
+### Changed
+- **Database Migration**: Migrated from PostgreSQL/Neon to MongoDB for better stability and rate limit management
+- **Cooldown System**: Moved cooldown tracking from Redis to MongoDB with TTL indexes for automatic cleanup
+- **Message Sending**: Enhanced message send confirmation with detailed logging including message ID and elapsed time
+- **User Agent Removed**: Removed hardcoded user agent from login options for better Facebook compatibility
+- **Environment Variable**: Changed from `DATABASE_URL` to `MONGODB_URI` for database connection
+
+### Added
+- **MongoDB Cooldown Tracking**: New cooldown collection with automatic expiration via TTL indexes
+- **Message Logging**: Comprehensive logging for sent messages with success/failure status
+- **Auto-indexing**: Automatic creation of database indexes on startup for optimal performance
+
+### Removed
+- **PostgreSQL/Drizzle**: Removed @neondatabase/serverless, drizzle-orm, drizzle-kit dependencies
+- **Redis**: Removed ioredis dependency (cooldowns now handled by MongoDB)
+- **Drizzle Scripts**: Removed db:push, db:generate, db:studio npm scripts
+- **Custom User Agent**: Removed hardcoded Chrome Mobile user agent
+
+### Technical
+- MongoDB with native driver for database operations
+- Cooldown TTL: Automatic document expiration for rate limiting
+- Message tracking: Full audit trail for sent messages
+
 ## [1.1.4] - 2025-12-03
 
 ### Fixed
@@ -189,13 +214,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Future Roadmap
 
-### [1.1.0] - Planned
+### [1.3.0] - Planned
 - AI-powered chat responses
 - Spotify integration for music
 - Advanced permission system
 - Analytics dashboard
 
-### [1.2.0] - Planned
+### [1.4.0] - Planned
 - Scheduled tasks and reminders
 - Custom welcome images
 - Voice message support

@@ -1,82 +1,122 @@
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { eq, desc, sql, and, gte } from 'drizzle-orm';
-import * as schema from './schema.js';
+import { MongoClient, Db, Collection, ObjectId, Document } from 'mongodb';
 import { logger } from '../lib/logger.js';
+import type { User, Thread, Log, CommandStat, MusicQueueItem, Setting, Cooldown, NewLog } from './schema.js';
 
-let connectionString = process.env.DATABASE_URL!;
-
-if (!connectionString) {
-  throw new Error('DATABASE_URL environment variable is required');
-}
-
-if (connectionString.includes('/nazzelmessengerbot')) {
-  connectionString = connectionString.replace('/nazzelmessengerbot', '/neondb');
-  logger.info('Corrected database name from nazzelmessengerbot to neondb');
-}
-
-const client = neon(connectionString);
-export const db = drizzle(client, { schema });
-
-let tablesExist = true;
-
-async function checkTablesExist(): Promise<boolean> {
-  try {
-    await db.select().from(schema.settings).limit(1);
-    return true;
-  } catch (error: any) {
-    if (error?.code === '42P01') {
-      logger.warn('Database tables do not exist. Run "npm run db:push" to create them.');
-      return false;
-    }
-    return true;
-  }
-}
+let client: MongoClient | null = null;
+let db: Db | null = null;
+let isConnected = false;
 
 export async function initDatabase(): Promise<boolean> {
-  tablesExist = await checkTablesExist();
-  if (!tablesExist) {
-    logger.error('Database tables not found! Please run: npm run db:push');
-    logger.info('The bot will continue but database features will be disabled.');
+  const mongoUri = process.env.MONGODB_URI;
+  
+  if (!mongoUri) {
+    logger.warn('MONGODB_URI not found. Database features will be disabled.');
+    return false;
   }
-  return tablesExist;
+
+  try {
+    client = new MongoClient(mongoUri);
+    await client.connect();
+    db = client.db();
+    isConnected = true;
+    
+    await createIndexes();
+    
+    logger.info('MongoDB connected successfully');
+    return true;
+  } catch (error) {
+    logger.error('Failed to connect to MongoDB', { error });
+    isConnected = false;
+    return false;
+  }
+}
+
+async function createIndexes(): Promise<void> {
+  if (!db) return;
+  
+  try {
+    const users = db.collection('users');
+    await users.createIndex({ id: 1 }, { unique: true });
+    await users.createIndex({ level: -1, xp: -1 });
+    await users.createIndex({ totalMessages: -1 });
+    
+    const threads = db.collection('threads');
+    await threads.createIndex({ id: 1 }, { unique: true });
+    
+    const logs = db.collection('logs');
+    await logs.createIndex({ type: 1 });
+    await logs.createIndex({ level: 1 });
+    await logs.createIndex({ timestamp: -1 });
+    await logs.createIndex({ timestamp: 1 }, { expireAfterSeconds: 604800 });
+    
+    const commandStats = db.collection('commandStats');
+    await commandStats.createIndex({ commandName: 1 });
+    await commandStats.createIndex({ userId: 1 });
+    await commandStats.createIndex({ executedAt: -1 });
+    
+    const musicQueue = db.collection('musicQueue');
+    await musicQueue.createIndex({ threadId: 1, position: 1 });
+    
+    const settings = db.collection('settings');
+    await settings.createIndex({ key: 1 }, { unique: true });
+    
+    const cooldowns = db.collection('cooldowns');
+    await cooldowns.createIndex({ id: 1 }, { unique: true });
+    await cooldowns.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+    await cooldowns.createIndex({ type: 1, userId: 1 });
+  } catch (error) {
+    logger.error('Failed to create indexes', { error });
+  }
+}
+
+function getCollection<T extends Document>(name: string): Collection<T> | null {
+  if (!db || !isConnected) return null;
+  return db.collection<T>(name);
 }
 
 export class Database {
-  async getUser(userId: string): Promise<schema.User | null> {
-    if (!tablesExist) return null;
+  async getUser(userId: string): Promise<User | null> {
+    const users = getCollection<User>('users');
+    if (!users) return null;
+    
     try {
-      const result = await db.select().from(schema.users).where(eq(schema.users.id, userId)).limit(1);
-      return result[0] || null;
-    } catch (error: any) {
-      if (error?.code === '42P01') { tablesExist = false; return null; }
+      return await users.findOne({ id: userId });
+    } catch (error) {
       logger.error('Failed to get user', { userId, error });
       return null;
     }
   }
 
-  async createUser(userId: string, name?: string): Promise<schema.User | null> {
-    if (!tablesExist) return null;
+  async createUser(userId: string, name?: string): Promise<User | null> {
+    const users = getCollection<User>('users');
+    if (!users) return null;
+    
     try {
-      const result = await db.insert(schema.users).values({
+      const now = new Date();
+      const newUser: User = {
         id: userId,
         name,
         xp: 0,
         level: 0,
         totalMessages: 0,
-      }).onConflictDoNothing().returning();
-      if (result[0]) return result[0];
+        joinedAt: now,
+        updatedAt: now,
+      };
+      
+      await users.updateOne(
+        { id: userId },
+        { $setOnInsert: newUser },
+        { upsert: true }
+      );
+      
       return await this.getUser(userId);
-    } catch (error: any) {
-      if (error?.code === '42P01') { tablesExist = false; return null; }
-      if (error?.code === '23505') return await this.getUser(userId);
+    } catch (error) {
       logger.error('Failed to create user', { userId, error });
       return null;
     }
   }
 
-  async getOrCreateUser(userId: string, name?: string): Promise<schema.User | null> {
-    if (!tablesExist) return null;
+  async getOrCreateUser(userId: string, name?: string): Promise<User | null> {
     let user = await this.getUser(userId);
     if (!user) {
       user = await this.createUser(userId, name);
@@ -84,8 +124,10 @@ export class Database {
     return user;
   }
 
-  async updateUserXP(userId: string, xpGain: number): Promise<{ user: schema.User; leveledUp: boolean } | null> {
-    if (!tablesExist) return null;
+  async updateUserXP(userId: string, xpGain: number): Promise<{ user: User; leveledUp: boolean } | null> {
+    const users = getCollection<User>('users');
+    if (!users) return null;
+    
     try {
       const user = await this.getOrCreateUser(userId);
       if (!user) return null;
@@ -102,87 +144,114 @@ export class Database {
         leveledUp = true;
       }
 
-      const result = await db.update(schema.users)
-        .set({
-          xp: remainingXP,
-          level: newLevel,
-          totalMessages: user.totalMessages + 1,
-          lastXpGain: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(schema.users.id, userId))
-        .returning();
+      const result = await users.findOneAndUpdate(
+        { id: userId },
+        {
+          $set: {
+            xp: remainingXP,
+            level: newLevel,
+            lastXpGain: new Date(),
+            updatedAt: new Date(),
+          },
+          $inc: { totalMessages: 1 },
+        },
+        { returnDocument: 'after' }
+      );
 
-      return { user: result[0], leveledUp };
+      if (!result) return null;
+      return { user: result as User, leveledUp };
     } catch (error) {
       logger.error('Failed to update user XP', { userId, xpGain, error });
       return null;
     }
   }
 
-  async getLeaderboard(limit: number = 10): Promise<schema.User[]> {
+  async getLeaderboard(limit: number = 10): Promise<User[]> {
+    const users = getCollection<User>('users');
+    if (!users) return [];
+    
     try {
-      return await db.select()
-        .from(schema.users)
-        .orderBy(desc(schema.users.level), desc(schema.users.xp))
-        .limit(limit);
+      return await users
+        .find({})
+        .sort({ level: -1, xp: -1 })
+        .limit(limit)
+        .toArray() as User[];
     } catch (error) {
       logger.error('Failed to get leaderboard', { error });
       return [];
     }
   }
 
-  async getThread(threadId: string): Promise<schema.Thread | null> {
+  async getThread(threadId: string): Promise<Thread | null> {
+    const threads = getCollection<Thread>('threads');
+    if (!threads) return null;
+    
     try {
-      const result = await db.select().from(schema.threads).where(eq(schema.threads.id, threadId)).limit(1);
-      return result[0] || null;
+      return await threads.findOne({ id: threadId });
     } catch (error) {
       logger.error('Failed to get thread', { threadId, error });
       return null;
     }
   }
 
-  async getOrCreateThread(threadId: string, name?: string, isGroup?: boolean): Promise<schema.Thread | null> {
+  async getOrCreateThread(threadId: string, name?: string, isGroup?: boolean): Promise<Thread | null> {
+    const threads = getCollection<Thread>('threads');
+    if (!threads) return null;
+    
     try {
-      let thread = await this.getThread(threadId);
-      if (!thread) {
-        const result = await db.insert(schema.threads).values({
-          id: threadId,
-          name,
-          isGroup: isGroup ?? false,
-        }).returning();
-        thread = result[0];
-      }
-      return thread;
+      const now = new Date();
+      const result = await threads.findOneAndUpdate(
+        { id: threadId },
+        {
+          $setOnInsert: {
+            id: threadId,
+            name,
+            isGroup: isGroup ?? false,
+            welcomeEnabled: true,
+            settings: {},
+            createdAt: now,
+            updatedAt: now,
+          },
+        },
+        { upsert: true, returnDocument: 'after' }
+      );
+      return result as Thread;
     } catch (error) {
       logger.error('Failed to get or create thread', { threadId, error });
       return null;
     }
   }
 
-  async logEntry(entry: Omit<schema.NewLog, 'id' | 'timestamp'>): Promise<void> {
-    if (!tablesExist) return;
+  async logEntry(entry: NewLog): Promise<void> {
+    const logs = getCollection<Log>('logs');
+    if (!logs) return;
+    
     try {
-      await db.insert(schema.logs).values(entry);
-    } catch (error: any) {
-      if (error?.code === '42P01') { tablesExist = false; return; }
+      await logs.insertOne({
+        ...entry,
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      logger.error('Failed to log entry', { error });
     }
   }
 
-  async getLogs(options: { type?: string; level?: string; limit?: number } = {}): Promise<schema.Log[]> {
+  async getLogs(options: { type?: string; level?: string; limit?: number } = {}): Promise<Log[]> {
+    const logs = getCollection<Log>('logs');
+    if (!logs) return [];
+    
     try {
       const { type, level, limit = 100 } = options;
-      let query = db.select().from(schema.logs);
+      const filter: Record<string, string> = {};
       
-      if (type && level) {
-        query = query.where(and(eq(schema.logs.type, type), eq(schema.logs.level, level))) as typeof query;
-      } else if (type) {
-        query = query.where(eq(schema.logs.type, type)) as typeof query;
-      } else if (level) {
-        query = query.where(eq(schema.logs.level, level)) as typeof query;
-      }
+      if (type) filter.type = type;
+      if (level) filter.level = level;
       
-      return await query.orderBy(desc(schema.logs.timestamp)).limit(limit);
+      return await logs
+        .find(filter)
+        .sort({ timestamp: -1 })
+        .limit(limit)
+        .toArray() as Log[];
     } catch (error) {
       logger.error('Failed to get logs', { error });
       return [];
@@ -190,31 +259,35 @@ export class Database {
   }
 
   async logCommandExecution(commandName: string, userId: string, threadId: string, success: boolean, executionTime: number): Promise<void> {
-    if (!tablesExist) return;
+    const commandStats = getCollection<CommandStat>('commandStats');
+    if (!commandStats) return;
+    
     try {
-      await db.insert(schema.commandStats).values({
+      await commandStats.insertOne({
         commandName,
         userId,
         threadId,
         success,
         executionTime,
+        executedAt: new Date(),
       });
-    } catch (error: any) {
-      if (error?.code === '42P01') { tablesExist = false; return; }
+    } catch (error) {
       logger.error('Failed to log command execution', { commandName, error });
     }
   }
 
   async getCommandStats(): Promise<{ command: string; count: number }[]> {
+    const commandStats = getCollection<CommandStat>('commandStats');
+    if (!commandStats) return [];
+    
     try {
-      const result = await db.select({
-        command: schema.commandStats.commandName,
-        count: sql<number>`count(*)::int`,
-      })
-        .from(schema.commandStats)
-        .groupBy(schema.commandStats.commandName)
-        .orderBy(desc(sql`count(*)`));
-      return result;
+      const result = await commandStats.aggregate([
+        { $group: { _id: '$commandName', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $project: { command: '$_id', count: 1, _id: 0 } },
+      ]).toArray();
+      
+      return result as { command: string; count: number }[];
     } catch (error) {
       logger.error('Failed to get command stats', { error });
       return [];
@@ -222,94 +295,113 @@ export class Database {
   }
 
   async addToMusicQueue(threadId: string, url: string, title: string, duration: number, requestedBy: string): Promise<void> {
+    const musicQueue = getCollection<MusicQueueItem>('musicQueue');
+    if (!musicQueue) return;
+    
     try {
-      const maxPosition = await db.select({ max: sql<number>`COALESCE(MAX(position), 0)` })
-        .from(schema.musicQueue)
-        .where(eq(schema.musicQueue.threadId, threadId));
+      const maxResult = await musicQueue.findOne(
+        { threadId },
+        { sort: { position: -1 }, projection: { position: 1 } }
+      );
       
-      const position = (maxPosition[0]?.max || 0) + 1;
+      const position = (maxResult?.position || 0) + 1;
       
-      await db.insert(schema.musicQueue).values({
+      await musicQueue.insertOne({
         threadId,
         url,
         title,
         duration,
         requestedBy,
         position,
+        addedAt: new Date(),
       });
     } catch (error) {
       logger.error('Failed to add to music queue', { threadId, url, error });
     }
   }
 
-  async getMusicQueue(threadId: string): Promise<schema.MusicQueueItem[]> {
+  async getMusicQueue(threadId: string): Promise<MusicQueueItem[]> {
+    const musicQueue = getCollection<MusicQueueItem>('musicQueue');
+    if (!musicQueue) return [];
+    
     try {
-      return await db.select()
-        .from(schema.musicQueue)
-        .where(eq(schema.musicQueue.threadId, threadId))
-        .orderBy(schema.musicQueue.position);
+      return await musicQueue
+        .find({ threadId })
+        .sort({ position: 1 })
+        .toArray() as MusicQueueItem[];
     } catch (error) {
       logger.error('Failed to get music queue', { threadId, error });
       return [];
     }
   }
 
-  async removeFromMusicQueue(id: number): Promise<void> {
+  async removeFromMusicQueue(id: string): Promise<void> {
+    const musicQueue = getCollection<MusicQueueItem>('musicQueue');
+    if (!musicQueue) return;
+    
     try {
-      await db.delete(schema.musicQueue).where(eq(schema.musicQueue.id, id));
+      await musicQueue.deleteOne({ _id: new ObjectId(id) });
     } catch (error) {
       logger.error('Failed to remove from music queue', { id, error });
     }
   }
 
   async clearMusicQueue(threadId: string): Promise<void> {
+    const musicQueue = getCollection<MusicQueueItem>('musicQueue');
+    if (!musicQueue) return;
+    
     try {
-      await db.delete(schema.musicQueue).where(eq(schema.musicQueue.threadId, threadId));
+      await musicQueue.deleteMany({ threadId });
     } catch (error) {
       logger.error('Failed to clear music queue', { threadId, error });
     }
   }
 
   async getSetting<T>(key: string): Promise<T | null> {
-    if (!tablesExist) return null;
+    const settings = getCollection<Setting>('settings');
+    if (!settings) return null;
+    
     try {
-      const result = await db.select().from(schema.settings).where(eq(schema.settings.key, key)).limit(1);
-      return result[0]?.value as T || null;
-    } catch (error: any) {
-      if (error?.code === '42P01') { tablesExist = false; return null; }
+      const result = await settings.findOne({ key });
+      return result?.value as T || null;
+    } catch (error) {
       logger.error('Failed to get setting', { key, error });
       return null;
     }
   }
 
   async setSetting(key: string, value: unknown): Promise<void> {
-    if (!tablesExist) return;
+    const settings = getCollection<Setting>('settings');
+    if (!settings) return;
+    
     try {
-      await db.insert(schema.settings)
-        .values({ key, value, updatedAt: new Date() })
-        .onConflictDoUpdate({
-          target: schema.settings.key,
-          set: { value, updatedAt: new Date() },
-        });
-    } catch (error: any) {
-      if (error?.code === '42P01') { tablesExist = false; return; }
+      await settings.updateOne(
+        { key },
+        { $set: { value, updatedAt: new Date() } },
+        { upsert: true }
+      );
+    } catch (error) {
       logger.error('Failed to set setting', { key, error });
     }
   }
 
   async deleteSetting(key: string): Promise<void> {
+    const settings = getCollection<Setting>('settings');
+    if (!settings) return;
+    
     try {
-      await db.delete(schema.settings).where(eq(schema.settings.key, key));
+      await settings.deleteOne({ key });
     } catch (error) {
       logger.error('Failed to delete setting', { key, error });
     }
   }
 
   async getTotalUsers(): Promise<number> {
+    const users = getCollection<User>('users');
+    if (!users) return 0;
+    
     try {
-      const result = await db.select({ count: sql<number>`count(*)::int` })
-        .from(schema.users);
-      return result[0]?.count || 0;
+      return await users.countDocuments();
     } catch (error) {
       logger.error('Failed to get total users', { error });
       return 0;
@@ -317,22 +409,27 @@ export class Database {
   }
 
   async getTotalThreads(): Promise<number> {
+    const threads = getCollection<Thread>('threads');
+    if (!threads) return 0;
+    
     try {
-      const result = await db.select({ count: sql<number>`count(*)::int` })
-        .from(schema.threads);
-      return result[0]?.count || 0;
+      return await threads.countDocuments();
     } catch (error) {
       logger.error('Failed to get total threads', { error });
       return 0;
     }
   }
 
-  async getTopUsers(limit: number = 5): Promise<schema.User[]> {
+  async getTopUsers(limit: number = 5): Promise<User[]> {
+    const users = getCollection<User>('users');
+    if (!users) return [];
+    
     try {
-      return await db.select()
-        .from(schema.users)
-        .orderBy(desc(schema.users.totalMessages))
-        .limit(limit);
+      return await users
+        .find({})
+        .sort({ totalMessages: -1 })
+        .limit(limit)
+        .toArray() as User[];
     } catch (error) {
       logger.error('Failed to get top users', { error });
       return [];
@@ -341,8 +438,7 @@ export class Database {
 
   async getAppstate(): Promise<any[] | null> {
     try {
-      const result = await this.getSetting<any[]>('appstate');
-      return result;
+      return await this.getSetting<any[]>('appstate');
     } catch (error) {
       logger.error('Failed to get appstate from database', { error });
       return null;
@@ -360,6 +456,61 @@ export class Database {
     } catch (error) {
       logger.error('Failed to save appstate to database', { error });
       return false;
+    }
+  }
+
+  async checkCooldown(userId: string, type: string, cooldownMs: number): Promise<{ onCooldown: boolean; remaining: number }> {
+    const cooldowns = getCollection<Cooldown>('cooldowns');
+    if (!cooldowns) return { onCooldown: false, remaining: 0 };
+    
+    try {
+      const id = `${type}:${userId}`;
+      const now = Date.now();
+      
+      const existing = await cooldowns.findOne({ id });
+      
+      if (existing) {
+        const elapsed = now - existing.timestamp;
+        if (elapsed < cooldownMs) {
+          return { onCooldown: true, remaining: Math.ceil((cooldownMs - elapsed) / 1000) };
+        }
+      }
+      
+      await cooldowns.updateOne(
+        { id },
+        {
+          $set: {
+            id,
+            type,
+            userId,
+            timestamp: now,
+            expiresAt: new Date(now + cooldownMs),
+          },
+        },
+        { upsert: true }
+      );
+      
+      return { onCooldown: false, remaining: 0 };
+    } catch (error) {
+      logger.error('Failed to check cooldown', { userId, type, error });
+      return { onCooldown: false, remaining: 0 };
+    }
+  }
+
+  async checkXPCooldown(userId: string, cooldownMs: number): Promise<boolean> {
+    const result = await this.checkCooldown(userId, 'xp', cooldownMs);
+    return !result.onCooldown;
+  }
+
+  async checkCommandCooldown(userId: string, command: string, cooldownMs: number): Promise<{ onCooldown: boolean; remaining: number }> {
+    return this.checkCooldown(userId, `cmd:${command}`, cooldownMs);
+  }
+
+  async disconnect(): Promise<void> {
+    if (client) {
+      await client.close();
+      isConnected = false;
+      logger.info('MongoDB disconnected');
     }
   }
 }

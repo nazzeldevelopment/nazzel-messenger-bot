@@ -1,18 +1,14 @@
 {
   "name": "nazzel-messenger-userbot",
-  "version": "1.1.4",
-  "description": "Advanced Facebook Messenger User-Bot with TypeScript, PostgreSQL, Redis, and comprehensive logging",
+  "version": "1.2.0",
+  "description": "Advanced Facebook Messenger User-Bot with TypeScript, MongoDB, and comprehensive logging",
   "main": "dist/main.js",
   "type": "module",
   "packageManager": "pnpm@10.24.0",
   "scripts": {
     "start": "tsx src/main.ts",
     "dev": "tsx watch src/main.ts",
-    "build": "npm run db:push && tsc",
-    "postinstall": "npm run db:push || true",
-    "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
+    "build": "tsc",
     "lint": "eslint src/",
     "format": "prettier --write src/"
   },
@@ -21,18 +17,17 @@
     "userbot",
     "facebook",
     "typescript",
-    "chatbot"
+    "chatbot",
+    "mongodb"
   ],
   "author": "Nazzel",
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
     "chalk": "^5.3.0",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.36.4",
     "express": "^4.21.2",
     "fluent-ffmpeg": "^2.1.3",
-    "ioredis": "^5.4.2",
+    "mongodb": "^7.0.0",
     "node-fetch": "^3.3.2",
     "uuid": "^11.0.3",
     "winston": "^3.17.0",
@@ -44,12 +39,10 @@
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/node": "^22.10.1",
     "@types/uuid": "^10.0.0",
-    "drizzle-kit": "^0.28.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=10.0.0"
+    "node": ">=20.0.0"
   }
 }

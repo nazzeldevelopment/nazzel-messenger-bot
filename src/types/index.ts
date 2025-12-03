@@ -18,7 +18,6 @@ export interface BotConfig {
   };
   server: ServerConfig;
   database: DatabaseConfig;
-  redis: RedisConfig;
   commands: CommandsConfig;
   permissions: PermissionsConfig;
   messages: MessagesConfig;
@@ -68,15 +67,7 @@ export interface ServerConfig {
 }
 
 export interface DatabaseConfig {
-  poolSize: number;
-  idleTimeout: number;
   connectionTimeout: number;
-}
-
-export interface RedisConfig {
-  enabled: boolean;
-  keyPrefix: string;
-  defaultTTL: number;
 }
 
 export interface CommandsConfig {

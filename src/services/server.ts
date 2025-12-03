@@ -2,7 +2,6 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { BotLogger, logger } from '../lib/logger.js';
 import { database } from '../database/index.js';
 import { commandHandler } from '../lib/commandHandler.js';
-import { redis } from '../lib/redis.js';
 import config from '../../config.json' with { type: 'json' };
 
 export function createServer(): Express {
@@ -65,8 +64,8 @@ export function createServer(): Express {
             total: commands.size,
             categories: commandHandler.getCategories(),
           },
-          redis: {
-            connected: redis.connected,
+          database: {
+            type: 'MongoDB',
           },
           timestamp: new Date().toISOString(),
         });

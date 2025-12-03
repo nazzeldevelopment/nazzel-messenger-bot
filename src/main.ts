@@ -6,7 +6,6 @@ import { BotLogger, logger } from './lib/logger.js';
 const login = (fca as any).login || fca;
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
-import { redis } from './lib/redis.js';
 import { createServer, startServer } from './services/server.js';
 import config from '../config.json' with { type: 'json' };
 import type { CommandContext, MessageOptions } from './types/index.js';
@@ -18,17 +17,16 @@ async function main(): Promise<void> {
   BotLogger.startup(`Starting ${config.bot.name} v${config.bot.version}`);
   
   const dbInitialized = await initDatabase();
-  const redisConnected = await redis.connect();
   
   if (!dbInitialized) {
-    BotLogger.warn('Database tables not found. Run: npm run db:push');
-    BotLogger.info('Bot will continue with limited functionality.');
+    BotLogger.warn('MongoDB not connected. Database features will be disabled.');
+    BotLogger.info('Set MONGODB_URI environment variable to enable database.');
   }
   
   await commandHandler.loadCommands();
   BotLogger.printLoadedCommands(commandHandler.getAllCommands().size);
   
-  BotLogger.printDatabaseInfo(true, redisConnected);
+  BotLogger.printDatabaseInfo(dbInitialized, false);
   
   const app = createServer();
   startServer(app);
@@ -72,7 +70,6 @@ async function main(): Promise<void> {
     updatePresence: true,
     autoMarkRead: config.bot.autoMarkRead,
     autoMarkDelivery: config.bot.autoMarkDelivery,
-    userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
     forceLogin: true,
     logLevel: 'silent',
   };
@@ -237,19 +234,41 @@ async function handleMessage(api: any, event: any): Promise<void> {
           const targetThread = tid || threadId;
           const messageContent = typeof message === 'string' ? message : message;
           
-          BotLogger.debug(`Attempting to send message to ${targetThread}...`);
+          BotLogger.debug(`Sending message to ${targetThread}...`);
+          
+          const startTime = Date.now();
           
           try {
             api.sendMessage(
               messageContent,
               targetThread,
-              (err: Error | null, messageInfo: any) => {
+              async (err: Error | null, messageInfo: any) => {
+                const elapsed = Date.now() - startTime;
+                
                 if (err) {
-                  BotLogger.error(`Failed to send message to ${targetThread}`, err);
+                  BotLogger.error(`Message send failed to ${targetThread} after ${elapsed}ms`, err);
+                  database.logEntry({
+                    type: 'message_error',
+                    level: 'error',
+                    message: `Failed to send message: ${err.message}`,
+                    threadId: targetThread,
+                    metadata: { error: String(err), elapsed },
+                  }).catch(() => {});
                   reject(err);
                 } else {
                   const preview = typeof message === 'string' ? message.substring(0, 50) : 'attachment/complex message';
+                  const msgId = messageInfo?.messageID || 'unknown';
+                  BotLogger.info(`Message sent successfully to ${targetThread} [ID: ${msgId}] in ${elapsed}ms`);
                   BotLogger.messageSent(targetThread, preview);
+                  
+                  database.logEntry({
+                    type: 'message_sent',
+                    level: 'info',
+                    message: `Message sent: ${preview}`,
+                    threadId: targetThread,
+                    metadata: { messageId: msgId, elapsed },
+                  }).catch(() => {});
+                  
                   resolve();
                 }
               }
@@ -293,7 +312,7 @@ async function handleMessage(api: any, event: any): Promise<void> {
 }
 
 async function handleXP(api: any, senderId: string, threadId: string): Promise<void> {
-  const canGainXP = await redis.checkXPCooldown(senderId, config.features.xp.cooldown);
+  const canGainXP = await database.checkXPCooldown(senderId, config.features.xp.cooldown);
   
   if (!canGainXP) return;
   
@@ -318,10 +337,12 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
       
       const levelUpMessage = `🎉 Congratulations ${userName}!\n\n⭐ You've reached **Level ${result.user.level}**!\n\nKeep chatting to earn more XP!`;
       
-      api.sendMessage(levelUpMessage, threadId, (err: Error | null) => {
+      api.sendMessage(levelUpMessage, threadId, (err: Error | null, messageInfo: any) => {
         if (err) {
           BotLogger.error('Failed to send level up message', err);
         } else {
+          const msgId = messageInfo?.messageID || 'unknown';
+          BotLogger.info(`Level up message sent to ${threadId} [ID: ${msgId}]`);
           BotLogger.messageSent(threadId, `Level up notification for ${userName}`);
         }
       });
@@ -347,10 +368,12 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
           .replace('{prefix}', prefix);
         
         try {
-          api.sendMessage(welcomeMessage, threadID, (err: Error | null) => {
+          api.sendMessage(welcomeMessage, threadID, (err: Error | null, messageInfo: any) => {
             if (err) {
               BotLogger.error('Failed to send welcome message', err);
             } else {
+              const msgId = messageInfo?.messageID || 'unknown';
+              BotLogger.info(`Welcome message sent to ${threadID} [ID: ${msgId}]`);
               BotLogger.messageSent(threadID, `Welcome message for ${userName}`);
             }
           });
@@ -393,13 +416,13 @@ process.on('unhandledRejection', (reason) => {
 
 process.on('SIGINT', async () => {
   BotLogger.shutdown('Received SIGINT, shutting down...');
-  await redis.disconnect();
+  await database.disconnect();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   BotLogger.shutdown('Received SIGTERM, shutting down...');
-  await redis.disconnect();
+  await database.disconnect();
   process.exit(0);
 });
 

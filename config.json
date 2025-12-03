@@ -1,7 +1,7 @@
 {
   "bot": {
     "name": "Nazzel Bot",
-    "version": "1.1.4",
+    "version": "1.2.0",
     "prefix": "N!",
     "description": "Advanced Facebook Messenger User-Bot",
     "selfListen": true,
@@ -19,7 +19,7 @@
     },
     "welcome": {
       "enabled": true,
-      "message": "Welcome! 👋 {name}\nType {prefix}help to see commands."
+      "message": "Welcome! {name}\nType {prefix}help to see commands."
     },
     "autoLeave": {
       "detectEnabled": true,
@@ -49,46 +49,39 @@
     }
   },
   "database": {
-    "poolSize": 10,
-    "idleTimeout": 30000,
     "connectionTimeout": 10000
-  },
-  "redis": {
-    "enabled": true,
-    "keyPrefix": "nazzel:",
-    "defaultTTL": 3600
   },
   "commands": {
     "categories": {
       "general": {
-        "name": "📋 General",
+        "name": "General",
         "description": "Basic bot commands",
-        "emoji": "📋"
+        "emoji": ""
       },
       "admin": {
-        "name": "👑 Admin",
+        "name": "Admin",
         "description": "Administrative commands",
-        "emoji": "👑"
+        "emoji": ""
       },
       "music": {
-        "name": "🎵 Music",
+        "name": "Music",
         "description": "Music player commands",
-        "emoji": "🎵"
+        "emoji": ""
       },
       "level": {
-        "name": "⭐ Level",
+        "name": "Level",
         "description": "XP and leveling commands",
-        "emoji": "⭐"
+        "emoji": ""
       },
       "utility": {
-        "name": "🔧 Utility",
+        "name": "Utility",
         "description": "Utility commands",
-        "emoji": "🔧"
+        "emoji": ""
       },
       "fun": {
-        "name": "🎮 Fun",
+        "name": "Fun",
         "description": "Fun and entertainment commands",
-        "emoji": "🎮"
+        "emoji": ""
       }
     },
     "helpPerPage": 5,
@@ -103,9 +96,9 @@
     "adminOnly": ["kick", "ban", "mute", "announce"]
   },
   "messages": {
-    "noPermission": "❌ You don't have permission to use this command.",
-    "cooldown": "⏳ Please wait {time}s before using this command again.",
-    "error": "❌ An error occurred while executing this command.",
-    "unknownCommand": "❓ Unknown command: {command}. Try {prefix}help"
+    "noPermission": "You don't have permission to use this command.",
+    "cooldown": "Please wait {time}s before using this command again.",
+    "error": "An error occurred while executing this command.",
+    "unknownCommand": "Unknown command: {command}. Try {prefix}help"
   }
 }

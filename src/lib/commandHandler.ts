@@ -3,7 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import type { Command, CommandContext, BotConfig } from '../types/index.js';
 import { logger, BotLogger } from './logger.js';
-import { redis } from './redis.js';
 import { database } from '../database/index.js';
 import config from '../../config.json' with { type: 'json' };
 
@@ -144,7 +143,7 @@ export class CommandHandler {
     }
 
     const cooldownMs = command.cooldown || this.config.commands.cooldown.default;
-    const cooldownCheck = await redis.checkCooldown(userId, command.name, cooldownMs);
+    const cooldownCheck = await database.checkCommandCooldown(userId, command.name, cooldownMs);
     
     if (cooldownCheck.onCooldown) {
       const message = this.config.messages.cooldown.replace('{time}', cooldownCheck.remaining.toString());
