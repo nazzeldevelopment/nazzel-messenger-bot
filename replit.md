@@ -31,6 +31,12 @@ src/
 
 ## Recent Changes
 
+- **2025-12-03**: v1.3.2
+  - Fixed "MessageID should be of type string and not String" error
+  - Centralized ID normalization in event dispatcher
+  - Applied String() conversion across all 25+ command files
+  - Bot now responds correctly in group chats and private messages
+
 - **2025-12-03**: v1.3.0
   - Re-added Redis for anti-spam cooldown tracking
   - Added comprehensive rate limiting system to prevent Facebook bans
