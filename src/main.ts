@@ -73,7 +73,6 @@ async function main(): Promise<void> {
     autoMarkRead: config.bot.autoMarkRead,
     autoMarkDelivery: config.bot.autoMarkDelivery,
     forceLogin: true,
-    logLevel: 'silent' as const,
   };
   
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
@@ -132,7 +131,6 @@ async function main(): Promise<void> {
       autoMarkRead: config.bot.autoMarkRead,
       autoMarkDelivery: config.bot.autoMarkDelivery,
       forceLogin: true,
-      logLevel: 'verbose',
     });
     
     BotLogger.printBotStarted();
