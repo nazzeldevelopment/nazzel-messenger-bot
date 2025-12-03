@@ -17,10 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added forceLogin option for more reliable authentication
 - Added updatePresence for better MQTT connection stability
 - Enabled debug logging for better troubleshooting
+- Clarified that ws3-fca only supports cookie-based authentication (appstate.json)
+- Simplified login flow to only use appstate credentials
 
 ### Changed
 - Updated login flow to pass options as second parameter to login()
 - Improved event logging with detailed debug output
+- Removed unused email/password login attempt (not supported by ws3-fca)
 
 ## [1.1.1] - 2025-12-03
 

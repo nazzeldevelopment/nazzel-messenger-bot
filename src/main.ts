@@ -35,12 +35,7 @@ async function main(): Promise<void> {
     }
   }
   
-  const credentials = appState 
-    ? { appState } 
-    : { 
-        email: process.env.FB_EMAIL, 
-        password: process.env.FB_PASSWORD 
-      };
+  const credentials = { appState };
   
   const loginOptions = {
     selfListen: config.bot.selfListen,
@@ -52,9 +47,10 @@ async function main(): Promise<void> {
     forceLogin: true,
   };
   
-  if (!appState && (!process.env.FB_EMAIL || !process.env.FB_PASSWORD)) {
-    BotLogger.warn('No appstate.json or FB credentials found.');
-    BotLogger.info('Please provide FB_EMAIL and FB_PASSWORD environment variables or appstate.json');
+  if (!appState) {
+    BotLogger.warn('No appstate.json found.');
+    BotLogger.info('ws3-fca requires cookie-based authentication (appstate.json).');
+    BotLogger.info('Please provide a valid appstate.json file with Facebook cookies.');
     BotLogger.info('The Express server is running. Bot will not connect to Messenger.');
     return;
   }
