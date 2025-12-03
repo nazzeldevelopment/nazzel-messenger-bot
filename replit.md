@@ -85,7 +85,7 @@ src/
 
 - Prefix: `N!` (configurable in config.json)
 - Language: TypeScript with strict mode
-- Package Manager: npm
+- Package Manager: npm (switched from pnpm for better deployment compatibility)
 - Node.js: v22.x
 
 ## Configuration
