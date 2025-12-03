@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.3.6] - 2025-12-04
+
+### Changed
+- **Library Migration**: Migrated from `ws3-fca` to `@dongdev/fca-unofficial v3.0.8`
+- **Improved MQTT Support**: Enhanced MQTT connection for reliable message receiving in ALL group chats
+- **Auto-Cycle Connection**: MQTT auto-reconnects every hour to maintain stable connection
+- **Better Group Chat Compatibility**: Fixed issues where bot couldn't receive messages in some group chats
+
+### Technical
+- **@dongdev/fca-unofficial v3.0.8** - Latest actively maintained Facebook Chat API
+- **58 FCA API Methods** - Full access to Messenger features
+- **MQTT Auto-Cycle** - 3600000ms (1 hour) auto-reconnect for stability
+- **Appstate Backup** - Automatic backup management for session persistence
+- **Node.js 22.x** - Required for optimal performance
+
+### Fixed
+- **Group Chat Message Receiving**: Bot now receives messages from ALL group chats, not just some
+- **MQTT Connection Stability**: More reliable connection with auto-cycle feature
+- **Login Warnings**: Removed unsupported `logLevel` option that caused warnings
+
+---
+
 ## [1.3.5] - 2025-12-04
 
 ### Added
