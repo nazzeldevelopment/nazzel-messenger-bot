@@ -35,12 +35,20 @@ async function main(): Promise<void> {
     }
   }
   
-  const loginOptions = appState 
+  const credentials = appState 
     ? { appState } 
     : { 
         email: process.env.FB_EMAIL, 
         password: process.env.FB_PASSWORD 
       };
+  
+  const loginOptions = {
+    selfListen: config.bot.selfListen,
+    listenEvents: config.bot.listenEvents,
+    updatePresence: true,
+    autoMarkRead: config.bot.autoMarkRead,
+    autoMarkDelivery: config.bot.autoMarkDelivery,
+  };
   
   if (!appState && (!process.env.FB_EMAIL || !process.env.FB_PASSWORD)) {
     BotLogger.warn('No appstate.json or FB credentials found.');
@@ -49,7 +57,7 @@ async function main(): Promise<void> {
     return;
   }
   
-  login(loginOptions, async (err: any, api: any) => {
+  login(credentials, loginOptions, async (err: any, api: any) => {
     if (err) {
       BotLogger.error('Login failed', err);
       
@@ -88,6 +96,8 @@ async function main(): Promise<void> {
         });
         return;
       }
+      
+      BotLogger.debug(`Received event: ${event?.type}`, { event: JSON.stringify(event).substring(0, 500) });
       
       try {
         await handleEvent(api, event);
