@@ -234,75 +234,115 @@ async function handleMessage(api: any, event: any): Promise<void> {
       const commands = commandHandler.getAllCommands();
       
       const sendMessage = async (message: string | MessageOptions, tid?: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
-          const targetThread = tid || threadId;
-          const messageContent = typeof message === 'string' ? message : message;
-          
-          BotLogger.debug(`Sending message to ${targetThread}...`);
-          
-          const startTime = Date.now();
+        const targetThread = tid || threadId;
+        const messageContent = typeof message === 'string' ? message : message;
+        
+        BotLogger.debug(`Sending message to ${targetThread}...`);
+        
+        const startTime = Date.now();
+        
+        // Try sending typing indicator first to warm up the connection
+        try {
+          api.sendTypingIndicator(targetThread, (err: Error | null) => {
+            if (err) BotLogger.debug(`Typing indicator failed: ${err.message}`);
+          });
+        } catch (e) {
+          BotLogger.debug(`Typing indicator exception: ${e}`);
+        }
+        
+        // Small delay to let Facebook process
+        await new Promise(r => setTimeout(r, 500));
+        
+        // Try primary sendMessage method
+        const primaryResult = await new Promise<{ success: boolean; error?: Error; messageInfo?: any }>((resolve) => {
           let callbackCalled = false;
           
           const timeout = setTimeout(() => {
             if (!callbackCalled) {
-              const elapsed = Date.now() - startTime;
-              BotLogger.error(`Message send timeout after ${elapsed}ms - callback never fired`);
-              BotLogger.warn(`This may indicate Facebook is blocking messages or the account needs verification`);
-              database.logEntry({
-                type: 'message_timeout',
-                level: 'error',
-                message: `Message send timeout - no callback from Facebook API`,
-                threadId: targetThread,
-                metadata: { elapsed },
-              }).catch(() => {});
-              resolve();
+              BotLogger.debug(`Primary sendMessage timeout after 15s, trying fallback...`);
+              resolve({ success: false });
             }
-          }, 30000);
+          }, 15000);
           
           try {
             api.sendMessage(
               messageContent,
               targetThread,
-              async (err: Error | null, messageInfo: any) => {
+              (err: Error | null, messageInfo: any) => {
                 callbackCalled = true;
                 clearTimeout(timeout);
-                const elapsed = Date.now() - startTime;
-                
                 if (err) {
-                  BotLogger.error(`Message send failed to ${targetThread} after ${elapsed}ms`, err);
-                  database.logEntry({
-                    type: 'message_error',
-                    level: 'error',
-                    message: `Failed to send message: ${err.message}`,
-                    threadId: targetThread,
-                    metadata: { error: String(err), elapsed },
-                  }).catch(() => {});
-                  reject(err);
+                  resolve({ success: false, error: err });
                 } else {
-                  const preview = typeof message === 'string' ? message.substring(0, 50) : 'attachment/complex message';
-                  const msgId = messageInfo?.messageID || 'unknown';
-                  BotLogger.info(`Message sent successfully to ${targetThread} [ID: ${msgId}] in ${elapsed}ms`);
-                  BotLogger.messageSent(targetThread, preview);
-                  
-                  database.logEntry({
-                    type: 'message_sent',
-                    level: 'info',
-                    message: `Message sent: ${preview}`,
-                    threadId: targetThread,
-                    metadata: { messageId: msgId, elapsed },
-                  }).catch(() => {});
-                  
-                  resolve();
+                  resolve({ success: true, messageInfo });
                 }
               }
             );
-          } catch (sendError) {
+          } catch (e) {
             callbackCalled = true;
             clearTimeout(timeout);
-            BotLogger.error(`Exception in sendMessage`, sendError);
-            reject(sendError);
+            resolve({ success: false, error: e as Error });
           }
         });
+        
+        if (primaryResult.success) {
+          const elapsed = Date.now() - startTime;
+          const preview = typeof message === 'string' ? message.substring(0, 50) : 'attachment/complex message';
+          const msgId = primaryResult.messageInfo?.messageID || 'unknown';
+          BotLogger.info(`Message sent successfully to ${targetThread} [ID: ${msgId}] in ${elapsed}ms`);
+          BotLogger.messageSent(targetThread, preview);
+          return;
+        }
+        
+        // Try fallback: httpPost method if available
+        BotLogger.debug(`Primary method failed, trying httpPost fallback...`);
+        
+        if (api.httpPost) {
+          try {
+            const form: Record<string, string> = {
+              message_batch: JSON.stringify([{
+                thread_id: targetThread,
+                message: { text: typeof message === 'string' ? message : (message as any).body || '' }
+              }])
+            };
+            
+            const httpResult = await new Promise<boolean>((resolve) => {
+              const timeout = setTimeout(() => resolve(false), 10000);
+              
+              api.httpPost('https://www.facebook.com/messaging/send/', form, (err: Error | null, data: any) => {
+                clearTimeout(timeout);
+                if (err) {
+                  BotLogger.debug(`httpPost failed: ${err.message}`);
+                  resolve(false);
+                } else {
+                  BotLogger.debug(`httpPost response: ${JSON.stringify(data).substring(0, 100)}`);
+                  resolve(true);
+                }
+              });
+            });
+            
+            if (httpResult) {
+              const elapsed = Date.now() - startTime;
+              BotLogger.info(`Message sent via httpPost fallback in ${elapsed}ms`);
+              return;
+            }
+          } catch (e) {
+            BotLogger.debug(`httpPost exception: ${e}`);
+          }
+        }
+        
+        // All methods failed
+        const elapsed = Date.now() - startTime;
+        BotLogger.error(`All send methods failed after ${elapsed}ms`);
+        BotLogger.warn(`Facebook may be blocking messages. Try getting fresh appstate cookies.`);
+        
+        database.logEntry({
+          type: 'message_timeout',
+          level: 'error',
+          message: `All message send methods failed`,
+          threadId: targetThread,
+          metadata: { elapsed, primaryError: primaryResult.error?.message },
+        }).catch(() => {});
       };
       
       const reply = async (message: string | MessageOptions): Promise<void> => {

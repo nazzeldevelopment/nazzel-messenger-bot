@@ -33,7 +33,7 @@
     "node-fetch": "^3.3.2",
     "uuid": "^11.0.3",
     "winston": "^3.17.0",
-    "ws3-fca": "3.4.2",
+    "ws3-fca": "3.5.2",
     "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
