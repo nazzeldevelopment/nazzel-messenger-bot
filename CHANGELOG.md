@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.3.4] - 2025-12-04
+
+### Fixed
+- **Private Message Commands**: Fixed `rank` command showing "undefined" values in private messages by using `getOrCreateUser()` instead of `getUser()`
+- **User Data Creation**: Commands now properly create user records on first interaction, whether in groups or private messages
+- **ID Normalization**: Updated `rank` command to use consistent `('' + id).trim()` pattern for proper string handling
+
+### Changed
+- **Rank Command**: Now displays consistent formatted output matching the `level` command style with progress bar
+- **All Groups Supported**: Bot continues to work in any Messenger group chat without restrictions
+- **Error Messages**: Improved error messages for better user feedback
+
+### Technical
+- `rank.ts` now uses `database.getOrCreateUser()` to ensure user exists before displaying stats
+- Added progress bar visualization to rank command output
+- Consistent ID handling pattern across all level commands
+
 ## [1.3.3] - 2025-12-03
 
 ### Fixed

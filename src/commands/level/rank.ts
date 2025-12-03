@@ -11,51 +11,64 @@ export const command: Command = {
   cooldown: 5,
 
   async execute({ api, event, args, reply }) {
-    let targetId = String(event.senderID);
+    let targetId = ('' + event.senderID).trim();
     
     if (event.messageReply) {
-      targetId = String(event.messageReply.senderID);
+      targetId = ('' + event.messageReply.senderID).trim();
     } else if (event.mentions && Object.keys(event.mentions).length > 0) {
-      targetId = String(Object.keys(event.mentions)[0]);
+      targetId = ('' + Object.keys(event.mentions)[0]).trim();
     } else if (args[0]) {
-      targetId = String(args[0].replace(/[^0-9]/g, '') || event.senderID);
+      const parsed = args[0].replace(/[^0-9]/g, '');
+      targetId = parsed ? ('' + parsed).trim() : ('' + event.senderID).trim();
     }
 
     try {
       const userInfo = await api.getUserInfo(targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
       
-      const leaderboard = await database.getLeaderboard(100);
-      const userIndex = leaderboard.findIndex(u => u.id === targetId);
-      const user = await database.getUser(targetId);
-
+      const user = await database.getOrCreateUser(targetId, userName);
+      
       if (!user) {
-        await reply(`ℹ️ ${userName} hasn't earned any XP yet. Start chatting to gain XP!`);
+        await reply('❌ Could not fetch user data. Please try again.');
         return;
       }
 
-      const rank = userIndex >= 0 ? userIndex + 1 : 'Unranked';
+      const leaderboard = await database.getLeaderboard(100);
+      const userIndex = leaderboard.findIndex(u => u.id === targetId);
+      const rank = userIndex >= 0 ? userIndex + 1 : leaderboard.length + 1;
       const totalUsers = await database.getTotalUsers();
       const xpForNextLevel = (user.level + 1) * 100;
       const progress = Math.round((user.xp / xpForNextLevel) * 100);
+      const progressBar = createProgressBar(user.xp, xpForNextLevel, 10);
 
       let rankEmoji = '📊';
       if (rank === 1) rankEmoji = '🥇';
       else if (rank === 2) rankEmoji = '🥈';
       else if (rank === 3) rankEmoji = '🥉';
-      else if (typeof rank === 'number' && rank <= 10) rankEmoji = '🏅';
+      else if (rank <= 10) rankEmoji = '🏅';
 
-      let message = `${rankEmoji} *Rank Card*\n\n`;
-      message += `👤 Name: ${userName}\n`;
-      message += `🏆 Rank: #${rank} / ${totalUsers}\n`;
-      message += `🎖️ Level: ${user.level}\n`;
-      message += `⭐ XP: ${user.xp} / ${xpForNextLevel}\n`;
-      message += `📈 Progress: ${progress}%\n`;
-      message += `💬 Messages: ${user.totalMessages}`;
+      const message = `╔═══════════════════════════════╗
+║ ⭐ LEVEL STATS
+╠═══════════════════════════════╣
+║ 👤 ${userName}
+╠═══════════════════════════════╣
+║ 🏆 Level: ${user.level}
+║ ✨ XP: ${user.xp}/${xpForNextLevel}
+║ 📊 ${progressBar} ${progress}%
+║ ${rankEmoji} Rank: #${rank}
+║ 💬 Messages: ${user.totalMessages}
+╚═══════════════════════════════╝`;
 
       await reply(message);
     } catch (error) {
-      await reply('❌ Failed to get rank information.');
+      await reply('❌ Failed to get rank information. Please try again.');
     }
   },
 };
+
+function createProgressBar(current: number, max: number, length: number = 10): string {
+  const percentage = Math.min(current / max, 1);
+  const filled = Math.round(percentage * length);
+  const empty = length - filled;
+  return `[${'█'.repeat(filled)}${'░'.repeat(empty)}]`;
+}
