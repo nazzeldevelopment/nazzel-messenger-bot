@@ -29,7 +29,9 @@ export class CommandHandler {
       
       if (!stat.isDirectory()) continue;
 
-      const files = fs.readdirSync(categoryPath).filter(f => f.endsWith('.ts') || f.endsWith('.js'));
+      const files = fs.readdirSync(categoryPath).filter(f => 
+        (f.endsWith('.ts') && !f.endsWith('.d.ts')) || f.endsWith('.js')
+      );
       
       for (const file of files) {
         try {
