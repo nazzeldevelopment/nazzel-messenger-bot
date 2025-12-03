@@ -16,13 +16,8 @@ export const command: Command = {
     }
 
     try {
-      const threadId = String(event.threadID);
-      const threadInfo = await new Promise<any>((resolve, reject) => {
-        api.getThreadInfo(threadId, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const threadId = ('' + event.threadID).trim();
+      const threadInfo = await api.getThreadInfo(threadId);
 
       const adminIDs = threadInfo.adminIDs || [];
       
@@ -31,14 +26,8 @@ export const command: Command = {
         return;
       }
 
-      const adminIds = adminIDs.map((admin: any) => String(admin.id || admin));
-      
-      const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
-        api.getUserInfo(adminIds, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const adminIds = adminIDs.map((admin: any) => ('' + (admin.id || admin)).trim());
+      const userInfo = await api.getUserInfo(adminIds);
 
       let message = `👑 *Group Administrators*\n\n`;
       message += `📊 Total: ${adminIds.length} admin(s)\n\n`;

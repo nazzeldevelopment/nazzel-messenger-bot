@@ -103,13 +103,7 @@ async function main(): Promise<void> {
     const currentUserId = api.getCurrentUserID();
     
     try {
-      const userInfo = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
-        api.getUserInfo(currentUserId, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
-      
+      const userInfo = await api.getUserInfo(currentUserId);
       const botName = userInfo[currentUserId]?.name || 'Unknown';
       BotLogger.printLoginSuccess(botName, currentUserId);
       BotLogger.printBotInfo(api);
@@ -264,47 +258,18 @@ async function handleMessage(api: any, event: any): Promise<void> {
         const startTime = Date.now();
         
         const sendWithRetry = async (attempt: number = 1): Promise<{ success: boolean; error?: Error; messageInfo?: any }> => {
-          return new Promise((resolve) => {
-            let callbackCalled = false;
-            const timeoutMs = attempt === 1 ? 20000 : 15000;
-            
-            const timeout = setTimeout(() => {
-              if (!callbackCalled) {
-                callbackCalled = true;
-                BotLogger.debug(`sendMessage attempt ${attempt} timeout after ${timeoutMs/1000}s`);
-                resolve({ success: false, error: new Error('Timeout') });
-              }
-            }, timeoutMs);
-            
-            try {
-              api.sendMessage(
-                messageContent,
-                targetThread,
-                (err: Error | null, messageInfo: any) => {
-                  if (callbackCalled) return;
-                  callbackCalled = true;
-                  clearTimeout(timeout);
-                  
-                  if (err) {
-                    BotLogger.debug(`sendMessage attempt ${attempt} error: ${err.message}`);
-                    resolve({ success: false, error: err });
-                  } else {
-                    resolve({ success: true, messageInfo });
-                  }
-                }
-              );
-            } catch (e) {
-              if (callbackCalled) return;
-              callbackCalled = true;
-              clearTimeout(timeout);
-              resolve({ success: false, error: e as Error });
-            }
-          });
+          try {
+            const messageInfo = await api.sendMessage(messageContent, targetThread);
+            return { success: true, messageInfo };
+          } catch (e) {
+            BotLogger.debug(`sendMessage attempt ${attempt} error: ${(e as Error).message}`);
+            return { success: false, error: e as Error };
+          }
         };
         
         let result = await sendWithRetry(1);
         
-        if (!result.success && result.error?.message !== 'Timeout') {
+        if (!result.success) {
           await new Promise(r => setTimeout(r, 1000));
           result = await sendWithRetry(2);
         }
@@ -383,26 +348,19 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
     BotLogger.xp(senderIdStr, xpGain, result.user.level);
     
     try {
-      const userInfo = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
-        api.getUserInfo(senderIdStr, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
-      
+      const userInfo = await api.getUserInfo(senderIdStr);
       const userName = userInfo[senderIdStr]?.name || 'User';
       
       const levelUpMessage = `🎉 Congratulations ${userName}!\n\n⭐ You've reached **Level ${result.user.level}**!\n\nKeep chatting to earn more XP!`;
       
-      api.sendMessage(levelUpMessage, threadIdStr, (err: Error | null, messageInfo: any) => {
-        if (err) {
-          BotLogger.error('Failed to send level up message', err);
-        } else {
-          const msgId = String(messageInfo?.messageID || 'unknown');
-          BotLogger.info(`Level up message sent to ${threadIdStr} [ID: ${msgId}]`);
-          BotLogger.messageSent(threadIdStr, `Level up notification for ${userName}`);
-        }
-      });
+      try {
+        const messageInfo = await api.sendMessage(levelUpMessage, threadIdStr);
+        const msgId = normalizeId(messageInfo?.messageID || 'unknown');
+        BotLogger.info(`Level up message sent to ${threadIdStr} [ID: ${msgId}]`);
+        BotLogger.messageSent(threadIdStr, `Level up notification for ${userName}`);
+      } catch (err) {
+        BotLogger.error('Failed to send level up message', err);
+      }
     } catch (error) {
       BotLogger.error('Failed to send level up message', error);
     }
@@ -426,15 +384,10 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
           .replace('{prefix}', prefix);
         
         try {
-          api.sendMessage(welcomeMessage, threadIdStr, (err: Error | null, messageInfo: any) => {
-            if (err) {
-              BotLogger.error('Failed to send welcome message', err);
-            } else {
-              const msgId = String(messageInfo?.messageID || 'unknown');
-              BotLogger.info(`Welcome message sent to ${threadIdStr} [ID: ${msgId}]`);
-              BotLogger.messageSent(threadIdStr, `Welcome message for ${userName}`);
-            }
-          });
+          const messageInfo = await api.sendMessage(welcomeMessage, threadIdStr);
+          const msgId = normalizeId(messageInfo?.messageID || 'unknown');
+          BotLogger.info(`Welcome message sent to ${threadIdStr} [ID: ${msgId}]`);
+          BotLogger.messageSent(threadIdStr, `Welcome message for ${userName}`);
           
           await database.logEntry({
             type: 'event',

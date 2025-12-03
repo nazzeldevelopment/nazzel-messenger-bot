@@ -44,12 +44,7 @@ const command: Command = {
     for (const userId of userIds) {
       try {
         const normalizedUserId = ('' + userId).trim();
-        await new Promise<void>((resolve, reject) => {
-          api.addUserToGroup(normalizedUserId, threadId, (err: Error | null) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
+        await api.addUserToGroup(normalizedUserId, threadId);
         results.success.push(userId);
         BotLogger.info(`Added user ${userId} to group ${threadId}`);
       } catch (error) {

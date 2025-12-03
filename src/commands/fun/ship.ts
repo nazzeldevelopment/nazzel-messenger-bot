@@ -32,13 +32,7 @@ export const command: Command = {
     }
 
     try {
-      const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
-        api.getUserInfo([user1Id, user2Id], (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
-
+      const userInfo = await api.getUserInfo([user1Id, user2Id]);
       const name1 = userInfo[user1Id]?.name || 'User 1';
       const name2 = userInfo[user2Id]?.name || 'User 2';
 

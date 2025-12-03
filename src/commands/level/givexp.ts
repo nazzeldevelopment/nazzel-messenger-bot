@@ -38,13 +38,7 @@ export const command: Command = {
     }
 
     try {
-      const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
-        api.getUserInfo(targetId, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
-
+      const userInfo = await api.getUserInfo(targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
       
       const result = await database.updateUserXP(targetId, amount);

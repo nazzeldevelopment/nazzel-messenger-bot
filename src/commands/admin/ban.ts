@@ -34,13 +34,7 @@ export const command: Command = {
     const senderId = String(event.senderID);
 
     try {
-      const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
-        api.getUserInfo(targetId, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
-
+      const userInfo = await api.getUserInfo(targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
 
       await database.setSetting(`banned_${targetId}`, JSON.stringify({

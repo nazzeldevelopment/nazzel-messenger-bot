@@ -21,12 +21,7 @@ const command: Command = {
     }
     
     try {
-      const userInfo = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
-        api.getUserInfo(targetId, (err: Error | null, info: Record<string, { name: string }>) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const userInfo = await api.getUserInfo(targetId);
       
       const userName = userInfo[targetId]?.name || 'Unknown';
       const userData = await database.getOrCreateUser(targetId, userName);

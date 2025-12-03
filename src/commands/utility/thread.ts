@@ -12,23 +12,10 @@ const command: Command = {
     const { api, event, reply } = context;
     
     try {
-      const threadId = String(event.threadID);
-      const threadInfo = await new Promise<{
-        threadID: string;
-        threadName: string;
-        participantIDs: string[];
-        adminIDs: Array<{ id: string }>;
-        messageCount: number;
-        emoji: string;
-        color: string;
-      }>((resolve, reject) => {
-        api.getThreadInfo(threadId, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const threadId = ('' + event.threadID).trim();
+      const threadInfo = await api.getThreadInfo(threadId);
       
-      const admins = threadInfo.adminIDs?.map(a => a.id) || [];
+      const admins = threadInfo.adminIDs?.map((a: any) => a.id) || [];
       
       let response = `╔═══════════════════════════════╗\n`;
       response += `║ 👥 THREAD INFO\n`;

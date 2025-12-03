@@ -16,13 +16,8 @@ export const command: Command = {
     }
 
     try {
-      const threadId = String(event.threadID);
-      const threadInfo = await new Promise<any>((resolve, reject) => {
-        api.getThreadInfo(threadId, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const threadId = ('' + event.threadID).trim();
+      const threadInfo = await api.getThreadInfo(threadId);
 
       const participantIDs = threadInfo.participantIDs || [];
       
@@ -31,12 +26,7 @@ export const command: Command = {
         return;
       }
 
-      const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
-        api.getUserInfo(participantIDs, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const userInfo = await api.getUserInfo(participantIDs);
 
       const adminIDs = (threadInfo.adminIDs || []).map((a: any) => a.id || a);
 

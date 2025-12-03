@@ -24,21 +24,11 @@ export const command: Command = {
     const emoji = args[0];
 
     try {
-      const threadId = String(event.threadID);
+      const threadId = ('' + event.threadID).trim();
       if (api.changeThreadEmoji) {
-        await new Promise<void>((resolve, reject) => {
-          api.changeThreadEmoji(emoji, threadId, (err: Error | null) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
+        await api.changeThreadEmoji(emoji, threadId);
       } else {
-        await new Promise<void>((resolve, reject) => {
-          api.changeThreadColor(emoji, threadId, (err: Error | null) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
+        await api.changeThreadColor(emoji, threadId);
       }
 
       await reply(`✅ *Group Emoji Changed*\n\n🎨 New emoji: ${emoji}`);

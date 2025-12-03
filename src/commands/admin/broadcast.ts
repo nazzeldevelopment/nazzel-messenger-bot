@@ -19,14 +19,9 @@ export const command: Command = {
     const message = args.join(' ');
 
     try {
-      const threads = await new Promise<any[]>((resolve, reject) => {
-        api.getThreadList(100, null, ['INBOX'], (err: Error | null, list: any[]) => {
-          if (err) reject(err);
-          else resolve(list);
-        });
-      });
+      const threads = await api.getThreadList(100, null, ['INBOX']);
 
-      const groupThreads = threads.filter(t => t.isGroup);
+      const groupThreads = threads.filter((t: any) => t.isGroup);
       let sent = 0;
       let failed = 0;
 

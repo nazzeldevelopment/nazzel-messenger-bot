@@ -22,13 +22,8 @@ const command: Command = {
         return;
       }
       
-      const userIds = leaderboard.map(u => String(u.id));
-      const userInfos = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
-        api.getUserInfo(userIds, (err: Error | null, info: Record<string, { name: string }>) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const userIds = leaderboard.map(u => ('' + u.id).trim());
+      const userInfos = await api.getUserInfo(userIds);
       
       let response = `╔═══════════════════════════════╗\n`;
       response += `║ 🏆 LEADERBOARD - TOP ${limit}\n`;

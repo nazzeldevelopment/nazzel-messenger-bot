@@ -51,10 +51,12 @@ export const command: Command = {
     const threadId = ('' + event.threadID).trim();
     const reminderId = `${senderId}-${Date.now()}`;
 
-    const timeout = setTimeout(() => {
-      api.sendMessage(`⏰ *Reminder!*\n\n📝 ${message}`, threadId, (err: Error | null) => {
-        if (err) console.error('Reminder send failed:', err);
-      });
+    const timeout = setTimeout(async () => {
+      try {
+        await api.sendMessage(`⏰ *Reminder!*\n\n📝 ${message}`, threadId);
+      } catch (err) {
+        console.error('Reminder send failed:', err);
+      }
       reminders.delete(reminderId);
     }, ms);
 

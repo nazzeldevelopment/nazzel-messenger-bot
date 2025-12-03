@@ -173,12 +173,7 @@ export class CommandHandler {
       
       if (!isOwner) {
         try {
-          const threadInfo = await new Promise<any>((resolve, reject) => {
-            context.api.getThreadInfo(threadId, (err: Error | null, info: any) => {
-              if (err) reject(err);
-              else resolve(info);
-            });
-          });
+          const threadInfo = await context.api.getThreadInfo(threadId);
           
           const adminIDs = (threadInfo.adminIDs || []).map((a: any) => a.id || a);
           const isAdmin = adminIDs.includes(userId);

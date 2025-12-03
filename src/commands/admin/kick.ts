@@ -26,29 +26,17 @@ const command: Command = {
       return;
     }
     
-    if (targetId === event.senderID) {
+    if (targetId === ('' + event.senderID).trim()) {
       await reply('❌ You cannot kick yourself!');
       return;
     }
     
     try {
-      const normalizedTargetId = ('' + targetId).trim();
-      const userInfo = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
-        api.getUserInfo(normalizedTargetId, (err: Error | null, info: Record<string, { name: string }>) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
-      
-      const userName = userInfo[normalizedTargetId]?.name || 'Unknown';
+      const userInfo = await api.getUserInfo(targetId);
+      const userName = userInfo[targetId]?.name || 'Unknown';
       
       const threadId = ('' + event.threadID).trim();
-      await new Promise<void>((resolve, reject) => {
-        api.removeUserFromGroup(normalizedTargetId, threadId, (err: Error | null) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
+      await api.removeUserFromGroup(targetId, threadId);
       
       BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
       

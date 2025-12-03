@@ -16,14 +16,9 @@ const command: Command = {
     const perPage = 10;
     
     try {
-      const threads = await new Promise<Array<{ threadID: string; name: string; isGroup: boolean; participantIDs: string[] }>>((resolve, reject) => {
-        api.getThreadList(100, null, [], (err: Error | null, list: Array<{ threadID: string; name: string; isGroup: boolean; participantIDs: string[] }>) => {
-          if (err) reject(err);
-          else resolve(list);
-        });
-      });
+      const threads = await api.getThreadList(100, null, []);
       
-      const groups = threads.filter(t => t.isGroup);
+      const groups = threads.filter((t: any) => t.isGroup);
       const totalPages = Math.ceil(groups.length / perPage);
       const currentPage = Math.min(Math.max(1, page), totalPages);
       

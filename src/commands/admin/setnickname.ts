@@ -42,23 +42,11 @@ export const command: Command = {
     }
 
     try {
-      const normalizedTargetId = ('' + targetId).trim();
-      const userInfo = await new Promise<Record<string, any>>((resolve, reject) => {
-        api.getUserInfo(normalizedTargetId, (err: Error | null, info: any) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
-
-      const userName = userInfo[normalizedTargetId]?.name || 'Unknown User';
+      const userInfo = await api.getUserInfo(targetId);
+      const userName = userInfo[targetId]?.name || 'Unknown User';
 
       const threadId = ('' + event.threadID).trim();
-      await new Promise<void>((resolve, reject) => {
-        api.changeNickname(nickname, threadId, normalizedTargetId, (err: Error | null) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
+      await api.changeNickname(nickname, threadId, targetId);
 
       await reply(`✅ *Nickname Changed*\n\n👤 User: ${userName}\n📝 New nickname: ${nickname}`);
     } catch (error) {

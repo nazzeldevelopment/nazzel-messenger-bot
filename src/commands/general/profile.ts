@@ -21,12 +21,7 @@ const command: Command = {
     }
     
     try {
-      const userInfo = await new Promise<Record<string, { name: string; profileUrl: string; thumbSrc: string; gender: string }>>((resolve, reject) => {
-        api.getUserInfo(targetId, (err: Error | null, info: Record<string, { name: string; profileUrl: string; thumbSrc: string; gender: string }>) => {
-          if (err) reject(err);
-          else resolve(info);
-        });
-      });
+      const userInfo = await api.getUserInfo(targetId);
       
       const info = userInfo[targetId];
       if (!info) {
