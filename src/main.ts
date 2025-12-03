@@ -48,6 +48,8 @@ async function main(): Promise<void> {
     updatePresence: true,
     autoMarkRead: config.bot.autoMarkRead,
     autoMarkDelivery: config.bot.autoMarkDelivery,
+    userAgent: 'Mozilla/5.0 (Linux; Android 12; M2102J20SG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Mobile Safari/537.36',
+    forceLogin: true,
   };
   
   if (!appState && (!process.env.FB_EMAIL || !process.env.FB_PASSWORD)) {

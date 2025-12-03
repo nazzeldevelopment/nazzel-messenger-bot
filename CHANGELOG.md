@@ -7,16 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.1.2] - 2025-12-03
+
+### Fixed
+- Fixed ws3-fca import issue (module exports structure)
+- Fixed command loader to exclude .d.ts TypeScript declaration files
+- Fixed selfListen configuration - now properly passed to login options
+- Added userAgent configuration for proper Facebook connection
+- Added forceLogin option for more reliable authentication
+- Added updatePresence for better MQTT connection stability
+- Enabled debug logging for better troubleshooting
+
+### Changed
+- Updated login flow to pass options as second parameter to login()
+- Improved event logging with detailed debug output
+
+## [1.1.1] - 2025-12-03
+
+### Fixed
+- Fixed selfListen setting to enable bot to respond to own account messages
+- Updated config.json selfListen from false to true
+
 ## [1.1.0] - 2025-12-03
 
-  - Migrated from facebook-chat-api to ws3-fca 3.4.2
-  - Added 36 new commands (27 → 63 total)
-  - New Fun: joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate
-  - New Utility: avatar, remind, poll, calc, time, translate, shorten, memberlist
-  - New Admin: ban, unban, setname, setemoji, setnickname, adminlist, broadcast
-  - New General: about, changelog, rules, invite
-  - New Level: givexp, rank
-  - New Music: skip, nowplaying, shuffle
+### Added
+- Migrated from facebook-chat-api to ws3-fca 3.4.2
+- Added 36 new commands (27 → 63 total)
+- New Fun: joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate
+- New Utility: avatar, remind, poll, calc, time, translate, shorten, memberlist
+- New Admin: ban, unban, setname, setemoji, setnickname, adminlist, broadcast
+- New General: about, changelog, rules, invite
+- New Level: givexp, rank
+- New Music: skip, nowplaying, shuffle
 
 ## [1.0.0] - 2025-12-02
 
