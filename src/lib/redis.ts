@@ -69,8 +69,10 @@ class RedisClient {
     try {
       const data = await this.client.get(this.getKey(key));
       return data ? JSON.parse(data) : null;
-    } catch (error) {
-      logger.error('Redis get error', { key, error });
+    } catch (error: any) {
+      if (error?.message?.includes('NOPERM')) {
+        this.isConnected = false;
+      }
       return null;
     }
   }
@@ -86,8 +88,10 @@ class RedisClient {
         await this.client.set(this.getKey(key), serialized);
       }
       return true;
-    } catch (error) {
-      logger.error('Redis set error', { key, error });
+    } catch (error: any) {
+      if (error?.message?.includes('NOPERM')) {
+        this.isConnected = false;
+      }
       return false;
     }
   }
@@ -98,8 +102,7 @@ class RedisClient {
     try {
       await this.client.del(this.getKey(key));
       return true;
-    } catch (error) {
-      logger.error('Redis delete error', { key, error });
+    } catch {
       return false;
     }
   }
@@ -109,8 +112,7 @@ class RedisClient {
     
     try {
       return (await this.client.exists(this.getKey(key))) === 1;
-    } catch (error) {
-      logger.error('Redis exists error', { key, error });
+    } catch {
       return false;
     }
   }
@@ -120,8 +122,7 @@ class RedisClient {
     
     try {
       return await this.client.incrby(this.getKey(key), by);
-    } catch (error) {
-      logger.error('Redis increment error', { key, error });
+    } catch {
       return null;
     }
   }
@@ -162,8 +163,7 @@ class RedisClient {
       
       await this.set(key, now, Math.ceil(cooldownMs / 1000));
       return { onCooldown: false, remaining: 0 };
-    } catch (error) {
-      logger.error('Redis cooldown check error', { userId, command, error });
+    } catch {
       return { onCooldown: false, remaining: 0 };
     }
   }

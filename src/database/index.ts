@@ -64,16 +64,19 @@ export class Database {
         xp: 0,
         level: 0,
         totalMessages: 0,
-      }).returning();
-      return result[0] || null;
+      }).onConflictDoNothing().returning();
+      if (result[0]) return result[0];
+      return await this.getUser(userId);
     } catch (error: any) {
       if (error?.code === '42P01') { tablesExist = false; return null; }
+      if (error?.code === '23505') return await this.getUser(userId);
       logger.error('Failed to create user', { userId, error });
       return null;
     }
   }
 
   async getOrCreateUser(userId: string, name?: string): Promise<schema.User | null> {
+    if (!tablesExist) return null;
     let user = await this.getUser(userId);
     if (!user) {
       user = await this.createUser(userId, name);
