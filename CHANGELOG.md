@@ -5,6 +5,19 @@ All notable changes to the Nazzel Messenger User-Bot project will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Recent Changes
+
+## [1.1.0] - 2025-12-03
+
+  - Migrated from facebook-chat-api to ws3-fca 3.4.2
+  - Added 36 new commands (27 → 63 total)
+  - New Fun: joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate
+  - New Utility: avatar, remind, poll, calc, time, translate, shorten, memberlist
+  - New Admin: ban, unban, setname, setemoji, setnickname, adminlist, broadcast
+  - New General: about, changelog, rules, invite
+  - New Level: givexp, rank
+  - New Music: skip, nowplaying, shuffle
+
 ## [1.0.0] - 2025-12-02
 
 ### Added
