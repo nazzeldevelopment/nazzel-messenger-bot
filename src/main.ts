@@ -66,8 +66,9 @@ async function main(): Promise<void> {
     updatePresence: true,
     autoMarkRead: config.bot.autoMarkRead,
     autoMarkDelivery: config.bot.autoMarkDelivery,
-    userAgent: 'Mozilla/5.0 (Linux; Android 12; M2102J20SG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Mobile Safari/537.36',
+    userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
     forceLogin: true,
+    logLevel: 'silent',
   };
   
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
@@ -194,10 +195,14 @@ async function handleMessage(api: any, event: any): Promise<void> {
   const body = event.body || '';
   const threadId = event.threadID;
   const senderId = event.senderID;
+  const currentUserId = api.getCurrentUserID();
   
   if (!body.trim()) return;
   
+  const isSelfMessage = senderId === currentUserId;
+  
   BotLogger.message(threadId, senderId, body);
+  BotLogger.debug(`Message details: threadType=${event.isGroup ? 'group' : 'private'}, isSelf=${isSelfMessage}, body="${body.substring(0, 50)}"`);
   
   await database.logEntry({
     type: 'message',
@@ -207,11 +212,12 @@ async function handleMessage(api: any, event: any): Promise<void> {
     userId: senderId,
   });
   
-  if (config.features.xp.enabled) {
+  if (config.features.xp.enabled && !isSelfMessage) {
     await handleXP(api, senderId, threadId);
   }
   
   if (body.startsWith(prefix)) {
+    BotLogger.debug(`Command detected: "${body}" from ${isSelfMessage ? 'self' : senderId}`);
     const raw = body.slice(prefix.length).trim();
     const parts = raw.split(/\s+/);
     const commandName = parts.shift()?.toLowerCase() || '';
@@ -265,9 +271,16 @@ async function handleMessage(api: any, event: any): Promise<void> {
       };
       
       try {
+        BotLogger.debug(`Executing command: ${commandName} with args: [${args.join(', ')}]`);
         await commandHandler.executeCommand(context, commandName);
+        BotLogger.debug(`Command ${commandName} execution completed`);
       } catch (error) {
         BotLogger.error(`Command execution failed: ${commandName}`, error);
+        try {
+          await reply(`An error occurred while executing the command. Please try again.`);
+        } catch (replyError) {
+          BotLogger.error(`Failed to send error message`, replyError);
+        }
       }
     }
   }

@@ -28,6 +28,7 @@ class RedisClient {
     try {
       this.client = new Redis(redisUrl, {
         maxRetriesPerRequest: 3,
+        enableReadyCheck: false,
         retryStrategy: (times) => {
           if (times > 3) return null;
           return Math.min(times * 200, 2000);

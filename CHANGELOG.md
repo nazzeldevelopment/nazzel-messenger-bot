@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Recent Changes
 
+## [1.1.3] - 2025-12-03
+
+### Fixed
+- **Bot Not Responding**: Fixed issue where bot connects to Messenger but doesn't respond to commands
+- **Redis NOPERM Error**: Added `enableReadyCheck: false` to Redis configuration to fix "NOPERM this user has no permissions" error
+- **User Agent Updated**: Updated to latest Chrome 131 Mobile User Agent for better Facebook compatibility
+- **Message Handling**: Added detailed debug logging for message processing and command detection
+- **Command Execution**: Improved error handling and logging in command execution flow
+- **XP System**: Fixed XP gain to not trigger on bot's own messages
+- **Appstate Compatibility**: Improved appstate loading for better compatibility with external hosting (Koyeb, Heroku, etc.)
+
+### Changed
+- Enhanced message handler with thread type detection (group/private)
+- Added self-message detection for better command processing
+- Improved command execution logging with args display
+- Added error recovery when sending error messages fails
+- Set ws3-fca logLevel to 'silent' for cleaner console output
+
+### Technical
+- User Agent: `Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36`
+- Redis: `enableReadyCheck: false` to bypass ACL restrictions
+
 ## [1.1.2] - 2025-12-03
 
 ### Fixed
