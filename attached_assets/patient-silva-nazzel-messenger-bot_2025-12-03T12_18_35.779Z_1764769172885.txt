@@ -1,0 +1,97 @@
+Build ready to start ▶️
+>> Cloning github.com/nazzeldevelopment/nazzel-messenger-bot.git commit sha e887949759120e0896aedff73128c4a165dea53f into /builder/workspace
+Initialized empty Git repository in /builder/workspace/.git/
+From https://github.com/nazzeldevelopment/nazzel-messenger-bot
+ * branch            e887949759120e0896aedff73128c4a165dea53f -> FETCH_HEAD
+HEAD is now at e887949 Saved progress at the end of the loop
+Starting Docker daemon...
+Waiting for the Docker daemon to start...
+done
+Timer: Analyzer started at 2025-12-03T12:16:58Z
+Restoring data for SBOM from previous image
+Timer: Analyzer ran for 5.779303213s and ended at 2025-12-03T12:17:03Z
+Timer: Detector started at 2025-12-03T12:17:04Z
+3 of 4 buildpacks participating
+heroku/nodejs-engine       3.6.5
+heroku/nodejs-corepack     3.6.5
+heroku/nodejs-pnpm-install 3.6.5
+Timer: Detector ran for 111.766568ms and ended at 2025-12-03T12:17:05Z
+Timer: Restorer started at 2025-12-03T12:17:05Z
+Restoring metadata for "heroku/nodejs-engine:dist" from app image
+Restoring metadata for "heroku/nodejs-engine:web_env" from app image
+Restoring metadata for "heroku/nodejs-corepack:mgr" from app image
+Restoring metadata for "heroku/nodejs-corepack:shim" from app image
+Restoring metadata for "heroku/nodejs-pnpm-install:addressable" from cache
+Restoring data for "heroku/nodejs-engine:dist" from cache
+Restoring data for "heroku/nodejs-corepack:mgr" from cache
+Restoring data for "heroku/nodejs-corepack:shim" from cache
+Restoring data for "heroku/nodejs-pnpm-install:addressable" from cache
+Timer: Restorer ran for 3.30435268s and ended at 2025-12-03T12:17:09Z
+Timer: Builder started at 2025-12-03T12:17:11Z
+
+[1;35m## Heroku Node.js Engine[0m
+
+- Checking Node.js version
+  - Detected Node.js version range: `[0;33m>=20.0.0[0m`
+  - Resolved Node.js version: `[0;33m24.0.2[0m`
+- Installing Node.js distribution
+  - Reusing Node.js 24.0.2 (linux-amd64)
+- Done (finished in < 0.1s)
+
+[1;35m## Heroku Node.js Corepack[0m
+
+- Using Corepack version `[0;33m0.32.0[0m`
+- Found `[0;33mpackageManager[0m` set to `[0;33mpnpm@10.24.0[0m` in `[0;33mpackage.json[0m`
+- Enabling Corepack
+  - Restoring Corepack shims
+  - Executing `[0;33m[1;36mcorepack enable --install-directory /layers/heroku_nodejs-corepack/shim/bin pnpm[0m`
+- Installing `[0;33mpnpm@10.24.0[0m`
+  - Restoring Corepack package manager
+  - Running `[0;33m[1;36mcorepack prepare[0m`
+
+      Preparing pnpm@10.24.0...
+
+  - Done (< 0.1s)
+- Done (finished in 0.1s)
+
+[1;35m## Heroku Node.js pnpm Install[0m
+
+- Setting up pnpm dependency store
+  - Restoring pnpm content-addressable store from cache
+  - Creating pnpm virtual store
+- Installing dependencies
+  - Running `[0;33m[1;36mpnpm install --frozen-lockfile[0m`
+
+       ERR_PNPM_OUTDATED_LOCKFILE  Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date with <ROOT>/package.json
+
+      Note that in CI environments this setting is true by default. If you still need to run install in such cases, use "pnpm install --no-frozen-lockfile"
+
+        Failure reason:
+        specifiers in the lockfile don't match specifiers in package.json:
+      * 2 dependencies were added: @types/ioredis@^4.28.10, mongodb@^7.0.0
+      * 3 dependencies were removed: @neondatabase/serverless@^0.10.4, drizzle-orm@^0.36.4, drizzle-kit@^0.28.1
+      * 1 dependencies are mismatched:
+        - ioredis (lockfile: ^5.4.2, manifest: ^5.8.2)
+
+  - Done (0.2s)
+
+- [1;36mDebug Info:[0m
+  - Command failed `pnpm install --frozen-lockfile`
+    exit status: 1
+    stdout: <see above>
+    stderr: <see above>
+
+[0;31m! Failed to install Node modules[0m
+[0;31m![0m
+[0;31m! The Heroku Node.js pnpm Install buildpack uses the command `[0;33mpnpm install --frozen-lockfile[0m[0;31m` to install your Node modules. This command failed and the buildpack cannot continue. This error can occur due to an unstable network connection. See the log output above for more information.[0m
+[0;31m![0m
+[0;31m! Suggestions:[0m
+[0;31m! - Ensure that this command runs locally without error (exit status = 0).[0m
+[0;31m! - Check the status of the upstream Node module repository service at https://status.npmjs.org/[0m
+[0;31m![0m
+[0;31m! Use the debug information above to troubleshoot and retry your build.[0m
+
+
+Timer: Builder ran for 1.042309014s and ended at 2025-12-03T12:17:12Z
+[31;1mERROR: [0mfailed to build: exit status 1
+Build failed ❌

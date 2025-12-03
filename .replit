@@ -40,10 +40,6 @@ localPort = 34219
 externalPort = 3000
 
 [[ports]]
-localPort = 44721
-externalPort = 3002
-
-[[ports]]
 localPort = 44899
 externalPort = 3001
 
@@ -53,4 +49,4 @@ externalPort = 3001
 DATABASE_URL_OVERRIDE = "true"
 MONGODB_URI = "mongodb+srv://NazzelWebsite:Website716291@cluster0.chtay4c.mongodb.net/webdb?retryWrites=true&w=majority"
 OWNER_ID = "100055456757551"
-REDIS_URL = "rediss://default_ro:AiVgAAIgcDL1ZcxfNes-UCmysT2c58E1XwaZsMD1la3xk8S4mzsL8g@meet-doe-9568.upstash.io:6379"
+REDIS_URL = "rediss://default:ASVgAAImcDIzNDI5ZGMzNTU1ODg0MjE5Yjc1ZmFkYzgzZDQwMjUzMHAyOTU2OA@meet-doe-9568.upstash.io:6379"
