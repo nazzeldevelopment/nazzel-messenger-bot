@@ -17,22 +17,45 @@ const prefix = config.bot.prefix;
 async function main(): Promise<void> {
   BotLogger.startup(`Starting ${config.bot.name} v${config.bot.version}`);
   
-  await redis.connect();
+  const redisConnected = await redis.connect();
   
   await commandHandler.loadCommands();
+  BotLogger.printLoadedCommands(commandHandler.getAllCommands().size);
+  
+  BotLogger.printDatabaseInfo(true, redisConnected);
   
   const app = createServer();
   startServer(app);
+  BotLogger.printServerInfo(config.server.port);
   
   let appState: any = null;
+  let appStateSource = '';
   
-  if (fs.existsSync(APPSTATE_FILE)) {
+  const dbAppstate = await database.getAppstate();
+  if (dbAppstate && Array.isArray(dbAppstate) && dbAppstate.length > 0) {
+    appState = dbAppstate;
+    appStateSource = 'database';
+    BotLogger.appstateStatus('loaded', 'From database (persistent)');
+  }
+  
+  if (!appState && fs.existsSync(APPSTATE_FILE)) {
     try {
-      appState = JSON.parse(fs.readFileSync(APPSTATE_FILE, 'utf8'));
-      BotLogger.info('Loaded appstate from file');
+      const fileContent = fs.readFileSync(APPSTATE_FILE, 'utf8');
+      if (fileContent && fileContent.trim().length > 2) {
+        appState = JSON.parse(fileContent);
+        appStateSource = 'file';
+        BotLogger.appstateStatus('loaded', 'From file');
+        
+        await database.saveAppstate(appState);
+        BotLogger.info('Appstate synced to database for persistence');
+      } else {
+        BotLogger.appstateStatus('missing', 'File exists but is empty');
+      }
     } catch (error) {
-      BotLogger.error('Failed to parse appstate.json', error);
+      BotLogger.appstateStatus('error', error instanceof Error ? error.message : 'Parse error');
     }
+  } else if (!appState) {
+    BotLogger.appstateStatus('missing', 'Not found in database or file');
   }
   
   const credentials = { appState };
@@ -47,13 +70,15 @@ async function main(): Promise<void> {
     forceLogin: true,
   };
   
-  if (!appState) {
-    BotLogger.warn('No appstate.json found.');
+  if (!appState || (Array.isArray(appState) && appState.length === 0)) {
+    BotLogger.warn('No valid appstate found in database or file.');
     BotLogger.info('ws3-fca requires cookie-based authentication (appstate.json).');
     BotLogger.info('Please provide a valid appstate.json file with Facebook cookies.');
     BotLogger.info('The Express server is running. Bot will not connect to Messenger.');
     return;
   }
+  
+  BotLogger.printLine('LOGIN FACEBOOK:', 'Attempting login...', undefined, undefined);
   
   login(credentials, loginOptions, async (err: any, api: any) => {
     if (err) {
@@ -67,13 +92,38 @@ async function main(): Promise<void> {
       return;
     }
     
-    BotLogger.success('Successfully logged in to Facebook Messenger');
+    const currentUserId = api.getCurrentUserID();
     
     try {
-      fs.writeFileSync(APPSTATE_FILE, JSON.stringify(api.getAppState(), null, 2));
-      BotLogger.info('Saved appstate.json');
+      const userInfo = await new Promise<Record<string, { name: string }>>((resolve, reject) => {
+        api.getUserInfo(currentUserId, (err: Error | null, info: any) => {
+          if (err) reject(err);
+          else resolve(info);
+        });
+      });
+      
+      const botName = userInfo[currentUserId]?.name || 'Unknown';
+      BotLogger.printLoginSuccess(botName, currentUserId);
+      BotLogger.printBotInfo(api);
     } catch (error) {
-      BotLogger.error('Failed to save appstate.json', error);
+      BotLogger.printLoginSuccess(undefined, currentUserId);
+      BotLogger.printBotInfo(api);
+    }
+    
+    try {
+      const newAppState = api.getAppState();
+      if (newAppState && newAppState.length > 0) {
+        fs.writeFileSync(APPSTATE_FILE, JSON.stringify(newAppState, null, 2));
+        
+        const dbSaved = await database.saveAppstate(newAppState);
+        if (dbSaved) {
+          BotLogger.appstateStatus('saved', 'To file and database');
+        } else {
+          BotLogger.appstateStatus('saved', 'To file only');
+        }
+      }
+    } catch (error) {
+      BotLogger.appstateStatus('error', 'Failed to save');
     }
     
     api.setOptions({
@@ -82,6 +132,8 @@ async function main(): Promise<void> {
       autoMarkRead: config.bot.autoMarkRead,
       autoMarkDelivery: config.bot.autoMarkDelivery,
     });
+    
+    BotLogger.printBotStarted();
     
     api.listenMqtt(async (err: any, event: any) => {
       if (err) {
@@ -95,8 +147,6 @@ async function main(): Promise<void> {
         return;
       }
       
-      BotLogger.debug(`Received event: ${event?.type}`, { event: JSON.stringify(event).substring(0, 500) });
-      
       try {
         await handleEvent(api, event);
       } catch (error) {
@@ -109,8 +159,6 @@ async function main(): Promise<void> {
         });
       }
     });
-    
-    BotLogger.success('Bot is now listening for messages');
   });
 }
 
@@ -134,10 +182,11 @@ async function handleEvent(api: any, event: any): Promise<void> {
       break;
       
     case 'typ':
+    case 'read_receipt':
       break;
       
     default:
-      BotLogger.debug(`Unhandled event type: ${event.type}`);
+      break;
   }
 }
 
@@ -145,6 +194,8 @@ async function handleMessage(api: any, event: any): Promise<void> {
   const body = event.body || '';
   const threadId = event.threadID;
   const senderId = event.senderID;
+  
+  if (!body.trim()) return;
   
   BotLogger.message(threadId, senderId, body);
   
@@ -172,14 +223,29 @@ async function handleMessage(api: any, event: any): Promise<void> {
       const sendMessage = async (message: string | MessageOptions, tid?: string): Promise<void> => {
         return new Promise((resolve, reject) => {
           const targetThread = tid || threadId;
-          api.sendMessage(
-            typeof message === 'string' ? message : message,
-            targetThread,
-            (err: Error | null) => {
-              if (err) reject(err);
-              else resolve();
-            }
-          );
+          const messageContent = typeof message === 'string' ? message : message;
+          
+          BotLogger.debug(`Attempting to send message to ${targetThread}...`);
+          
+          try {
+            api.sendMessage(
+              messageContent,
+              targetThread,
+              (err: Error | null, messageInfo: any) => {
+                if (err) {
+                  BotLogger.error(`Failed to send message to ${targetThread}`, err);
+                  reject(err);
+                } else {
+                  const preview = typeof message === 'string' ? message.substring(0, 50) : 'attachment/complex message';
+                  BotLogger.messageSent(targetThread, preview);
+                  resolve();
+                }
+              }
+            );
+          } catch (sendError) {
+            BotLogger.error(`Exception in sendMessage`, sendError);
+            reject(sendError);
+          }
         });
       };
       
@@ -198,7 +264,11 @@ async function handleMessage(api: any, event: any): Promise<void> {
         reply,
       };
       
-      await commandHandler.executeCommand(context, commandName);
+      try {
+        await commandHandler.executeCommand(context, commandName);
+      } catch (error) {
+        BotLogger.error(`Command execution failed: ${commandName}`, error);
+      }
     }
   }
 }
@@ -229,7 +299,13 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
       
       const levelUpMessage = `🎉 Congratulations ${userName}!\n\n⭐ You've reached **Level ${result.user.level}**!\n\nKeep chatting to earn more XP!`;
       
-      api.sendMessage(levelUpMessage, threadId);
+      api.sendMessage(levelUpMessage, threadId, (err: Error | null) => {
+        if (err) {
+          BotLogger.error('Failed to send level up message', err);
+        } else {
+          BotLogger.messageSent(threadId, `Level up notification for ${userName}`);
+        }
+      });
     } catch (error) {
       BotLogger.error('Failed to send level up message', error);
     }
@@ -252,7 +328,13 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
           .replace('{prefix}', prefix);
         
         try {
-          api.sendMessage(welcomeMessage, threadID);
+          api.sendMessage(welcomeMessage, threadID, (err: Error | null) => {
+            if (err) {
+              BotLogger.error('Failed to send welcome message', err);
+            } else {
+              BotLogger.messageSent(threadID, `Welcome message for ${userName}`);
+            }
+          });
           
           await database.logEntry({
             type: 'event',

@@ -188,7 +188,5 @@ export function startServer(app: Express): void {
   const port = config.server.port || 5000;
   const host = config.server.host || '0.0.0.0';
   
-  app.listen(port, host, () => {
-    BotLogger.startup(`Express server running on http://${host}:${port}`);
-  });
+  app.listen(port, host);
 }

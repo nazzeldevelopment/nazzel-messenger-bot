@@ -4,10 +4,15 @@ import { eq, desc, sql, and, gte } from 'drizzle-orm';
 import * as schema from './schema.js';
 import { logger } from '../lib/logger.js';
 
-const connectionString = process.env.DATABASE_URL!;
+let connectionString = process.env.DATABASE_URL!;
 
 if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required');
+}
+
+if (connectionString.includes('/nazzelmessengerbot')) {
+  connectionString = connectionString.replace('/nazzelmessengerbot', '/neondb');
+  logger.info('Corrected database name from nazzelmessengerbot to neondb');
 }
 
 const client = neon(connectionString);
@@ -292,6 +297,30 @@ export class Database {
     } catch (error) {
       logger.error('Failed to get top users', { error });
       return [];
+    }
+  }
+
+  async getAppstate(): Promise<any[] | null> {
+    try {
+      const result = await this.getSetting<any[]>('appstate');
+      return result;
+    } catch (error) {
+      logger.error('Failed to get appstate from database', { error });
+      return null;
+    }
+  }
+
+  async saveAppstate(appstate: any[]): Promise<boolean> {
+    try {
+      if (!appstate || appstate.length === 0) {
+        logger.warn('Attempted to save empty appstate, skipping');
+        return false;
+      }
+      await this.setSetting('appstate', appstate);
+      return true;
+    } catch (error) {
+      logger.error('Failed to save appstate to database', { error });
+      return false;
     }
   }
 }
