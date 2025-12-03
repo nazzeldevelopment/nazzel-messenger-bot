@@ -32,7 +32,20 @@ src/
 
 ## Recent Changes
 
-- **2024-12-02**: v1.1.0
+- **2025-12-03**: v1.1.3
+  - Fixed bot not responding to commands in Group Chats and Private Messages
+  - Fixed Redis NOPERM error with `enableReadyCheck: false`
+  - Updated User Agent to Chrome 131 on Android 14 for better Facebook compatibility
+  - Enhanced message handling with detailed debug logging
+  - Improved command execution with better error handling
+  - Fixed XP system to not trigger on bot's own messages
+  - Compatible with external hosting (Koyeb, Heroku, etc.)
+
+- **2025-12-03**: v1.1.2
+  - Fixed ws3-fca import and login flow
+  - Added forceLogin and updatePresence options
+
+- **2025-12-03**: v1.1.0
   - Migrated from facebook-chat-api to ws3-fca 3.4.2
   - Added 36 new commands (27 → 63 total)
   - New Fun: joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate
@@ -42,7 +55,7 @@ src/
   - New Level: givexp, rank
   - New Music: skip, nowplaying, shuffle
 
-- **2024-12-01**: v1.0.0
+- **2025-12-02**: v1.0.0
   - Initial release with 27 commands
   - Full TypeScript implementation
   - PostgreSQL + Redis integration
