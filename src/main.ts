@@ -1,7 +1,9 @@
 import 'dotenv/config';
 import fs from 'fs';
-import login from 'ws3-fca';
+import fca from 'ws3-fca';
 import { BotLogger, logger } from './lib/logger.js';
+
+const login = (fca as any).login || fca;
 import { commandHandler } from './lib/commandHandler.js';
 import { database } from './database/index.js';
 import { redis } from './lib/redis.js';
