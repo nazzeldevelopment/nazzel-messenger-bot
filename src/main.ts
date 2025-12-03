@@ -1,9 +1,7 @@
 import 'dotenv/config';
 import fs from 'fs';
-import fca from 'ws3-fca';
+import login from '@dongdev/fca-unofficial';
 import { BotLogger, logger } from './lib/logger.js';
-
-const login = (fca as any).login || fca;
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
 import { redis } from './lib/redis.js';
@@ -75,12 +73,12 @@ async function main(): Promise<void> {
     autoMarkRead: config.bot.autoMarkRead,
     autoMarkDelivery: config.bot.autoMarkDelivery,
     forceLogin: true,
-    logLevel: 'silent',
+    logLevel: 'silent' as const,
   };
   
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
     BotLogger.warn('No valid appstate found in database or file.');
-    BotLogger.info('ws3-fca requires cookie-based authentication (appstate.json).');
+    BotLogger.info('fca-unofficial requires cookie-based authentication (appstate.json).');
     BotLogger.info('Please provide a valid appstate.json file with Facebook cookies.');
     BotLogger.info('The Express server is running. Bot will not connect to Messenger.');
     return;

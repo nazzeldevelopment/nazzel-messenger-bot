@@ -1,5 +1,5 @@
-declare module 'ws3-fca' {
-  interface LoginOptions {
+declare module '@dongdev/fca-unofficial' {
+  interface LoginCredentials {
     email?: string;
     password?: string;
     appState?: any[];
@@ -12,7 +12,7 @@ declare module 'ws3-fca' {
     autoMarkDelivery?: boolean;
     updatePresence?: boolean;
     forceLogin?: boolean;
-    logLevel?: string;
+    logLevel?: 'silent' | 'error' | 'warn' | 'info' | 'verbose' | 'silly' | 'http';
     pageID?: string;
   }
 
@@ -34,62 +34,70 @@ declare module 'ws3-fca' {
     timestamp: number;
     isGroup: boolean;
     participantIDs?: string[];
+    messageReply?: {
+      senderID: string;
+      messageID: string;
+      body: string;
+    };
+    logMessageType?: string;
+    logMessageData?: any;
+    userID?: string;
+    reaction?: string;
   }
 
   interface Api {
     setOptions(options: ApiOptions): void;
     getAppState(): any[];
-    listenMqtt(callback: (err: Error | null, event: MessageEvent) => void): void;
+    listenMqtt(callback: (err: Error | null, event: MessageEvent) => void): () => void;
+    listen(callback: (err: Error | null, event: MessageEvent) => void): () => void;
     sendMessage(
       message: string | { body?: string; attachment?: any; sticker?: string; url?: string },
       threadID: string,
-      callback?: (err: Error | null, messageInfo?: MessageInfo) => void
-    ): void;
+      callback?: (err: Error | null, messageInfo?: MessageInfo) => void,
+      messageID?: string
+    ): Promise<MessageInfo>;
     getUserInfo(
-      userIDs: string | string[],
-      callback: (err: Error | null, userInfo: Record<string, any>) => void
-    ): void;
+      userIDs: string | string[]
+    ): Promise<Record<string, any>>;
     getThreadInfo(
-      threadID: string,
-      callback: (err: Error | null, threadInfo: any) => void
-    ): void;
+      threadID: string
+    ): Promise<any>;
     getThreadList(
       limit: number,
       timestamp: number | null,
-      tags: string[],
-      callback: (err: Error | null, threads: any[]) => void
-    ): void;
+      tags: string[]
+    ): Promise<any[]>;
     addUserToGroup(
       userID: string | string[],
       threadID: string,
       callback?: (err: Error | null) => void
-    ): void;
+    ): Promise<void>;
     removeUserFromGroup(
       userID: string,
       threadID: string,
       callback?: (err: Error | null) => void
-    ): void;
+    ): Promise<void>;
     changeThreadColor(
       color: string,
       threadID: string,
       callback?: (err: Error | null) => void
-    ): void;
+    ): Promise<void>;
     changeNickname(
       nickname: string,
       threadID: string,
       participantID: string,
       callback?: (err: Error | null) => void
-    ): void;
+    ): Promise<void>;
     changeGroupImage(
       image: NodeJS.ReadableStream,
       threadID: string,
       callback?: (err: Error | null) => void
-    ): void;
+    ): Promise<void>;
     setTitle(
       newTitle: string,
       threadID: string,
       callback?: (err: Error | null, obj: any) => void
-    ): void;
+    ): Promise<any>;
     sendTypingIndicator(
       threadID: string,
       callback?: (err: Error | null) => void
@@ -97,15 +105,36 @@ declare module 'ws3-fca' {
     markAsRead(
       threadID: string,
       callback?: (err: Error | null) => void
-    ): void;
+    ): Promise<void>;
     getCurrentUserID(): string;
-    getFriendsList(callback: (err: Error | null, friends: any[]) => void): void;
-    logout(callback?: (err: Error | null) => void): void;
+    getFriendsList(): Promise<any[]>;
+    logout(callback?: (err: Error | null) => void): Promise<void>;
+    changeThreadEmoji(
+      emoji: string,
+      threadID: string,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    setMessageReaction(
+      reaction: string,
+      messageID: string,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    unsendMessage(
+      messageID: string,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    getThreadHistory(
+      threadID: string,
+      amount: number,
+      timestamp?: number,
+      callback?: (err: Error | null, history: any[]) => void
+    ): Promise<any[]>;
   }
 
   function login(
-    credentials: LoginOptions,
-    callback: (err: any, api: Api) => void
+    credentials: LoginCredentials,
+    options?: ApiOptions,
+    callback?: (err: any, api: Api) => void
   ): void;
 
   export = login;
