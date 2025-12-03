@@ -2,7 +2,7 @@
 
 ## Custom License Agreement
 
-Copyright (c) 2024 Nazzel. All rights reserved.
+Copyright (c) 2025 Nazzel. All rights reserved.
 
 ### Terms and Conditions
 
