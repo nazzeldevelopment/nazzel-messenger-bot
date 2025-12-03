@@ -31,6 +31,14 @@ src/
 
 ## Recent Changes
 
+- **2025-12-03**: v1.3.3
+  - Final fix for MessageID type error using `('' + id).trim()` pattern
+  - Added 3-retry message sending system with progressive delays
+  - Fixed ping, announce, broadcast, remind commands to use centralized reply function
+  - Fixed kick, addmember, setnickname, profile, level commands with ID normalization
+  - Removed problematic typing indicator that caused delays
+  - All commands now use the robust sendMessage wrapper with retry logic
+
 - **2025-12-03**: v1.3.2
   - Fixed "MessageID should be of type string and not String" error
   - Centralized ID normalization in event dispatcher
