@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 export const command: Command = {
   name: 'about',
@@ -7,34 +8,38 @@ export const command: Command = {
   category: 'general',
   usage: 'about',
   examples: ['about'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ config, reply }) {
-    const message = `
-🤖 *${config.bot.name}*
+    await reply(`${decorations.crown} 『 ${config.bot.name.toUpperCase()} 』 ${decorations.crown}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.sparkle} ${config.bot.description}
 
-📋 *About:*
-${config.bot.description}
+◈ BOT DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Version: ${config.bot.version}
+🔧 Prefix: ${config.bot.prefix}
+💻 Platform: Messenger
+🌐 API: @dongdev/fca-unofficial
 
-📦 *Version:* ${config.bot.version}
-🔧 *Prefix:* ${config.bot.prefix}
-💻 *Platform:* Facebook Messenger
-🌐 *API:* ws3-fca
+◈ FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━
+🎮 100+ Commands
+📊 XP & Leveling System
+🎵 Music Player
+🛡️ Admin Controls
+⚡ Redis Caching
+🗄️ MongoDB Database
+🔐 Bad Words Filter
+🎉 Welcome Messages
 
-📊 *Features:*
-• Modular command system
-• XP & Leveling system
-• Music player
-• Admin controls
-• Redis caching
-• PostgreSQL database
+◈ CREDITS
+━━━━━━━━━━━━━━━━━━━━━━━━━
+👨‍💻 Developer: Nazzel
+📅 Created: 2024
+${decorations.heart} Made with love
 
-👨‍💻 *Developer:* Nazzel
-📅 *Created:* 2024
-
-💡 Use ${config.bot.prefix}help to see all commands!
-    `.trim();
-
-    await reply(message);
+━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 Type ${config.bot.prefix}help to explore!`);
   },
 };

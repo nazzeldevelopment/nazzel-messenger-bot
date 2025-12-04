@@ -1,6 +1,7 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { commandHandler } from '../../lib/commandHandler.js';
 import config from '../../../config.json' with { type: 'json' };
+import fmt, { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'help',
@@ -20,68 +21,55 @@ const command: Command = {
       userName = userInfo[event.senderID]?.name?.split(' ')[0] || 'User';
     } catch (e) {}
     
-    const currentTime = new Date().toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
+    const currentTime = fmt.formatTimestamp();
     
     if (args.length === 0) {
       const categories = commandHandler.getCategories();
       const totalCommands = commandHandler.getAllCommands().size;
       
-      let help = `
-╔══════════════════════════════════════════════╗
-║                                              ║
-║      ${config.bot.name.toUpperCase()}       ║
-║       Advanced Messenger Bot                 ║
-║                                              ║
-╠══════════════════════════════════════════════╣
-║  Version: ${config.bot.version}                          ║
-║  Prefix: ${prefix}                                ║
-║  Total Commands: ${totalCommands}                        ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  Hello, ${userName}!                          ║
-║  ${currentTime}                    ║
-║                                              ║
-╠══════════════════════════════════════════════╣
-║           COMMAND CATEGORIES                ║
-╠══════════════════════════════════════════════╣
-║                                              ║`;
+      let help = `${decorations.crown} 『 ${config.bot.name.toUpperCase()} 』 ${decorations.crown}
+${decorations.sparkle} Advanced Messenger Bot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.gem} Version: ${config.bot.version}
+${decorations.lightning} Prefix: ${prefix}
+${decorations.star} Commands: ${totalCommands}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${decorations.heart} Welcome, ${userName}!
+${decorations.sun} ${currentTime}
+
+◈ COMMAND CATEGORIES ◈
+━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+
+      const categoryStyles = ['🔵', '🟣', '🟢', '🟡', '🟠', '🔴'];
+      let colorIndex = 0;
 
       for (const category of categories) {
         const categoryConfig = (config as any).commands.categories[category];
-        const emoji = categoryConfig?.emoji || '';
+        const emoji = categoryConfig?.emoji || categoryStyles[colorIndex % categoryStyles.length];
         const name = categoryConfig?.name || category;
         const description = categoryConfig?.description || '';
         const count = commandHandler.getCommandsByCategory(category).length;
         
         help += `
-║  ${emoji} ${name.toUpperCase().padEnd(20)} [${count}]
-║     ${description}
-║     ${prefix}help ${category}
-║                                              ║`;
+${emoji} ${name.toUpperCase()} 〔${count}〕
+   ┗ ${description}
+   ┗ ${prefix}help ${category}\n`;
+        colorIndex++;
       }
 
       help += `
-╠══════════════════════════════════════════════╣
-║                 QUICK TIPS                   ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║   ${prefix}help <category>  View commands     ║
-║   ${prefix}help <command>   Command details   ║
-║   ${prefix}about           About the bot      ║
-║   ${prefix}ping            Check bot status   ║
-║                                              ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║   Made with love for the community          ║
-║   Type ${prefix}changelog for updates         ║
-║                                              ║
-╚══════════════════════════════════════════════╝`;
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.lightning} QUICK COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━
+➤ ${prefix}help <category>
+➤ ${prefix}help <command>
+➤ ${prefix}about
+➤ ${prefix}ping
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.music} Made with ${decorations.heart} for the community
+${decorations.star} Type ${prefix}changelog for updates`;
 
       await reply(help);
       return;
@@ -101,38 +89,33 @@ const command: Command = {
       const pageCommands = commands.slice(startIdx, startIdx + perPage);
       
       const categoryConfig = (config as any).commands.categories[firstArg];
-      const emoji = categoryConfig?.emoji || '';
+      const emoji = categoryConfig?.emoji || '📁';
       const name = categoryConfig?.name || firstArg;
       const description = categoryConfig?.description || '';
       
-      let help = `
-╔══════════════════════════════════════════════╗
-║                                              ║
-║  ${emoji} ${name.toUpperCase()} COMMANDS                       ║
-║                                              ║
-╠══════════════════════════════════════════════╣
-║  ${description}
-║                                              ║
-╠══════════════════════════════════════════════╣
-║                                              ║`;
+      let help = `${emoji} 『 ${name.toUpperCase()} COMMANDS 』 ${emoji}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.sparkle} ${description}
+━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+
+      const bullets = ['◆', '◇', '●', '○', '▸', '▹', '★', '☆'];
+      let bulletIndex = 0;
 
       for (const cmd of pageCommands) {
-        const aliases = cmd.aliases?.length ? `[${cmd.aliases.join(', ')}]` : '';
+        const aliases = cmd.aliases?.length ? `[${cmd.aliases.slice(0, 2).join(', ')}]` : '';
+        const bullet = bullets[bulletIndex % bullets.length];
         help += `
-║  ${prefix}${cmd.name} ${aliases}
-║     ${cmd.description}
-║`;
+${bullet} ${prefix}${cmd.name} ${aliases}
+   └─ ${cmd.description}\n`;
+        bulletIndex++;
       }
 
       help += `
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  Page ${currentPage} of ${totalPages}  |  ${commands.length} commands total  ║
-║                                              ║
-║  ${prefix}help ${firstArg} ${currentPage + 1}  Next page          ║
-║  ${prefix}help <command>    Command details   ║
-║                                              ║
-╚══════════════════════════════════════════════╝`;
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📄 Page ${currentPage}/${totalPages} │ ${commands.length} commands
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${currentPage < totalPages ? `➤ ${prefix}help ${firstArg} ${currentPage + 1}` : '✓ Last page'}
+➤ ${prefix}help <command> for details`;
 
       await reply(help);
       return;
@@ -141,82 +124,62 @@ const command: Command = {
     const cmd = commandHandler.getCommand(firstArg);
     if (cmd) {
       const categoryConfig = (config as any).commands.categories[cmd.category];
-      const categoryEmoji = categoryConfig?.emoji || '';
+      const categoryEmoji = categoryConfig?.emoji || '📋';
       const categoryName = categoryConfig?.name || cmd.category;
       
-      let help = `
-╔══════════════════════════════════════════════╗
-║                                              ║
-║      COMMAND DETAILS                        ║
-║                                              ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  Name: ${cmd.name.toUpperCase()}
-║                                              ║
-║  ${cmd.description}
-║                                              ║
-╠══════════════════════════════════════════════╣
-║  INFORMATION                                ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  Category: ${categoryEmoji} ${categoryName}
-║  Cooldown: ${(cmd.cooldown || 5000) / 1000}s`;
+      let help = `${decorations.gem} 『 COMMAND INFO 』 ${decorations.gem}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${decorations.star} Name: ${cmd.name.toUpperCase()}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${cmd.description}
+
+◈ DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${categoryEmoji} Category: ${categoryName}
+⏱️ Cooldown: ${(cmd.cooldown || 5000) / 1000}s`;
 
       if (cmd.aliases?.length) {
-        help += `
-║  Aliases: ${cmd.aliases.join(', ')}`;
+        help += `\n🏷️ Aliases: ${cmd.aliases.join(', ')}`;
       }
 
       if (cmd.adminOnly) {
-        help += `
-║  Permission: Admin Only`;
+        help += `\n🔐 Permission: Admin Only`;
       }
       
       if (cmd.ownerOnly) {
-        help += `
-║  Permission: Owner Only`;
+        help += `\n👑 Permission: Owner Only`;
       }
 
       help += `
-║                                              ║
-╠══════════════════════════════════════════════╣
-║  USAGE                                      ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  ${prefix}${cmd.usage || cmd.name}
-║                                              ║`;
+
+◈ USAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━
+➤ ${prefix}${cmd.usage || cmd.name}`;
 
       if (cmd.examples?.length) {
         help += `
-╠══════════════════════════════════════════════╣
-║  EXAMPLES                                   ║
-╠══════════════════════════════════════════════╣
-║                                              ║`;
+
+◈ EXAMPLES
+━━━━━━━━━━━━━━━━━━━━━━━━━`;
         for (const example of cmd.examples) {
-          help += `
-║  ${prefix}${example}`;
+          help += `\n• ${prefix}${example}`;
         }
-        help += `
-║                                              ║`;
       }
 
       help += `
-╚══════════════════════════════════════════════╝`;
+━━━━━━━━━━━━━━━━━━━━━━━━━`;
 
       await reply(help);
       return;
     }
 
-    await reply(`
-╔══════════════════════════════════════════════╗
-║           COMMAND NOT FOUND                 ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  No command or category found: "${firstArg}"
-║                                              ║
-║  Try ${prefix}help to see all categories.    ║
-║                                              ║
-╚══════════════════════════════════════════════╝`);
+    await reply(`${decorations.fire} 『 NOT FOUND 』 ${decorations.fire}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ No command/category: "${firstArg}"
+
+➤ Try ${prefix}help to see all
+━━━━━━━━━━━━━━━━━━━━━━━━━`);
   }
 };
 

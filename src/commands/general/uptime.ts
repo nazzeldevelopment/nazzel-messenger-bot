@@ -1,12 +1,14 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'uptime',
-  aliases: ['up'],
+  aliases: ['up', 'runtime'],
   description: 'Show how long the bot has been running',
   category: 'general',
   usage: 'uptime',
   examples: ['uptime'],
+  cooldown: 5000,
 
   async execute(context: CommandContext): Promise<void> {
     const { reply } = context;
@@ -26,16 +28,32 @@ const command: Command = {
     const uptimeStr = parts.join(', ') || '0 seconds';
     
     const startTime = new Date(Date.now() - uptime * 1000);
-    const startTimeStr = startTime.toLocaleString();
+    const startTimeStr = startTime.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
     
-    const response = `╔═══════════════════════════════╗
-║ ⏱️ BOT UPTIME
-╠═══════════════════════════════╣
-║ Running for: ${uptimeStr}
-║ Started at: ${startTimeStr}
-╚═══════════════════════════════╝`;
+    const totalSeconds = Math.floor(uptime);
+    const uptimePercent = Math.min(100, Math.floor((totalSeconds / 86400) * 100));
+    const progressBar = '█'.repeat(Math.floor(uptimePercent / 10)) + '░'.repeat(10 - Math.floor(uptimePercent / 10));
     
-    await reply(response);
+    await reply(`${decorations.sun} 『 BOT UPTIME 』 ${decorations.sun}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+◈ RUNNING TIME
+━━━━━━━━━━━━━━━━━━━━━━━━━
+⏱️ ${uptimeStr}
+
+◈ SESSION INFO
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Started: ${startTimeStr}
+📊 Daily: [${progressBar}] ${uptimePercent}%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.sparkle} Bot is running smoothly!`);
   }
 };
 

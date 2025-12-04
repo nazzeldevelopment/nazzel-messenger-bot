@@ -1,77 +1,116 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const changelog = [
   {
-    version: '1.1.0',
-    date: '2024-12-02',
+    version: '1.6.0',
+    date: '2025-12-04',
     changes: [
-      'Migrated from facebook-chat-api to ws3-fca 3.4.2',
+      'Complete UI redesign with professional colorful styling',
+      'Removed box-style formatting for modern gradient look',
       'Added 20+ new commands across all categories',
-      'New Fun commands: joke, quote, trivia, rps, fact, roast, compliment, horoscope',
-      'New Utility commands: avatar, remind, poll, calc, time, translate, shorten',
-      'New Admin commands: ban, unban, setname, setemoji, setnickname, adminlist, broadcast',
-      'Improved command handler and error handling',
+      'New message formatter with themed styling',
+      'Each category has unique visual identity',
+      'Improved user experience with cleaner output',
     ],
   },
   {
-    version: '1.0.0',
-    date: '2024-12-01',
+    version: '1.5.0',
+    date: '2025-12-04',
     changes: [
-      'Initial release',
-      'Core bot functionality with ws3-fca',
-      'PostgreSQL database integration',
-      'Redis caching layer',
-      'XP and leveling system',
-      'Music player with YouTube support',
-      '27 commands across 6 categories',
-      'Express API server for status monitoring',
+      'Migrated to pnpm 10.24.0 package manager',
+      'Added prefix change command per group',
+      'Professional ASCII-art box layouts',
+      'Enhanced broadcast command for owner',
+      'Database prefix storage in MongoDB',
+    ],
+  },
+  {
+    version: '1.4.0',
+    date: '2025-12-04',
+    changes: [
+      'Professional Welcome/Leave messages',
+      'Maintenance mode system',
+      'Bad words filter with warnings',
+      '15 new fun commands added',
+      'New utility and moderation commands',
+    ],
+  },
+  {
+    version: '1.3.6',
+    date: '2025-12-04',
+    changes: [
+      'Migrated to @dongdev/fca-unofficial v3.0.8',
+      'Improved MQTT connection reliability',
+      'Auto-cycle reconnection every hour',
+      'Better group chat compatibility',
     ],
   },
 ];
 
 export const command: Command = {
   name: 'changelog',
-  aliases: ['changes', 'updates', 'version'],
+  aliases: ['changes', 'updates', 'version', 'whatsnew'],
   description: 'Show recent bot updates and changes',
   category: 'general',
   usage: 'changelog [version]',
-  examples: ['changelog', 'changelog 1.0.0'],
-  cooldown: 5,
+  examples: ['changelog', 'changelog 1.5.0'],
+  cooldown: 5000,
 
-  async execute({ args, reply }) {
+  async execute({ args, reply, prefix }) {
     if (args[0]) {
       const version = changelog.find(c => c.version === args[0]);
       if (!version) {
-        await reply(`❌ Version ${args[0]} not found.\n\nAvailable versions: ${changelog.map(c => c.version).join(', ')}`);
+        const versions = changelog.map(c => c.version).join(', ');
+        await reply(`${decorations.fire} 『 NOT FOUND 』
+━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ Version ${args[0]} not found
+
+📋 Available: ${versions}`);
         return;
       }
 
-      let message = `📋 *Changelog v${version.version}*\n`;
-      message += `📅 Date: ${version.date}\n\n`;
-      message += `*Changes:*\n`;
-      version.changes.forEach(change => {
-        message += `• ${change}\n`;
+      let msg = `${decorations.sparkle} 『 v${version.version} 』 ${decorations.sparkle}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 ${version.date}
+
+◈ CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━`;
+      
+      version.changes.forEach((change, i) => {
+        const bullets = ['◆', '◇', '●', '○', '▸', '★'];
+        msg += `\n${bullets[i % bullets.length]} ${change}`;
       });
 
-      await reply(message);
+      msg += `\n━━━━━━━━━━━━━━━━━━━━━━━━━`;
+      await reply(msg);
       return;
     }
 
-    let message = `📋 *Bot Changelog*\n\n`;
+    let msg = `${decorations.gem} 『 CHANGELOG 』 ${decorations.gem}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.sparkle} Recent Updates\n`;
 
-    changelog.forEach(entry => {
-      message += `*v${entry.version}* (${entry.date})\n`;
-      entry.changes.slice(0, 3).forEach(change => {
-        message += `  • ${change}\n`;
+    const versionEmojis = ['🆕', '📦', '🔧', '🛠️'];
+    
+    changelog.slice(0, 4).forEach((entry, idx) => {
+      const emoji = versionEmojis[idx % versionEmojis.length];
+      msg += `
+${emoji} v${entry.version} (${entry.date})
+━━━━━━━━━━━━━━━━━━━━━━━━━`;
+      entry.changes.slice(0, 2).forEach(change => {
+        msg += `\n  ➤ ${change}`;
       });
-      if (entry.changes.length > 3) {
-        message += `  • ...and ${entry.changes.length - 3} more\n`;
+      if (entry.changes.length > 2) {
+        msg += `\n  ➤ +${entry.changes.length - 2} more...`;
       }
-      message += `\n`;
+      msg += '\n';
     });
 
-    message += `Use \`changelog <version>\` to see full details.`;
+    msg += `
+━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 ${prefix}changelog <version>`;
 
-    await reply(message);
+    await reply(msg);
   },
 };
