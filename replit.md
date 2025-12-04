@@ -15,7 +15,7 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 - **Professional Welcome/Leave Messages** - Beautiful formatted messages with group info, timestamps, member counts
 - **Maintenance Mode** - Enable/disable bot with auto-notification to groups
 - **Bad Words Filter** - Auto-moderation with warning system and configurable actions
-- **Professional Command Designs** - All commands feature beautiful ASCII-art box layouts
+- **Professional Command Designs** - All commands feature emoji indicators and clean separator styling
 
 ## Architecture
 
@@ -35,6 +35,14 @@ src/
 ```
 
 ## Recent Changes
+
+- **2025-12-04**: v1.6.0
+  - **Complete Command Redesign**: All 102+ commands redesigned with professional emoji styling
+  - Created centralized messageFormatter.ts utility with category-based color themes
+  - Replaced ASCII boxes with clean emoji indicators and separator lines (═══════)
+  - Added category-specific emoji headers: 『 TITLE 』
+  - Color themes: General=Blue, Fun=Pink/Purple, Level=Gold, Utility=Cyan, Admin=Red
+  - Updated CHANGELOG.md with comprehensive v1.6.0 patch notes
 
 - **2025-12-04**: v1.5.0
   - Migrated from npm to pnpm 10.24.0 for better disk usage and faster installs
@@ -176,9 +184,11 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 
 ## Professional Command Designs
 
-All commands now feature beautiful ASCII-art box layouts with:
-- Box-drawing characters (╔═╗║╚)
-- ASCII art headers for major commands
-- Progress bars and status indicators
-- Consistent formatting across all commands
-- Timestamps and detailed information displays
+All commands feature professional emoji-based styling with:
+- Category-specific emoji headers: 『 COMMAND TITLE 』
+- Clean separator lines using ═══════════════════════════
+- Contextual emoji indicators (✅ success, ❌ error, 🔵 info, etc.)
+- Color-coded themes per category (General=Blue, Fun=Pink, Level=Gold, etc.)
+- Progress bars using █ and ░ characters
+- Consistent section formatting with ◈ SECTION labels
+- decorations object for sparkles (✨), stars (⭐), hearts (💖), fire (🔥)

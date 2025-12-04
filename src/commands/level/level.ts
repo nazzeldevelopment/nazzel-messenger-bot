@@ -1,7 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
-import fmt from '../../lib/messageFormatter.js';
+import fmt, { levelMessage, error, createProgressBar, formatNumber } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'level',
@@ -25,48 +24,34 @@ const command: Command = {
     
     try {
       const userInfo = await api.getUserInfo(targetId);
-      
       const userName = userInfo[targetId]?.name || 'Unknown';
       const userData = await database.getOrCreateUser(targetId, userName);
       
       if (!userData) {
-        await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Could not fetch user data`);
+        await reply(error('ERROR', 'Could not fetch user data'));
         return;
       }
       
       const level = userData.level;
       const xp = userData.xp;
       const xpForNextLevel = (level + 1) * 100;
-      const progressBar = fmt.createProgressBar(xp, xpForNextLevel, 12);
+      const progressBar = createProgressBar(xp, xpForNextLevel, 12);
       const rank = await getUserRank(targetId);
       
       const rankEmoji = level >= 50 ? '👑' : level >= 30 ? '💎' : level >= 20 ? '🏆' : level >= 10 ? '⭐' : '🌟';
       const rankMedal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank <= 10 ? '🏅' : '📊';
       
-      await reply(`${rankEmoji} 『 LEVEL STATS 』 ${rankEmoji}
-═══════════════════════════
-👤 ${userName}
-═══════════════════════════
-
-◈ PROGRESS
-═══════════════════════════
-🏆 Level: ${level}
-⭐ XP: ${xp}/${xpForNextLevel}
-${progressBar}
-
-◈ RANKING
-═══════════════════════════
-${rankMedal} Rank: #${rank}
-💬 Messages: ${fmt.formatNumber(userData.totalMessages)}
-
-═══════════════════════════
-${decorations.sparkle} Keep chatting to level up!`);
-    } catch (error) {
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Failed to fetch level data`);
+      await reply(levelMessage('LEVEL STATS', 
+        `${rankEmoji} ${userName}\n\n${progressBar}`,
+        [
+          { label: '🏆 Level', value: String(level) },
+          { label: '⭐ XP', value: `${xp}/${xpForNextLevel}` },
+          { label: `${rankMedal} Rank`, value: `#${rank}` },
+          { label: '💬 Messages', value: formatNumber(userData.totalMessages) }
+        ]
+      ));
+    } catch (err) {
+      await reply(error('ERROR', 'Failed to fetch level data'));
     }
   }
 };

@@ -1,5 +1,5 @@
 import type { Command } from '../../types/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
+import { funMessage } from '../../lib/messageFormatter.js';
 
 const jokes = [
   "Bakit hindi marunong magsinungaling ang kalendaryo? Dahil laging may petsa!",
@@ -27,8 +27,6 @@ const jokes = [
   "Why do programmers prefer dark mode? Because light attracts bugs!",
 ];
 
-const funEmojis = ['😂', '🤣', '😆', '😹', '🎭', '🤪'];
-
 export const command: Command = {
   name: 'joke',
   aliases: ['j', 'jokes', 'biro', 'funny'],
@@ -40,16 +38,7 @@ export const command: Command = {
 
   async execute({ reply }) {
     const joke = jokes[Math.floor(Math.random() * jokes.length)];
-    const emoji = funEmojis[Math.floor(Math.random() * funEmojis.length)];
     
-    await reply(`${emoji} 『 RANDOM JOKE 』 ${emoji}
-═══════════════════════════
-${decorations.sparkle} Here's one for you!
-═══════════════════════════
-
-${joke}
-
-═══════════════════════════
-${decorations.heart} Hope that made you smile!`);
+    await reply(funMessage('RANDOM JOKE', joke, undefined));
   },
 };

@@ -1,5 +1,5 @@
 import type { Command } from '../../types/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
+import { utilityMessage, error, info } from '../../lib/messageFormatter.js';
 
 function safeEval(expression: string): number | null {
   const sanitized = expression.replace(/[^0-9+\-*/().%\s]/g, '');
@@ -32,25 +32,9 @@ export const command: Command = {
 
   async execute({ args, reply, prefix }) {
     if (!args.length) {
-      await reply(`🧮 『 CALCULATOR 』 🧮
-═══════════════════════════
-${decorations.sparkle} Math made easy!
-═══════════════════════════
-
-◈ OPERATIONS
-═══════════════════════════
-➕ + (addition)
-➖ - (subtraction)
-✖️ * or x (multiply)
-➗ / or ÷ (divide)
-📊 % (modulo)
-🔢 () (parentheses)
-
-◈ EXAMPLES
-═══════════════════════════
-➤ ${prefix}calc 2+2
-➤ ${prefix}calc 100*5
-➤ ${prefix}calc (50+25)/3`);
+      await reply(info('CALCULATOR', 
+        `Usage: ${prefix}calc <expression>\n\nSupported operations:\n+ (addition)\n- (subtraction)\n* or x (multiplication)\n/ or ÷ (division)\n% (modulo)\n() (parentheses)\n\nExamples:\n${prefix}calc 2+2\n${prefix}calc 100*5`
+      ));
       return;
     }
 
@@ -61,22 +45,14 @@ ${decorations.sparkle} Math made easy!
     const result = safeEval(expression);
 
     if (result === null) {
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Invalid expression!
-💡 Check your math`);
+      await reply(error('INVALID', 'Invalid mathematical expression! Check your syntax.'));
       return;
     }
 
     const formatted = Number.isInteger(result) ? result.toString() : result.toFixed(6).replace(/\.?0+$/, '');
 
-    await reply(`🧮 『 RESULT 』 🧮
-═══════════════════════════
-
-📝 ${args.join(' ')}
-═══════════════════════════
-✨ = ${formatted}
-═══════════════════════════
-${decorations.sparkle} Math is beautiful!`);
+    await reply(utilityMessage('RESULT',
+      `📝 ${args.join(' ')}\n\n✨ = ${formatted}`
+    ));
   },
 };

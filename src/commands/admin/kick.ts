@@ -1,5 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
+import { adminMessage, error, info } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'kick',
@@ -9,9 +10,10 @@ const command: Command = {
   usage: 'kick <@mention|userID>',
   examples: ['kick @user', 'kick 123456789'],
   adminOnly: true,
+  cooldown: 5000,
 
   async execute(context: CommandContext): Promise<void> {
-    const { api, event, args, reply, config } = context;
+    const { api, event, args, reply, prefix } = context;
     
     let targetId: string | null = null;
     
@@ -22,32 +24,14 @@ const command: Command = {
     }
     
     if (!targetId) {
-      await reply(`
-╔══════════════════════════════════════════════════════════════╗
-║                      KICK ERROR                             ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║   Please mention a user or provide a user ID to kick.       ║
-║                                                              ║
-║   Usage: ${config.bot.prefix}kick <@mention|userID>                    ║
-║                                                              ║
-║   Examples:                                                  ║
-║   ${config.bot.prefix}kick @username                                   ║
-║   ${config.bot.prefix}kick 123456789                                   ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝`);
+      await reply(info('KICK USER', 
+        `Please mention a user or provide their ID to kick.\n\nUsage: ${prefix}kick @user\nExample: ${prefix}kick 123456789`
+      ));
       return;
     }
     
     if (targetId === ('' + event.senderID).trim()) {
-      await reply(`
-╔══════════════════════════════════════════════════════════════╗
-║                      KICK DENIED                            ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║   You cannot kick yourself from the group!                  ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝`);
+      await reply(error('KICK DENIED', 'You cannot kick yourself from the group!'));
       return;
     }
     
@@ -66,47 +50,20 @@ const command: Command = {
       
       BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
       
-      await reply(`
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   ██╗  ██╗██╗ ██████╗██╗  ██╗███████╗██████╗                 ║
-║   ██║ ██╔╝██║██╔════╝██║ ██╔╝██╔════╝██╔══██╗                ║
-║   █████╔╝ ██║██║     █████╔╝ █████╗  ██║  ██║                ║
-║   ██╔═██╗ ██║██║     ██╔═██╗ ██╔══╝  ██║  ██║                ║
-║   ██║  ██╗██║╚██████╗██║  ██╗███████╗██████╔╝                ║
-║   ╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝                 ║
-║                                                              ║
-║                  USER REMOVED FROM GROUP                    ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║   REMOVED USER                                              ║
-║   ─────────────────────────────────────                     ║
-║   Name     : ${userName}
-║   ID       : ${targetId}
-║   Time     : ${timestamp}
-║   Status   : ✅ Successfully Removed                        ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║   The user has been removed from this group chat.           ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝`);
-    } catch (error) {
-      BotLogger.error(`Failed to kick user ${targetId}`, error);
-      await reply(`
-╔══════════════════════════════════════════════════════════════╗
-║                      KICK FAILED                            ║
-╠══════════════════════════════════════════════════════════════╣
-║                                                              ║
-║   Failed to remove user from the group.                     ║
-║                                                              ║
-║   Possible reasons:                                         ║
-║   - Bot doesn't have admin permissions                      ║
-║   - User is already removed                                 ║
-║   - User is a group admin                                   ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝`);
+      await reply(adminMessage('USER KICKED', 
+        `${userName} has been removed from the group.`,
+        [
+          { label: '👤 Name', value: userName },
+          { label: '🆔 ID', value: targetId },
+          { label: '⏰ Time', value: timestamp },
+          { label: '✅ Status', value: 'Successfully Removed' }
+        ]
+      ));
+    } catch (err) {
+      BotLogger.error(`Failed to kick user ${targetId}`, err);
+      await reply(error('KICK FAILED', 
+        'Failed to remove user.\n\nPossible reasons:\n• Bot lacks admin permissions\n• User already removed\n• User is a group admin'
+      ));
     }
   }
 };
