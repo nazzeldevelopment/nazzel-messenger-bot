@@ -3,7 +3,7 @@ import type { Command } from '../../types/index.js';
 export const command: Command = {
   name: 'broadcast',
   aliases: ['bc', 'sendall', 'announcement'],
-  description: 'Send a professional broadcast message to all groups (Owner/Admin only)',
+  description: 'Send a professional broadcast message to all groups (Owner only)',
   category: 'admin',
   usage: 'broadcast <message>',
   examples: ['broadcast Bot will restart in 5 minutes!', 'broadcast New update available!'],

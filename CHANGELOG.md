@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Package Manager Migration**: Migrated from npm to pnpm 10.24.0 for better disk usage and faster installs
 - **Prefix Change Command**: Owner and admin can now change the bot prefix per group
 - **Professional Command Designs**: All commands now have beautiful ASCII-art box layouts
-- **Enhanced Broadcast Command**: Redesigned with stunning professional layout (owner/admin only)
+- **Enhanced Broadcast Command**: Redesigned with stunning professional layout (owner only)
 - **Database Prefix Storage**: Prefix changes are now stored in MongoDB per group
 - **More Admin Commands**: Enhanced admin functionality
 

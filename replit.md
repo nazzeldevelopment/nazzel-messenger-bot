@@ -15,17 +15,18 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 - **Professional Welcome/Leave Messages** - Beautiful formatted messages with group info, timestamps, member counts
 - **Maintenance Mode** - Enable/disable bot with auto-notification to groups
 - **Bad Words Filter** - Auto-moderation with warning system and configurable actions
+- **Professional Command Designs** - All commands feature beautiful ASCII-art box layouts
 
 ## Architecture
 
 ```
 src/
-├── commands/           # Command modules by category (87 total)
-│   ├── admin/          # Admin commands (15 commands)
-│   ├── fun/            # Fun commands (36 commands)
+├── commands/           # Command modules by category (102 total)
+│   ├── admin/          # Admin commands (17 commands)
+│   ├── fun/            # Fun commands (46 commands)
 │   ├── general/        # General commands (10 commands)
 │   ├── level/          # Level commands (5 commands)
-│   └── utility/        # Utility commands (21 commands)
+│   └── utility/        # Utility commands (24 commands)
 ├── database/           # MongoDB native driver and schema
 ├── lib/                # Core libraries (logger, redis, antiSpam, commandHandler)
 ├── services/           # Express server for status/logs API
@@ -34,6 +35,14 @@ src/
 ```
 
 ## Recent Changes
+
+- **2025-12-04**: v1.5.0
+  - Migrated from npm to pnpm 10.24.0 for better disk usage and faster installs
+  - Added prefix change functionality (owner/admin can change prefix per group)
+  - Redesigned key commands with professional ASCII-art box layouts
+  - Fixed N!invite bug by removing 'invite' alias from addmember command
+  - Added CHANGELOG.md with all patch notes from v1.0.0 to v1.5.0
+  - Enhanced commands: broadcast, prefix, invite, ping, info, announce, kick, ban
 
 - **2025-12-04**: v1.4.0
   - Added Professional Welcome/Leave Messages with group info, timestamps, member counts
@@ -94,10 +103,10 @@ src/
 
 ## User Preferences
 
-- Prefix: `N!` (configurable in config.json)
+- Prefix: `N!` (configurable in config.json and per-group via N!prefix command)
 - Language: TypeScript with strict mode
-- Package Manager: npm (switched from pnpm for better deployment compatibility)
-- Node.js: v22.x
+- Package Manager: pnpm 10.24.0 (for better disk usage)
+- Node.js: v20.x or higher
 
 ## Configuration
 
@@ -151,7 +160,7 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 - `threads` - Group settings
 - `logs` - Categorized bot logs
 - `command_stats` - Command usage tracking
-- `settings` - Key-value settings storage
+- `settings` - Key-value settings storage (includes per-group prefixes)
 - `cooldowns` - Command cooldowns with TTL auto-expiration
 - `xp_cooldowns` - XP gain cooldowns with TTL auto-expiration
 - `appstate` - Facebook session persistence
@@ -164,3 +173,12 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 - `thread_rate:{threadId}` - Thread command count
 - `cmd_cooldown:{userId}:{command}` - Per-command cooldown
 - `xp_cooldown:{userId}` - XP gain cooldown
+
+## Professional Command Designs
+
+All commands now feature beautiful ASCII-art box layouts with:
+- Box-drawing characters (╔═╗║╚)
+- ASCII art headers for major commands
+- Progress bars and status indicators
+- Consistent formatting across all commands
+- Timestamps and detailed information displays
