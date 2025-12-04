@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.1] - 2025-12-04
+
+### Fixed
+- **FCA Library Upgrade**: Replaced `@dongdev/fca-unofficial` with `neokex-fca v4.5.3`
+- **Database Constructor Error**: Completely resolved "this.lib.Database is not a constructor" error
+- **Clean Startup**: Bot now starts without any database warnings or errors
+- **Full Messenger Support**: All group chats and private messages fully supported
+
+### Technical
+- **neokex-fca v4.5.3** - Latest Facebook Chat API (November 2025)
+- **better-sqlite3** - Added for proper SQLite compatibility
+- **MQTT Connection** - Stable connection with auto-cycle every hour
+
+---
+
 ## [1.7.0] - 2025-12-04
 
 ### Added

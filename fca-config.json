@@ -1,19 +1,21 @@
 {
-  "autoUpdate": true,
+  "autoUpdate": false,
   "mqtt": {
     "enabled": true,
     "reconnectInterval": 3600
   },
   "autoLogin": true,
-  "credentials": {
-    "email": "",
-    "password": "",
-    "twofactor": ""
+  "logging": {
+    "enabled": false
   },
   "database": {
-    "enabled": false
+    "enabled": false,
+    "path": null
   },
   "backup": {
-    "enabled": false
-  }
+    "enabled": false,
+    "autoSave": false
+  },
+  "selfListen": true,
+  "listenEvents": true
 }

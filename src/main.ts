@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import fs from 'fs';
-import login from '@dongdev/fca-unofficial';
+// @ts-ignore - neokex-fca has incorrect type exports
+import * as fca from 'neokex-fca';
+const login = fca.login;
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
@@ -112,6 +114,9 @@ async function main(): Promise<void> {
     autoMarkRead: config.bot.autoMarkRead,
     autoMarkDelivery: config.bot.autoMarkDelivery,
     forceLogin: true,
+    database: false,
+    backup: false,
+    logging: false,
   };
   
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
