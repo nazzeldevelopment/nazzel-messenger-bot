@@ -7,11 +7,14 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 - **@dongdev/fca-unofficial 3.0.8** - Latest Facebook Chat API with improved MQTT support for all group chats
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
-- **Modular Commands** - 87 commands organized by categories with paginated help
+- **Modular Commands** - 102 commands organized by categories with paginated help
 - **XP & Leveling** - Automatic XP system with level-up notifications
 - **Music Player** - YouTube audio download and playback
 - **Anti-Leave Protection** - Automatic re-adding of members who leave groups
 - **Comprehensive Logging** - Winston-based categorized logging
+- **Professional Welcome/Leave Messages** - Beautiful formatted messages with group info, timestamps, member counts
+- **Maintenance Mode** - Enable/disable bot with auto-notification to groups
+- **Bad Words Filter** - Auto-moderation with warning system and configurable actions
 
 ## Architecture
 
@@ -31,6 +34,14 @@ src/
 ```
 
 ## Recent Changes
+
+- **2025-12-04**: v1.4.0
+  - Added Professional Welcome/Leave Messages with group info, timestamps, member counts
+  - Added Maintenance Mode system (N!maintenance on/off/status)
+  - Added Bad Words Filter with warning system (3 strikes)
+  - Added 15 new commands (102 total)
+  - Redesigned help command with beautiful ASCII-art layout
+  - Enhanced startup logging with professional banners
 
 - **2025-12-04**: v1.3.6
   - Migrated from ws3-fca to @dongdev/fca-unofficial v3.0.8
@@ -116,15 +127,15 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 - **Auto-Block**: Users exceeding limits are blocked for 30 seconds
 - **Per-Command Cooldowns**: Individual cooldowns ranging from 3s to 30s
 
-## Commands Quick Reference (87 Total)
+## Commands Quick Reference (102 Total)
 
 | Category | Commands |
 |----------|----------|
 | General (10) | help, ping, info, uptime, profile, say, about, changelog, rules, invite |
-| Admin (15) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave |
+| Admin (17) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave, maintenance, moderation |
 | Level (5) | level, xp, leaderboard, givexp, rank |
-| Utility (21) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64 |
-| Fun (36) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock |
+| Utility (24) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64, botstats, userinfo, groupinfo |
+| Fun (46) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock, fortune, dare, truth, wouldyourather, pickup, personality, confess, zodiac, nickname, compatibility |
 
 ## API Endpoints
 
