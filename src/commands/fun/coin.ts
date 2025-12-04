@@ -1,5 +1,4 @@
 import type { Command, CommandContext } from '../../types/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'coin',
@@ -14,22 +13,12 @@ const command: Command = {
     const { reply } = context;
     
     const isHeads = Math.random() < 0.5;
-    const result = isHeads ? 'HEADS' : 'TAILS';
-    const emoji = isHeads ? '👑' : '🦅';
-    const color = isHeads ? '🟡' : '🟠';
+    const result = isHeads ? 'HEADS 👑' : 'TAILS 🦅';
     
-    await reply(`🪙 『 COIN FLIP 』 🪙
-═══════════════════════════
-${decorations.sparkle} Flipping the coin...
-═══════════════════════════
-
-       🪙
-    ↺ spinning...
-
-═══════════════════════════
-${color} Result: ${emoji} ${result}!
-═══════════════════════════
-${decorations.star} The coin has landed!`);
+    await reply(`🪙 COIN FLIP
+━━━━━━━━━━━━━━━
+${isHeads ? '🟡' : '🟠'} ${result}
+━━━━━━━━━━━━━━━`);
   }
 };
 

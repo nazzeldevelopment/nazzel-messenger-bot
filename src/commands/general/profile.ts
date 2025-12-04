@@ -1,11 +1,9 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
-import fmt from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'profile',
-  aliases: ['me', 'user', 'myprofile'],
+  aliases: ['me', 'myprofile'],
   description: 'Display your profile or another user\'s profile',
   category: 'general',
   usage: 'profile [@mention|userID]',
@@ -25,54 +23,34 @@ const command: Command = {
     
     try {
       const userInfo = await api.getUserInfo(targetId);
-      
       const info = userInfo[targetId];
+      
       if (!info) {
-        await reply(`${decorations.fire} 『 ERROR 』
-━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ Could not find user info`);
+        await reply(`❌ User not found`);
         return;
       }
       
       const userData = await database.getOrCreateUser(targetId, info.name);
-      
-      const level = userData?.level || 0;
+      const lvl = userData?.level || 0;
       const xp = userData?.xp || 0;
-      const totalMessages = userData?.totalMessages || 0;
-      const xpForNextLevel = (level + 1) * 100;
-      const progressBar = fmt.createProgressBar(xp, xpForNextLevel, 12);
+      const xpNext = (lvl + 1) * 100;
+      const progress = Math.round((xp / xpNext) * 10);
+      const bar = '█'.repeat(progress) + '░'.repeat(10 - progress);
+      const gender = info.gender === '2' ? '♂️' : info.gender === '1' ? '♀️' : '⚪';
       
-      const genderEmoji = info.gender === '2' ? '👨' : info.gender === '1' ? '👩' : '🧑';
-      const genderText = info.gender === '2' ? 'Male' : info.gender === '1' ? 'Female' : 'Not specified';
-      
-      const rankEmoji = level >= 50 ? '👑' : level >= 30 ? '💎' : level >= 20 ? '🏆' : level >= 10 ? '⭐' : level >= 5 ? '🌟' : '✨';
-      
-      await reply(`${decorations.crown} 『 USER PROFILE 』 ${decorations.crown}
-━━━━━━━━━━━━━━━━━━━━━━━━━
-
-◈ IDENTITY
-━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 Name: ${info.name}
-🆔 ID: ${targetId}
-${genderEmoji} Gender: ${genderText}
-
-◈ LEVEL STATS ${rankEmoji}
-━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 Level: ${level}
-⭐ XP: ${xp}/${xpForNextLevel}
-${progressBar}
-💬 Messages: ${fmt.formatNumber(totalMessages)}
-
-◈ PROFILE LINK
-━━━━━━━━━━━━━━━━━━━━━━━━━
-🔗 ${info.profileUrl || `fb.com/${targetId}`}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━
-${decorations.sparkle} Keep chatting to level up!`);
+      await reply(`👑 PROFILE
+━━━━━━━━━━━━━━━
+👤 ${info.name}
+🆔 ${targetId}
+${gender} Gender
+━━━━━━━━━━━━━━━
+🏆 Level ${lvl}
+⭐ ${xp}/${xpNext} XP
+[${bar}]
+💬 ${userData?.totalMessages || 0} msgs
+━━━━━━━━━━━━━━━`);
     } catch (error) {
-      await reply(`${decorations.fire} 『 ERROR 』
-━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ Failed to fetch profile`);
+      await reply(`❌ Failed to fetch`);
     }
   }
 };

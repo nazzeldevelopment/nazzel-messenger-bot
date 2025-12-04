@@ -418,18 +418,11 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
       const userInfo = await api.getUserInfo(senderIdStr);
       const userName = userInfo[senderIdStr]?.name || 'User';
       
-      const levelUpMessage = `
-╔══════════════════════════════════════╗
-║         LEVEL UP!               ║
-╠══════════════════════════════════════╣
-║                                      ║
-║  Congratulations ${userName}!        ║
-║                                      ║
-║  You've reached Level ${result.user.level}!       ║
-║                                      ║
-║  Keep chatting to earn more XP!     ║
-║                                      ║
-╚══════════════════════════════════════╝`;
+      const levelUpMessage = `🎉 LEVEL UP!
+━━━━━━━━━━━━━━━
+👤 ${userName}
+🏆 Level ${result.user.level}
+━━━━━━━━━━━━━━━`;
       
       try {
         await api.sendMessage(levelUpMessage, threadIdStr);
@@ -513,15 +506,10 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
         const userInfo = await api.getUserInfo(leftUser);
         const userName = userInfo[leftUser]?.name || 'Member';
         
-        await api.sendMessage(`
-╔══════════════════════════════════════╗
-║       ANTI-LEAVE ACTIVATED      ║
-╠══════════════════════════════════════╣
-║                                      ║
-║  ${userName} has been added back     ║
-║  to the group automatically.        ║
-║                                      ║
-╚══════════════════════════════════════╝`, threadIdStr);
+        await api.sendMessage(`🔄 ANTI-LEAVE
+━━━━━━━━━━━━━━━
+✅ ${userName} added back
+━━━━━━━━━━━━━━━`, threadIdStr);
         
         await database.logEntry({
           type: 'event',

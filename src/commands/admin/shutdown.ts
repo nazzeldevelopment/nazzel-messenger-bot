@@ -1,9 +1,10 @@
 import type { Command, CommandContext } from '../../types/index.js';
-import fmt, { decorations } from '../../lib/messageFormatter.js';
+import { database } from '../../database/index.js';
+import { redis } from '../../lib/redis.js';
 
 const command: Command = {
   name: 'shutdown',
-  aliases: ['die', 'stop'],
+  aliases: ['die', 'stop', 'off'],
   description: 'Shutdown the bot gracefully (Owner only)',
   category: 'admin',
   usage: 'shutdown',
@@ -12,26 +13,24 @@ const command: Command = {
   ownerOnly: true,
 
   async execute(context: CommandContext): Promise<void> {
-    const { reply } = context;
-    const currentTime = fmt.formatTimestamp();
+    const { reply, api } = context;
     
-    await reply(`${decorations.fire}${decorations.shield} 『 SHUTDOWN 』 ${decorations.shield}${decorations.fire}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${decorations.lightning} SYSTEM STATUS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ Initiating graceful shutdown...
-🔌 Disconnecting services...
-💾 Saving state...
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${decorations.moon} Goodbye! Bot shutting down...
-${decorations.sun} ${currentTime}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    await reply(`🔴 SHUTDOWN
+━━━━━━━━━━━━━━━
+⚠️ Bot shutting down...
+💾 Saving data...
+🔌 Disconnecting...
+━━━━━━━━━━━━━━━
+👋 Goodbye!`);
     
-    setTimeout(() => {
-      process.exit(0);
-    }, 3000);
+    setTimeout(async () => {
+      try {
+        await redis.disconnect();
+        await database.disconnect();
+      } catch (e) {}
+      
+      process.kill(process.pid, 'SIGTERM');
+    }, 2000);
   }
 };
 

@@ -25,57 +25,25 @@ const command: Command = {
       const user = userInfo[targetId];
       
       if (!user) {
-        await reply('Could not find information about this user.');
+        await reply('❌ User not found');
         return;
       }
       
       const dbUser = await database.getUser(targetId);
+      const gender = user.gender === 1 ? '♀️' : user.gender === 2 ? '♂️' : '⚪';
       
-      const name = user.name || 'Unknown';
-      const gender = user.gender === 1 ? 'Female' : user.gender === 2 ? 'Male' : 'Not specified';
-      const vanity = user.vanity || 'None';
-      const isFriend = user.isFriend ? 'Yes' : 'No';
-      const isBirthday = user.isBirthday ? 'Yes' : 'No';
-      
-      const level = dbUser?.level || 0;
-      const xp = dbUser?.xp || 0;
-      const totalMessages = dbUser?.totalMessages || 0;
-      const joinedAt = dbUser?.joinedAt 
-        ? new Date(dbUser.joinedAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })
-        : 'Unknown';
-      
-      await reply(`
-╔══════════════════════════════════════════════╗
-║                                              ║
-║            USER INFORMATION                 ║
-║                                              ║
-╠══════════════════════════════════════════════╣
-║  PROFILE                                    ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  Name: ${name}
-║  User ID: ${targetId}
-║  Gender: ${gender}
-║  Username: ${vanity}
-║  Is Friend: ${isFriend}
-║  Birthday Today: ${isBirthday}
-║                                              ║
-╠══════════════════════════════════════════════╣
-║  BOT STATS                                  ║
-╠══════════════════════════════════════════════╣
-║                                              ║
-║  Level: ${level}
-║  XP: ${xp}
-║  Total Messages: ${totalMessages}
-║  First Seen: ${joinedAt}
-║                                              ║
-╚══════════════════════════════════════════════╝`);
+      await reply(`👤 USER INFO
+━━━━━━━━━━━━━━━
+📛 ${user.name || 'Unknown'}
+🆔 ${targetId}
+${gender} Gender
+━━━━━━━━━━━━━━━
+🏆 Lvl ${dbUser?.level || 0}
+⭐ ${dbUser?.xp || 0} XP
+💬 ${dbUser?.totalMessages || 0} msgs
+━━━━━━━━━━━━━━━`);
     } catch (error) {
-      await reply('Failed to get user information. Please try again.');
+      await reply('❌ Failed to get info');
     }
   },
 };

@@ -1,7 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
-import fmt from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'leaderboard',
@@ -21,11 +19,9 @@ const command: Command = {
       const leaderboard = await database.getLeaderboard(limit);
       
       if (leaderboard.length === 0) {
-        await reply(`🏆 『 LEADERBOARD 』 🏆
-═══════════════════════════
-📋 No users on the leaderboard yet!
-═══════════════════════════
-💡 Start chatting to join!`);
+        await reply(`🏆 No users yet!
+━━━━━━━━━━━━━━━
+💬 Start chatting!`);
         return;
       }
       
@@ -34,31 +30,22 @@ const command: Command = {
       
       const medals = ['🥇', '🥈', '🥉'];
       
-      let response = `🏆 『 LEADERBOARD 』 🏆
-═══════════════════════════
-${decorations.sparkle} Top ${limit} Users
-═══════════════════════════\n`;
+      let response = `🏆 TOP ${limit}
+━━━━━━━━━━━━━━━\n`;
       
       for (let i = 0; i < leaderboard.length; i++) {
         const user = leaderboard[i];
         const name = userInfos[user.id]?.name || user.name || 'Unknown';
-        const displayName = name.length > 12 ? name.substring(0, 12) + '..' : name;
-        const medal = medals[i] || `${i + 1}.`.padStart(3, ' ');
-        
-        response += `
-${medal} ${displayName}
-   └─ Lv.${user.level} │ ${fmt.formatNumber(user.xp)}XP`;
+        const short = name.length > 10 ? name.substring(0, 10) + '..' : name;
+        const medal = medals[i] || `${i + 1}.`;
+        response += `${medal} ${short} Lv${user.level}\n`;
       }
       
-      response += `\n
-═══════════════════════════
-${decorations.star} Keep grinding!`;
+      response += `━━━━━━━━━━━━━━━`;
       
       await reply(response);
     } catch (error) {
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Failed to fetch leaderboard`);
+      await reply(`❌ Failed to load`);
     }
   }
 };

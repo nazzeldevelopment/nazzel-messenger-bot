@@ -1,7 +1,5 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
-import fmt from '../../lib/messageFormatter.js';
 
 export const command: Command = {
   name: 'rank',
@@ -26,54 +24,37 @@ export const command: Command = {
 
     try {
       const userInfo = await api.getUserInfo(targetId);
-      const userName = userInfo[targetId]?.name || 'Unknown User';
-      
+      const userName = userInfo[targetId]?.name || 'Unknown';
       const user = await database.getOrCreateUser(targetId, userName);
       
       if (!user) {
-        await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Could not fetch user data`);
+        await reply(`❌ Could not fetch user data`);
         return;
       }
 
       const leaderboard = await database.getLeaderboard(100);
-      const userIndex = leaderboard.findIndex(u => u.id === targetId);
-      const rank = userIndex >= 0 ? userIndex + 1 : leaderboard.length + 1;
-      const xpForNextLevel = (user.level + 1) * 100;
-      const progressBar = fmt.createProgressBar(user.xp, xpForNextLevel, 12);
+      const rank = leaderboard.findIndex(u => u.id === targetId) + 1 || leaderboard.length + 1;
+      const xpNext = (user.level + 1) * 100;
+      const progress = Math.round((user.xp / xpNext) * 10);
+      const bar = '█'.repeat(progress) + '░'.repeat(10 - progress);
 
-      let rankEmoji = '📊';
-      let rankTitle = 'Member';
-      if (rank === 1) { rankEmoji = '🥇'; rankTitle = 'Champion'; }
-      else if (rank === 2) { rankEmoji = '🥈'; rankTitle = 'Runner-up'; }
-      else if (rank === 3) { rankEmoji = '🥉'; rankTitle = 'Bronze'; }
-      else if (rank <= 10) { rankEmoji = '🏅'; rankTitle = 'Top 10'; }
-      else if (rank <= 25) { rankEmoji = '⭐'; rankTitle = 'Rising Star'; }
+      let emoji = '📊';
+      if (rank === 1) emoji = '🥇';
+      else if (rank === 2) emoji = '🥈';
+      else if (rank === 3) emoji = '🥉';
+      else if (rank <= 10) emoji = '🏅';
 
-      await reply(`${rankEmoji} 『 RANK INFO 』 ${rankEmoji}
-═══════════════════════════
+      await reply(`${emoji} RANK
+━━━━━━━━━━━━━━━
 👤 ${userName}
-🏷️ ${rankTitle}
-═══════════════════════════
-
-◈ LEVEL PROGRESS
-═══════════════════════════
-🏆 Level: ${user.level}
-⭐ XP: ${user.xp}/${xpForNextLevel}
-${progressBar}
-
-◈ STANDING
-═══════════════════════════
-${rankEmoji} Rank: #${rank}
-💬 Messages: ${fmt.formatNumber(user.totalMessages)}
-
-═══════════════════════════
-${decorations.sparkle} Climb the ranks!`);
+#️⃣ Rank: #${rank}
+━━━━━━━━━━━━━━━
+🏆 Lvl ${user.level}
+⭐ ${user.xp}/${xpNext} XP
+[${bar}]
+━━━━━━━━━━━━━━━`);
     } catch (error) {
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Failed to get rank info`);
+      await reply(`❌ Failed to get rank`);
     }
   },
 };
