@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] - 2025-12-04
+
+### Added
+- **New Admin Commands**:
+  - `shutdown` - Graceful bot shutdown (Owner only)
+  - `eval` - Execute JavaScript code with formatted output (Owner only)
+- **New Fun Commands**:
+  - `magic` - Crystal ball fortune telling with vibes
+  - `affirmation` - Get positive affirmations and motivation
+- **New Utility Commands**:
+  - `reminder` - Set timed reminders with callback notifications (supports seconds/minutes/hours)
+
+### Changed
+- **Professional Message Formatter v2**: Enhanced styling system with category-based color themes
+- **Accurate Time Display**: All timestamps now use Philippine Time (Asia/Manila timezone)
+- **Welcome/Leave Messages**: Redesigned with emoji indicators and accurate timestamps
+  - Shows greeting based on time of day (Good Morning/Afternoon/Evening/Night)
+  - Displays member level, message count, and time in group for leave messages
+- **Ping Command**: Enhanced with real-time system status and accurate cache/database indicators
+- **Uptime Command**: Improved with Philippine time and better formatting
+
+### Fixed
+- **FCA Database Warning**: Fixed "this.lib.Database is not a constructor" by disabling FCA internal backup
+- **Time Display Issues**: All commands now show accurate Philippine Standard Time
+- **Welcome/Leave Time**: Fixed timestamp accuracy in event handler
+
+### Technical
+- **fca-config.json**: Added `database.enabled: false` and `backup.enabled: false` to prevent FCA internal errors
+- **messageFormatter.ts**: Added `formatFullTimestamp()`, `formatShortTime()`, `formatDuration()` functions
+- **eventHandler.ts**: New `getPhilippineTime()`, `getAccurateTime()`, `getGreeting()` functions
+- **Category Indicators**: Enhanced color themes for all command categories
+
+---
+
 ## [1.6.0] - 2025-12-04
 
 ### Added
@@ -35,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Category color themes**: Pre-defined color schemes for each command type
 
 ### Design Philosophy
-- Moved from ASCII box characters (╔═╗║╚═╝) to clean separator lines (═══════)
+- Moved from ASCII box characters to clean separator lines (━━━━━━━)
 - Added category-specific emoji headers: 『 TITLE 』
 - Implemented consistent section separators
 - Added contextual emoji indicators for status/results
@@ -54,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **More Admin Commands**: Enhanced admin functionality
 
 ### Changed
-- **Node.js Engine**: Lowered requirement to >=20.0.0 for broader compatibility
+- **Node.js Engine**: Updated to v22.0.0 for latest features
 - **Workflow Updated**: Now uses `pnpm start` instead of `npm start`
 - **Invite Command Fixed**: Removed 'invite' alias from addmember command to prevent conflicts
 - **Better Error Messages**: Improved formatting across all commands
@@ -63,6 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **N!invite Bug**: Fixed conflict where N!invite was incorrectly calling addmember command
 - **Command Alias Conflicts**: Resolved conflicts between general and admin command aliases
 - **Native Module Issues**: Added pnpm overrides for sqlite3 compatibility
+- **tough-cookie Peer Dependency**: Added override for tough-cookie ^4.1.3 compatibility
 
 ### Technical
 - Added `.npmrc` with `node-linker=hoisted` for better native module support

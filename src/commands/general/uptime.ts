@@ -1,5 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
+import fmt, { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'uptime',
@@ -28,32 +28,38 @@ const command: Command = {
     const uptimeStr = parts.join(', ') || '0 seconds';
     
     const startTime = new Date(Date.now() - uptime * 1000);
-    const startTimeStr = startTime.toLocaleString('en-US', {
+    const startTimeStr = startTime.toLocaleString('en-PH', {
       month: 'short',
       day: 'numeric',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Manila'
     });
     
     const totalSeconds = Math.floor(uptime);
     const uptimePercent = Math.min(100, Math.floor((totalSeconds / 86400) * 100));
     const progressBar = '█'.repeat(Math.floor(uptimePercent / 10)) + '░'.repeat(10 - Math.floor(uptimePercent / 10));
     
-    await reply(`${decorations.sun} 『 BOT UPTIME 』 ${decorations.sun}
-━━━━━━━━━━━━━━━━━━━━━━━━━
+    const currentTime = fmt.formatTimestamp();
+    
+    await reply(`${decorations.sun}${decorations.sparkle} 『 BOT UPTIME 』 ${decorations.sparkle}${decorations.sun}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-◈ RUNNING TIME
-━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.trophy} RUNNING TIME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏱️ ${uptimeStr}
 
-◈ SESSION INFO
-━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.gem} SESSION INFO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📅 Started: ${startTimeStr}
 📊 Daily: [${progressBar}] ${uptimePercent}%
 
-━━━━━━━━━━━━━━━━━━━━━━━━━
-${decorations.sparkle} Bot is running smoothly!`);
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.sparkle} Bot is running smoothly!
+${decorations.sun} ${currentTime}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
   }
 };
 

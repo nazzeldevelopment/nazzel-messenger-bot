@@ -9,5 +9,11 @@
     "email": "",
     "password": "",
     "twofactor": ""
+  },
+  "database": {
+    "enabled": false
+  },
+  "backup": {
+    "enabled": false
   }
 }

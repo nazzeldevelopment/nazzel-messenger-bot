@@ -1,5 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
+import fmt, { decorations } from '../../lib/messageFormatter.js';
+import { redis } from '../../lib/redis.js';
 
 const command: Command = {
   name: 'ping',
@@ -33,25 +34,31 @@ const command: Command = {
     const memUsage = process.memoryUsage();
     const memMB = Math.round(memUsage.heapUsed / 1024 / 1024);
     
-    await reply(`${decorations.lightning} 『 PONG! 』 ${decorations.lightning}
-━━━━━━━━━━━━━━━━━━━━━━━━━
+    const dbStatus = '🟢 Connected';
+    const cacheStatus = redis.connected ? '🟢 Active' : '🟡 Memory Mode';
+    const currentTime = fmt.formatTimestamp();
+    
+    await reply(`${decorations.lightning}${decorations.sparkle} 『 PONG! 』 ${decorations.sparkle}${decorations.lightning}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-◈ CONNECTION STATUS
-━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.gem} CONNECTION STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚡ Response: ${latency}ms
 📊 Status: ${status}
 🎯 Quality: ${qualityBar}
 
-◈ SYSTEM INFO
-━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.gear} SYSTEM INFO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏱️ Uptime: ${hours}h ${minutes}m ${seconds}s
 💾 Memory: ${memMB}MB
 🔌 API: 🟢 Online
-💿 Database: 🟢 Connected
-⚡ Cache: 🟢 Active
+💿 Database: ${dbStatus}
+⚡ Cache: ${cacheStatus}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━
-${decorations.sparkle} All systems operational!`);
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${decorations.sparkle} All systems operational!
+${decorations.sun} ${currentTime}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
   }
 };
 
