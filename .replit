@@ -24,18 +24,19 @@ name = "Start Bot"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm start"
+args = "npm start"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 44761
+localPort = 36821
 externalPort = 3000
 
 [userenv]
