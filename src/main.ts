@@ -307,7 +307,9 @@ async function handleMessage(api: any, event: any): Promise<void> {
     await handleXP(api, senderId, threadId);
   }
   
-  if (body.startsWith(prefix)) {
+  const customPrefix = await database.getSetting<string>(`prefix_${threadId}`) || prefix;
+  
+  if (body.startsWith(customPrefix)) {
     const maintenanceData = await maintenance.getMaintenanceData();
     const ownerId = process.env.OWNER_ID;
     const isOwner = ownerId && senderId === ownerId;
@@ -323,7 +325,7 @@ async function handleMessage(api: any, event: any): Promise<void> {
       return;
     }
     
-    const raw = body.slice(prefix.length).trim();
+    const raw = body.slice(customPrefix.length).trim();
     const parts = raw.split(/\s+/);
     const commandName = parts.shift()?.toLowerCase() || '';
     const args = parts;
@@ -380,7 +382,7 @@ async function handleMessage(api: any, event: any): Promise<void> {
         api,
         event,
         args,
-        prefix,
+        prefix: customPrefix,
         commands,
         config: config as any,
         sendMessage,

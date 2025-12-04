@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.0] - 2025-12-04
+
+### Added
+- **N!removeall** - Remove all members from group (Owner only, requires confirmation, 60s cooldown)
+- **N!leave** - Make bot leave a specific group by thread ID (Owner only)
+
+### Changed
+- **Compact Premium Design**: All command outputs now use compact styling with emoji indicators
+- **Welcome/Leave Messages**: Redesigned to be compact with accurate member count from API
+- **Level-Up Notifications**: Now compact 4-5 line format
+- **Anti-Leave Messages**: Simplified compact format
+
+### Fixed
+- **Shutdown Command**: Now properly disconnects Redis/MongoDB before terminating with SIGTERM
+- **Prefix Command**: Custom prefix per group now works immediately after change
+- **Member Count**: Welcome/Leave messages now show accurate count from threadInfo API
+
+### Technical
+- **Custom Prefix Detection**: main.ts now checks database for per-group custom prefix
+- **Group Validation**: removeall command includes isGroup check before execution
+- **Total Commands**: 109 (21 admin, 48 fun, 10 general, 5 level, 25 utility)
+
+---
+
 ## [1.7.1] - 2025-12-04
 
 ### Fixed
