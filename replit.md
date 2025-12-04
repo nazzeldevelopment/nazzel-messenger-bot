@@ -36,6 +36,13 @@ src/
 
 ## Recent Changes
 
+- **2025-12-04**: v1.7.0
+  - Added 5 new commands: shutdown, eval, magic, affirmation, reminder (107 total)
+  - Enhanced messageFormatter with extended decorations and accurate Philippine Time
+  - Redesigned welcome/leave messages with time-based greetings
+  - Fixed ping and uptime commands with real-time system status
+  - Updated CHANGELOG.md with comprehensive v1.7.0 patch notes
+
 - **2025-12-04**: v1.6.0
   - **Complete Command Redesign**: All 102+ commands redesigned with professional emoji styling
   - Created centralized messageFormatter.ts utility with category-based color themes
@@ -144,15 +151,15 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 - **Auto-Block**: Users exceeding limits are blocked for 30 seconds
 - **Per-Command Cooldowns**: Individual cooldowns ranging from 3s to 30s
 
-## Commands Quick Reference (102 Total)
+## Commands Quick Reference (107 Total)
 
 | Category | Commands |
 |----------|----------|
 | General (10) | help, ping, info, uptime, profile, say, about, changelog, rules, invite |
-| Admin (17) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave, maintenance, moderation |
+| Admin (19) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave, maintenance, moderation, shutdown, eval |
 | Level (5) | level, xp, leaderboard, givexp, rank |
-| Utility (24) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64, botstats, userinfo, groupinfo |
-| Fun (46) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock, fortune, dare, truth, wouldyourather, pickup, personality, confess, zodiac, nickname, compatibility |
+| Utility (25) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64, botstats, userinfo, groupinfo, reminder |
+| Fun (48) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock, fortune, dare, truth, wouldyourather, pickup, personality, confess, zodiac, nickname, compatibility, magic, affirmation |
 
 ## API Endpoints
 
