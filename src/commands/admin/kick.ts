@@ -11,7 +11,7 @@ const command: Command = {
   adminOnly: true,
 
   async execute(context: CommandContext): Promise<void> {
-    const { api, event, args, reply } = context;
+    const { api, event, args, reply, config } = context;
     
     let targetId: string | null = null;
     
@@ -22,12 +22,32 @@ const command: Command = {
     }
     
     if (!targetId) {
-      await reply('❌ Please mention a user or provide a user ID to kick.\nUsage: kick <@mention|userID>');
+      await reply(`
+╔══════════════════════════════════════════════════════════════╗
+║                      KICK ERROR                             ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║   Please mention a user or provide a user ID to kick.       ║
+║                                                              ║
+║   Usage: ${config.bot.prefix}kick <@mention|userID>                    ║
+║                                                              ║
+║   Examples:                                                  ║
+║   ${config.bot.prefix}kick @username                                   ║
+║   ${config.bot.prefix}kick 123456789                                   ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝`);
       return;
     }
     
     if (targetId === ('' + event.senderID).trim()) {
-      await reply('❌ You cannot kick yourself!');
+      await reply(`
+╔══════════════════════════════════════════════════════════════╗
+║                      KICK DENIED                            ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║   You cannot kick yourself from the group!                  ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝`);
       return;
     }
     
@@ -38,12 +58,55 @@ const command: Command = {
       const threadId = ('' + event.threadID).trim();
       await api.removeUserFromGroup(targetId, threadId);
       
+      const timestamp = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Manila',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+      
       BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
       
-      await reply(`✅ Successfully removed ${userName} from the group.`);
+      await reply(`
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║   ██╗  ██╗██╗ ██████╗██╗  ██╗███████╗██████╗                 ║
+║   ██║ ██╔╝██║██╔════╝██║ ██╔╝██╔════╝██╔══██╗                ║
+║   █████╔╝ ██║██║     █████╔╝ █████╗  ██║  ██║                ║
+║   ██╔═██╗ ██║██║     ██╔═██╗ ██╔══╝  ██║  ██║                ║
+║   ██║  ██╗██║╚██████╗██║  ██╗███████╗██████╔╝                ║
+║   ╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝                 ║
+║                                                              ║
+║                  USER REMOVED FROM GROUP                    ║
+║                                                              ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║   REMOVED USER                                              ║
+║   ─────────────────────────────────────                     ║
+║   Name     : ${userName}
+║   ID       : ${targetId}
+║   Time     : ${timestamp}
+║   Status   : ✅ Successfully Removed                        ║
+║                                                              ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║   The user has been removed from this group chat.           ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝`);
     } catch (error) {
       BotLogger.error(`Failed to kick user ${targetId}`, error);
-      await reply('❌ Failed to remove user. Make sure the bot has admin permissions.');
+      await reply(`
+╔══════════════════════════════════════════════════════════════╗
+║                      KICK FAILED                            ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║   Failed to remove user from the group.                     ║
+║                                                              ║
+║   Possible reasons:                                         ║
+║   - Bot doesn't have admin permissions                      ║
+║   - User is already removed                                 ║
+║   - User is a group admin                                   ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝`);
     }
   }
 };
