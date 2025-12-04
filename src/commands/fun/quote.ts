@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const quotes = [
   { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
@@ -25,19 +26,32 @@ const quotes = [
   { text: "Ang hindi marunong lumingon sa pinanggalingan ay hindi makararating sa paroroonan.", author: "Jose Rizal" },
   { text: "Walang mahirap kung may tiyaga.", author: "Filipino Proverb" },
   { text: "Ang taong nagigipit, sa patalim kumakapit.", author: "Filipino Proverb" },
+  { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
 ];
+
+const quoteEmojis = ['💭', '✨', '🌟', '💫', '📜', '🎯'];
 
 export const command: Command = {
   name: 'quote',
-  aliases: ['q', 'quotes', 'inspire', 'motivation'],
+  aliases: ['q', 'quotes', 'inspire', 'motivation', 'wisdom'],
   description: 'Get a random motivational quote',
   category: 'fun',
   usage: 'quote',
   examples: ['quote'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ reply }) {
     const quote = quotes[Math.floor(Math.random() * quotes.length)];
-    await reply(`💭 *Motivational Quote*\n\n"${quote.text}"\n\n— ${quote.author}`);
+    const emoji = quoteEmojis[Math.floor(Math.random() * quoteEmojis.length)];
+    
+    await reply(`${emoji} 『 INSPIRATION 』 ${emoji}
+═══════════════════════════
+
+"${quote.text}"
+
+═══════════════════════════
+✍️ — ${quote.author}
+═══════════════════════════
+${decorations.heart} Stay inspired!`);
   },
 };

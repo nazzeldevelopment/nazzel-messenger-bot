@@ -1,15 +1,17 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'love',
-  aliases: ['lovecalc', 'lovemeter'],
+  aliases: ['lovecalc', 'lovemeter', 'loverate'],
   description: 'Calculate love percentage between two people',
   category: 'fun',
   usage: 'love <name1> <name2>',
   examples: ['love John Jane', 'love @user1 @user2'],
+  cooldown: 5000,
 
   async execute(context: CommandContext): Promise<void> {
-    const { api, event, args, reply } = context;
+    const { api, event, args, reply, prefix } = context;
 
     let name1 = '';
     let name2 = '';
@@ -29,7 +31,19 @@ const command: Command = {
       name1 = args[0];
       name2 = args.slice(1).join(' ');
     } else {
-      await reply('💕 Usage: N!love <name1> <name2>\n\nExample: N!love John Jane');
+      await reply(`💕 『 LOVE CALCULATOR 』 💕
+═══════════════════════════
+${decorations.sparkle} Calculate your love!
+═══════════════════════════
+
+◈ USAGE
+═══════════════════════════
+➤ ${prefix}love <name1> <name2>
+➤ ${prefix}love @user1 @user2
+
+◈ EXAMPLE
+═══════════════════════════
+➤ ${prefix}love John Jane`);
       return;
     }
 
@@ -43,28 +57,49 @@ const command: Command = {
 
     let message = '';
     let emoji = '';
+    let color = '';
 
     if (lovePercentage >= 90) {
-      emoji = '💖💖💖';
-      message = 'Perfect match! Made for each other!';
+      emoji = '💖';
+      color = '🟣';
+      message = 'Perfect match! Soulmates!';
     } else if (lovePercentage >= 70) {
-      emoji = '💕💕';
-      message = 'Strong connection! Great compatibility!';
+      emoji = '💕';
+      color = '🔵';
+      message = 'Strong connection! Great!';
     } else if (lovePercentage >= 50) {
       emoji = '💗';
-      message = 'Good potential! Give it a chance!';
+      color = '🟢';
+      message = 'Good potential! Try it!';
     } else if (lovePercentage >= 30) {
       emoji = '💛';
-      message = 'Could work with some effort!';
+      color = '🟡';
+      message = 'Could work with effort!';
     } else {
       emoji = '💔';
+      color = '🔴';
       message = 'Maybe just friends...';
     }
 
     const hearts = Math.round(lovePercentage / 10);
     const heartBar = '❤️'.repeat(hearts) + '🖤'.repeat(10 - hearts);
 
-    await reply(`${emoji} *Love Calculator* ${emoji}\n\n👤 ${name1}\n💕\n👤 ${name2}\n\n${heartBar}\n\n💘 Love: ${lovePercentage}%\n\n${message}`);
+    await reply(`${emoji} 『 LOVE CALCULATOR 』 ${emoji}
+═══════════════════════════
+
+👤 ${name1}
+     💘
+👤 ${name2}
+
+═══════════════════════════
+${heartBar}
+═══════════════════════════
+
+${color} Love: ${lovePercentage}%
+💬 ${message}
+
+═══════════════════════════
+${decorations.sparkle} Love is in the air!`);
   }
 };
 

@@ -1,12 +1,14 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'iq',
-  aliases: ['iqtest', 'smartness'],
-  description: 'Check someone\'s IQ (for fun)',
+  aliases: ['iqtest', 'smartness', 'brain'],
+  description: 'Check someone\'s IQ (for fun only!)',
   category: 'fun',
   usage: 'iq [@mention]',
   examples: ['iq', 'iq @user'],
+  cooldown: 5000,
 
   async execute(context: CommandContext): Promise<void> {
     const { api, event, reply } = context;
@@ -29,27 +31,51 @@ const command: Command = {
 
     let verdict = '';
     let emoji = '';
+    let color = '';
+    let bar = '';
+    
+    const barLevel = Math.min(10, Math.floor(iq / 20));
+    bar = '🧠'.repeat(barLevel) + '⬜'.repeat(10 - barLevel);
+    
     if (iq >= 180) {
       emoji = '🧠✨';
-      verdict = 'Genius level! Smarter than Einstein!';
+      color = '🟣';
+      verdict = 'Genius! Smarter than Einstein!';
     } else if (iq >= 140) {
       emoji = '🎓';
-      verdict = 'Gifted! Exceptionally intelligent!';
+      color = '🔵';
+      verdict = 'Gifted! Exceptionally smart!';
     } else if (iq >= 120) {
       emoji = '📚';
+      color = '🟢';
       verdict = 'Above average! Very smart!';
     } else if (iq >= 100) {
       emoji = '💡';
-      verdict = 'Average intelligence. Normal and healthy!';
+      color = '🟢';
+      verdict = 'Average! Normal and healthy!';
     } else if (iq >= 80) {
       emoji = '🤔';
-      verdict = 'Below average... but still trying!';
+      color = '🟡';
+      verdict = 'Below average, but trying!';
     } else {
       emoji = '🥔';
-      verdict = 'Potato IQ... but hey, potatoes are great!';
+      color = '🟠';
+      verdict = 'Potato IQ... but potatoes are great!';
     }
 
-    await reply(`${emoji} *IQ Test Result* ${emoji}\n\n👤 ${targetName}\n\n📊 IQ Score: ${iq}\n\n${verdict}\n\n*This is just for fun, not a real IQ test!*`);
+    await reply(`${emoji} 『 IQ TEST 』 ${emoji}
+═══════════════════════════
+👤 ${targetName}
+═══════════════════════════
+
+${bar}
+
+═══════════════════════════
+📊 IQ Score: ${iq}
+${color} ${verdict}
+═══════════════════════════
+
+${decorations.sparkle} Just for fun! Not a real test!`);
   }
 };
 

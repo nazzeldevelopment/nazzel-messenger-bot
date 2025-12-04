@@ -1,15 +1,16 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 export const command: Command = {
   name: 'ship',
-  aliases: ['love', 'match', 'compatibility'],
-  description: 'Check love compatibility between two users',
+  aliases: ['match', 'couple'],
+  description: 'Ship two users together!',
   category: 'fun',
   usage: 'ship <@user1> <@user2>',
   examples: ['ship @user1 @user2', 'ship me @someone'],
-  cooldown: 5,
+  cooldown: 5000,
 
-  async execute({ api, event, args, reply }) {
+  async execute({ api, event, args, reply, prefix }) {
     const mentions = Object.keys(event.mentions || {});
     let user1Id = String(event.senderID);
     let user2Id = '';
@@ -22,12 +23,28 @@ export const command: Command = {
     } else if (event.messageReply) {
       user2Id = String(event.messageReply.senderID);
     } else {
-      await reply('❌ Please mention two users or reply to someone\'s message.\n\nUsage: ship @user1 @user2');
+      await reply(`🚢 『 SHIP BUILDER 』 🚢
+═══════════════════════════
+${decorations.sparkle} Ship two people together!
+═══════════════════════════
+
+◈ USAGE
+═══════════════════════════
+➤ ${prefix}ship @user1 @user2
+➤ Reply to someone's message
+
+◈ EXAMPLE
+═══════════════════════════
+➤ ${prefix}ship @John @Jane`);
       return;
     }
 
     if (user1Id === user2Id) {
-      await reply('💕 Self-love is important! 100% compatibility with yourself!');
+      await reply(`💕 『 SELF LOVE 』 💕
+═══════════════════════════
+🌟 100% Self-Compatibility!
+Self-love is the best love!
+═══════════════════════════`);
       return;
     }
 
@@ -40,38 +57,53 @@ export const command: Command = {
       const hash = seed.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
       const percentage = (hash % 101);
 
-      let hearts = '';
       const filledHearts = Math.round(percentage / 10);
-      for (let i = 0; i < 10; i++) {
-        hearts += i < filledHearts ? '❤️' : '🖤';
-      }
+      const hearts = '❤️'.repeat(filledHearts) + '🖤'.repeat(10 - filledHearts);
 
-      let message = `💕 *Love Calculator*\n\n`;
-      message += `👤 ${name1}\n`;
-      message += `💗 x 💗\n`;
-      message += `👤 ${name2}\n\n`;
-      message += `${hearts}\n`;
-      message += `💘 Compatibility: ${percentage}%\n\n`;
-
+      let status = '';
+      let statusEmoji = '';
       if (percentage >= 90) {
-        message += `✨ Perfect match! Soulmates! 💑`;
+        status = 'Soulmates! Perfect Match!';
+        statusEmoji = '💑';
       } else if (percentage >= 70) {
-        message += `💖 Great compatibility! Love is in the air!`;
+        status = 'Love is in the air!';
+        statusEmoji = '💖';
       } else if (percentage >= 50) {
-        message += `💛 Good potential! Worth a shot!`;
+        status = 'Worth a shot!';
+        statusEmoji = '💛';
       } else if (percentage >= 30) {
-        message += `🤔 Could work with effort!`;
+        status = 'Could work with effort!';
+        statusEmoji = '🤔';
       } else {
-        message += `💔 Hmm... better as friends maybe?`;
+        status = 'Better as friends?';
+        statusEmoji = '💔';
       }
 
       const shipName = name1.slice(0, Math.ceil(name1.length / 2)) + 
                        name2.slice(Math.floor(name2.length / 2));
-      message += `\n\n🚢 Ship Name: ${shipName}`;
 
-      await reply(message);
+      await reply(`🚢 『 SHIP BUILDER 』 🚢
+═══════════════════════════
+
+👤 ${name1}
+    ⚓ × ⚓
+👤 ${name2}
+
+═══════════════════════════
+${hearts}
+═══════════════════════════
+
+💘 Compatibility: ${percentage}%
+${statusEmoji} ${status}
+
+🏷️ Ship Name: ${shipName}
+
+═══════════════════════════
+${decorations.sparkle} Sail the seas of love!`);
     } catch (error) {
-      await reply('❌ Failed to calculate compatibility.');
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Failed to calculate ship`);
     }
   },
 };

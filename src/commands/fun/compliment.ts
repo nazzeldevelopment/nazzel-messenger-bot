@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const compliments = [
   "You're an amazing person, inside and out!",
@@ -26,19 +27,34 @@ const compliments = [
   "Ang sipag mo, nakaka-inspire ka!",
   "You're one in a million!",
   "Ang saya mo kasama!",
+  "Your energy is absolutely contagious!",
+  "You make everything better!",
+  "The way you carry yourself is inspiring!",
 ];
+
+const complimentEmojis = ['💖', '✨', '🌟', '💫', '🌈', '💝'];
 
 export const command: Command = {
   name: 'compliment',
-  aliases: ['praise', 'boost', 'puri'],
+  aliases: ['praise', 'boost', 'puri', 'cheer'],
   description: 'Get a random compliment to brighten your day',
   category: 'fun',
   usage: 'compliment',
   examples: ['compliment'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ reply }) {
     const compliment = compliments[Math.floor(Math.random() * compliments.length)];
-    await reply(`💖 *Compliment for You*\n\n${compliment}`);
+    const emoji = complimentEmojis[Math.floor(Math.random() * complimentEmojis.length)];
+    
+    await reply(`${emoji} 『 COMPLIMENT 』 ${emoji}
+═══════════════════════════
+${decorations.sparkle} Here's something for you!
+═══════════════════════════
+
+${compliment}
+
+═══════════════════════════
+${decorations.heart} You're amazing! Never forget that!`);
   },
 };

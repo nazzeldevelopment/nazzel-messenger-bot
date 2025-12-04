@@ -1,14 +1,16 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
+import fmt from '../../lib/messageFormatter.js';
 
 export const command: Command = {
   name: 'rank',
-  aliases: ['position', 'standing'],
+  aliases: ['position', 'standing', 'myrank'],
   description: 'See your rank on the leaderboard',
   category: 'level',
   usage: 'rank [@mention]',
   examples: ['rank', 'rank @user'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ api, event, args, reply }) {
     let targetId = ('' + event.senderID).trim();
@@ -29,46 +31,49 @@ export const command: Command = {
       const user = await database.getOrCreateUser(targetId, userName);
       
       if (!user) {
-        await reply('❌ Could not fetch user data. Please try again.');
+        await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Could not fetch user data`);
         return;
       }
 
       const leaderboard = await database.getLeaderboard(100);
       const userIndex = leaderboard.findIndex(u => u.id === targetId);
       const rank = userIndex >= 0 ? userIndex + 1 : leaderboard.length + 1;
-      const totalUsers = await database.getTotalUsers();
       const xpForNextLevel = (user.level + 1) * 100;
-      const progress = Math.round((user.xp / xpForNextLevel) * 100);
-      const progressBar = createProgressBar(user.xp, xpForNextLevel, 10);
+      const progressBar = fmt.createProgressBar(user.xp, xpForNextLevel, 12);
 
       let rankEmoji = '📊';
-      if (rank === 1) rankEmoji = '🥇';
-      else if (rank === 2) rankEmoji = '🥈';
-      else if (rank === 3) rankEmoji = '🥉';
-      else if (rank <= 10) rankEmoji = '🏅';
+      let rankTitle = 'Member';
+      if (rank === 1) { rankEmoji = '🥇'; rankTitle = 'Champion'; }
+      else if (rank === 2) { rankEmoji = '🥈'; rankTitle = 'Runner-up'; }
+      else if (rank === 3) { rankEmoji = '🥉'; rankTitle = 'Bronze'; }
+      else if (rank <= 10) { rankEmoji = '🏅'; rankTitle = 'Top 10'; }
+      else if (rank <= 25) { rankEmoji = '⭐'; rankTitle = 'Rising Star'; }
 
-      const message = `╔═══════════════════════════════╗
-║ ⭐ LEVEL STATS
-╠═══════════════════════════════╣
-║ 👤 ${userName}
-╠═══════════════════════════════╣
-║ 🏆 Level: ${user.level}
-║ ✨ XP: ${user.xp}/${xpForNextLevel}
-║ 📊 ${progressBar} ${progress}%
-║ ${rankEmoji} Rank: #${rank}
-║ 💬 Messages: ${user.totalMessages}
-╚═══════════════════════════════╝`;
+      await reply(`${rankEmoji} 『 RANK INFO 』 ${rankEmoji}
+═══════════════════════════
+👤 ${userName}
+🏷️ ${rankTitle}
+═══════════════════════════
 
-      await reply(message);
+◈ LEVEL PROGRESS
+═══════════════════════════
+🏆 Level: ${user.level}
+⭐ XP: ${user.xp}/${xpForNextLevel}
+${progressBar}
+
+◈ STANDING
+═══════════════════════════
+${rankEmoji} Rank: #${rank}
+💬 Messages: ${fmt.formatNumber(user.totalMessages)}
+
+═══════════════════════════
+${decorations.sparkle} Climb the ranks!`);
     } catch (error) {
-      await reply('❌ Failed to get rank information. Please try again.');
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Failed to get rank info`);
     }
   },
 };
-
-function createProgressBar(current: number, max: number, length: number = 10): string {
-  const percentage = Math.min(current / max, 1);
-  const filled = Math.round(percentage * length);
-  const empty = length - filled;
-  return `[${'█'.repeat(filled)}${'░'.repeat(empty)}]`;
-}

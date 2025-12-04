@@ -1,5 +1,7 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
+import fmt from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'leaderboard',
@@ -8,6 +10,7 @@ const command: Command = {
   category: 'level',
   usage: 'leaderboard [limit]',
   examples: ['leaderboard', 'leaderboard 20'],
+  cooldown: 10000,
 
   async execute(context: CommandContext): Promise<void> {
     const { api, args, reply } = context;
@@ -18,34 +21,44 @@ const command: Command = {
       const leaderboard = await database.getLeaderboard(limit);
       
       if (leaderboard.length === 0) {
-        await reply('📋 No users on the leaderboard yet!');
+        await reply(`🏆 『 LEADERBOARD 』 🏆
+═══════════════════════════
+📋 No users on the leaderboard yet!
+═══════════════════════════
+💡 Start chatting to join!`);
         return;
       }
       
       const userIds = leaderboard.map(u => ('' + u.id).trim());
       const userInfos = await api.getUserInfo(userIds);
       
-      let response = `╔═══════════════════════════════╗\n`;
-      response += `║ 🏆 LEADERBOARD - TOP ${limit}\n`;
-      response += `╠═══════════════════════════════╣\n`;
-      
       const medals = ['🥇', '🥈', '🥉'];
+      
+      let response = `🏆 『 LEADERBOARD 』 🏆
+═══════════════════════════
+${decorations.sparkle} Top ${limit} Users
+═══════════════════════════\n`;
       
       for (let i = 0; i < leaderboard.length; i++) {
         const user = leaderboard[i];
         const name = userInfos[user.id]?.name || user.name || 'Unknown';
-        const displayName = name.length > 15 ? name.substring(0, 15) + '...' : name;
-        const medal = medals[i] || `${i + 1}.`;
+        const displayName = name.length > 12 ? name.substring(0, 12) + '..' : name;
+        const medal = medals[i] || `${i + 1}.`.padStart(3, ' ');
         
-        response += `║ ${medal} ${displayName}\n`;
-        response += `║    Lv.${user.level} | XP: ${user.xp} | 💬 ${user.totalMessages}\n`;
+        response += `
+${medal} ${displayName}
+   └─ Lv.${user.level} │ ${fmt.formatNumber(user.xp)}XP`;
       }
       
-      response += `╚═══════════════════════════════╝`;
+      response += `\n
+═══════════════════════════
+${decorations.star} Keep grinding!`;
       
       await reply(response);
     } catch (error) {
-      await reply('❌ Failed to fetch leaderboard.');
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Failed to fetch leaderboard`);
     }
   }
 };

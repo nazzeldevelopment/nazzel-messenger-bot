@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const choices = ['rock', 'paper', 'scissors'];
 const emojis: Record<string, string> = {
@@ -31,11 +32,23 @@ export const command: Command = {
   category: 'fun',
   usage: 'rps <rock/paper/scissors>',
   examples: ['rps rock', 'rps paper', 'rps scissors'],
-  cooldown: 3,
+  cooldown: 3000,
 
-  async execute({ args, reply }) {
+  async execute({ args, reply, prefix }) {
     if (!args[0]) {
-      await reply(`✊✋✌️ *Rock Paper Scissors*\n\nUsage: rps <rock/paper/scissors>\n\nExamples:\n• rps rock\n• rps paper\n• rps scissors`);
+      await reply(`✊✋✌️ 『 RPS GAME 』 ✊✋✌️
+═══════════════════════════
+${decorations.sparkle} Rock Paper Scissors!
+═══════════════════════════
+
+◈ HOW TO PLAY
+═══════════════════════════
+➤ ${prefix}rps rock
+➤ ${prefix}rps paper
+➤ ${prefix}rps scissors
+
+🇵🇭 Also accepts:
+➤ bato, papel, gunting`);
       return;
     }
 
@@ -46,25 +59,43 @@ export const command: Command = {
     if (tagalog.scissors === playerChoice) playerChoice = 'scissors';
     
     if (!choices.includes(playerChoice)) {
-      await reply(`❌ Invalid choice! Please choose rock, paper, or scissors.`);
+      await reply(`${decorations.fire} 『 INVALID 』
+═══════════════════════════
+❌ Choose: rock, paper, scissors`);
       return;
     }
 
     const botChoice = choices[Math.floor(Math.random() * choices.length)];
     const result = determineWinner(playerChoice, botChoice);
 
-    let message = `✊✋✌️ *Rock Paper Scissors*\n\n`;
-    message += `You: ${emojis[playerChoice]} ${playerChoice.charAt(0).toUpperCase() + playerChoice.slice(1)}\n`;
-    message += `Bot: ${emojis[botChoice]} ${botChoice.charAt(0).toUpperCase() + botChoice.slice(1)}\n\n`;
-
+    let resultEmoji = '';
+    let resultText = '';
+    let resultColor = '';
+    
     if (result === 'win') {
-      message += `🎉 *You WIN!* Congratulations!`;
+      resultEmoji = '🎉';
+      resultText = 'YOU WIN!';
+      resultColor = '🟢';
     } else if (result === 'lose') {
-      message += `😢 *You LOSE!* Better luck next time!`;
+      resultEmoji = '😢';
+      resultText = 'YOU LOSE!';
+      resultColor = '🔴';
     } else {
-      message += `🤝 *It's a DRAW!* Great minds think alike!`;
+      resultEmoji = '🤝';
+      resultText = 'IT\'S A DRAW!';
+      resultColor = '🟡';
     }
 
-    await reply(message);
+    await reply(`✊✋✌️ 『 RPS GAME 』 ✊✋✌️
+═══════════════════════════
+
+👤 You: ${emojis[playerChoice]} ${playerChoice.toUpperCase()}
+     VS
+🤖 Bot: ${emojis[botChoice]} ${botChoice.toUpperCase()}
+
+═══════════════════════════
+${resultColor} ${resultEmoji} ${resultText} ${resultEmoji}
+═══════════════════════════
+${decorations.sparkle} Good game!`);
   },
 };

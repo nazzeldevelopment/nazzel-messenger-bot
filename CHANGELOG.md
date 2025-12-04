@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] - 2025-12-04
+
+### Added
+- **Professional Message Formatter**: New centralized styling system with category-based color themes
+- **Emoji Indicator System**: Replaced ASCII boxes with professional emoji indicators and decorations
+- **Color Theme System**: Each command category now has distinct visual themes
+  - General Commands: Blue/Cyan theme with sparkle indicators
+  - Fun Commands: Pink/Purple theme with heart indicators  
+  - Level Commands: Gold theme with trophy/star indicators
+  - Utility Commands: Teal/Cyan theme with gear indicators
+  - Admin Commands: Red theme with fire/warning indicators
+
+### Changed
+- **Complete Command Redesign**: All 102+ commands redesigned with professional styling
+- **Fun Commands (46)**: joke, 8ball, coin, dice, fact, quote, love, ship, gayrate, rate, iq, compliment, roast, horoscope, rps, choose, hug, kiss and more - all with vibrant colorful layouts
+- **Level Commands (5)**: level, rank, leaderboard, xp, rewards - redesigned with progress bars and achievement styling
+- **Utility Commands (24)**: calc, weather, time, avatar, remind, poll, translate and more - clean professional layouts
+- **General Commands (10)**: help, ping, about, info, uptime, profile, changelog, rules, say, invite - uniform blue theme
+- **Admin Commands (17)**: Enhanced authoritative styling with warning indicators
+
+### Technical
+- **messageFormatter.ts**: New utility module with professional formatting helpers
+- **decorations object**: Centralized emoji/symbol definitions for consistent styling
+- **createProgressBar()**: Universal progress bar generator for level/stats displays
+- **formatNumber()**: Number formatting with K/M/B suffixes
+- **Category color themes**: Pre-defined color schemes for each command type
+
+### Design Philosophy
+- Moved from ASCII box characters (╔═╗║╚═╝) to clean separator lines (═══════)
+- Added category-specific emoji headers: 『 TITLE 』
+- Implemented consistent section separators
+- Added contextual emoji indicators for status/results
+- Enhanced error messages with fire/warning indicators
+
+---
+
 ## [1.5.0] - 2025-12-04
 
 ### Added

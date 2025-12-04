@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const signs: Record<string, { emoji: string; dates: string }> = {
   aries: { emoji: '♈', dates: 'Mar 21 - Apr 19' },
@@ -16,20 +17,20 @@ const signs: Record<string, { emoji: string; dates: string }> = {
 };
 
 const fortunes = [
-  "Today brings unexpected opportunities. Stay alert and ready!",
-  "A challenging situation will reveal your true strength.",
-  "Love is in the air! Open your heart to new connections.",
-  "Financial success is on the horizon. Trust your instincts.",
-  "Take time for self-care. Your well-being matters most.",
+  "Today brings unexpected opportunities. Stay alert!",
+  "A challenging situation will reveal your strength.",
+  "Love is in the air! Open your heart.",
+  "Financial success is on the horizon.",
+  "Take time for self-care today.",
   "A long-awaited message will arrive soon.",
-  "Your creativity will lead to exciting breakthroughs.",
+  "Your creativity will lead to breakthroughs.",
   "Trust the process. Everything is falling into place.",
-  "An old friend may reach out with surprising news.",
+  "An old friend may reach out with news.",
   "Today is perfect for starting new projects.",
   "Your patience will be rewarded handsomely.",
-  "Adventure awaits! Say yes to new experiences.",
-  "Focus on your goals. Success is closer than you think.",
-  "Someone close needs your support. Be there for them.",
+  "Adventure awaits! Say yes to experiences.",
+  "Focus on your goals. Success is close.",
+  "Someone close needs your support today.",
   "Good karma is coming your way!",
 ];
 
@@ -46,21 +47,30 @@ const colors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink', 'G
 
 export const command: Command = {
   name: 'horoscope',
-  aliases: ['zodiac', 'sign', 'fortune'],
+  aliases: ['zodiacsign', 'sign', 'stars'],
   description: 'Get your daily horoscope',
   category: 'fun',
   usage: 'horoscope <zodiac sign>',
   examples: ['horoscope aries', 'horoscope leo'],
-  cooldown: 10,
+  cooldown: 10000,
 
-  async execute({ args, reply }) {
+  async execute({ args, reply, prefix }) {
     if (!args[0]) {
-      let signList = '🌟 *Zodiac Signs*\n\n';
+      let msg = `🌟 『 ZODIAC SIGNS 』 🌟
+═══════════════════════════
+${decorations.sparkle} Choose your sign!
+═══════════════════════════\n`;
+      
       Object.entries(signs).forEach(([name, data]) => {
-        signList += `${data.emoji} ${name.charAt(0).toUpperCase() + name.slice(1)} (${data.dates})\n`;
+        msg += `\n${data.emoji} ${name.charAt(0).toUpperCase() + name.slice(1)}`;
+        msg += `\n   └─ ${data.dates}`;
       });
-      signList += `\nUsage: horoscope <sign>`;
-      await reply(signList);
+      
+      msg += `\n
+═══════════════════════════
+💡 ${prefix}horoscope <sign>`;
+      
+      await reply(msg);
       return;
     }
 
@@ -68,7 +78,11 @@ export const command: Command = {
     const signData = signs[signName];
 
     if (!signData) {
-      await reply(`❌ Unknown zodiac sign! Use \`horoscope\` to see all valid signs.`);
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Unknown zodiac sign!
+
+💡 Use ${prefix}horoscope to see signs`);
       return;
     }
 
@@ -76,13 +90,22 @@ export const command: Command = {
     const luckyColor = colors[Math.floor(Math.random() * colors.length)];
     const rating = Math.floor(Math.random() * 5) + 1;
 
-    let message = `${signData.emoji} *${signName.charAt(0).toUpperCase() + signName.slice(1)} Horoscope*\n`;
-    message += `📅 ${signData.dates}\n\n`;
-    message += `✨ ${fortune}\n\n`;
-    message += `🎲 Lucky Numbers: ${luckyNumbers()}\n`;
-    message += `🎨 Lucky Color: ${luckyColor}\n`;
-    message += `⭐ Rating: ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}`;
+    await reply(`${signData.emoji} 『 ${signName.toUpperCase()} 』 ${signData.emoji}
+═══════════════════════════
+📅 ${signData.dates}
+═══════════════════════════
 
-    await reply(message);
+◈ TODAY'S READING
+═══════════════════════════
+${decorations.sparkle} ${fortune}
+
+◈ LUCKY STATS
+═══════════════════════════
+🎲 Numbers: ${luckyNumbers()}
+🎨 Color: ${luckyColor}
+⭐ Energy: ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}
+
+═══════════════════════════
+🌙 The stars have spoken!`);
   },
 };

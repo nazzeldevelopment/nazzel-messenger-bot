@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const jokes = [
   "Bakit hindi marunong magsinungaling ang kalendaryo? Dahil laging may petsa!",
@@ -21,19 +22,34 @@ const jokes = [
   "What do you call a sleeping dinosaur? A dino-snore!",
   "Why can't you give Elsa a balloon? Because she will let it go!",
   "What do you call a boomerang that won't come back? A stick!",
+  "Why did the bicycle fall over? Because it was two-tired!",
+  "What do you call a lazy kangaroo? A pouch potato!",
+  "Why do programmers prefer dark mode? Because light attracts bugs!",
 ];
+
+const funEmojis = ['😂', '🤣', '😆', '😹', '🎭', '🤪'];
 
 export const command: Command = {
   name: 'joke',
-  aliases: ['j', 'jokes', 'biro'],
+  aliases: ['j', 'jokes', 'biro', 'funny'],
   description: 'Get a random joke to brighten your day',
   category: 'fun',
   usage: 'joke',
   examples: ['joke'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ reply }) {
     const joke = jokes[Math.floor(Math.random() * jokes.length)];
-    await reply(`😂 *Random Joke*\n\n${joke}`);
+    const emoji = funEmojis[Math.floor(Math.random() * funEmojis.length)];
+    
+    await reply(`${emoji} 『 RANDOM JOKE 』 ${emoji}
+═══════════════════════════
+${decorations.sparkle} Here's one for you!
+═══════════════════════════
+
+${joke}
+
+═══════════════════════════
+${decorations.heart} Hope that made you smile!`);
   },
 };

@@ -1,50 +1,56 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
-const timezones: Record<string, string> = {
-  'ph': 'Asia/Manila',
-  'philippines': 'Asia/Manila',
-  'manila': 'Asia/Manila',
-  'us': 'America/New_York',
-  'est': 'America/New_York',
-  'pst': 'America/Los_Angeles',
-  'uk': 'Europe/London',
-  'london': 'Europe/London',
-  'jp': 'Asia/Tokyo',
-  'japan': 'Asia/Tokyo',
-  'tokyo': 'Asia/Tokyo',
-  'kr': 'Asia/Seoul',
-  'korea': 'Asia/Seoul',
-  'cn': 'Asia/Shanghai',
-  'china': 'Asia/Shanghai',
-  'sg': 'Asia/Singapore',
-  'singapore': 'Asia/Singapore',
-  'au': 'Australia/Sydney',
-  'australia': 'Australia/Sydney',
-  'sydney': 'Australia/Sydney',
-  'utc': 'UTC',
-  'gmt': 'GMT',
+const timezones: Record<string, { tz: string; flag: string }> = {
+  'ph': { tz: 'Asia/Manila', flag: '🇵🇭' },
+  'philippines': { tz: 'Asia/Manila', flag: '🇵🇭' },
+  'manila': { tz: 'Asia/Manila', flag: '🇵🇭' },
+  'us': { tz: 'America/New_York', flag: '🇺🇸' },
+  'est': { tz: 'America/New_York', flag: '🇺🇸' },
+  'pst': { tz: 'America/Los_Angeles', flag: '🇺🇸' },
+  'uk': { tz: 'Europe/London', flag: '🇬🇧' },
+  'london': { tz: 'Europe/London', flag: '🇬🇧' },
+  'jp': { tz: 'Asia/Tokyo', flag: '🇯🇵' },
+  'japan': { tz: 'Asia/Tokyo', flag: '🇯🇵' },
+  'tokyo': { tz: 'Asia/Tokyo', flag: '🇯🇵' },
+  'kr': { tz: 'Asia/Seoul', flag: '🇰🇷' },
+  'korea': { tz: 'Asia/Seoul', flag: '🇰🇷' },
+  'cn': { tz: 'Asia/Shanghai', flag: '🇨🇳' },
+  'china': { tz: 'Asia/Shanghai', flag: '🇨🇳' },
+  'sg': { tz: 'Asia/Singapore', flag: '🇸🇬' },
+  'singapore': { tz: 'Asia/Singapore', flag: '🇸🇬' },
+  'au': { tz: 'Australia/Sydney', flag: '🇦🇺' },
+  'australia': { tz: 'Australia/Sydney', flag: '🇦🇺' },
+  'sydney': { tz: 'Australia/Sydney', flag: '🇦🇺' },
+  'utc': { tz: 'UTC', flag: '🌍' },
+  'gmt': { tz: 'GMT', flag: '🌍' },
 };
 
 export const command: Command = {
   name: 'time',
-  aliases: ['clock', 'date', 'now'],
+  aliases: ['clock', 'date', 'now', 'oras'],
   description: 'Get the current time in different timezones',
   category: 'utility',
   usage: 'time [timezone]',
   examples: ['time', 'time ph', 'time japan', 'time utc'],
-  cooldown: 3,
+  cooldown: 3000,
 
-  async execute({ args, reply }) {
-    let timezone = 'Asia/Manila';
+  async execute({ args, reply, prefix }) {
+    let tzData = { tz: 'Asia/Manila', flag: '🇵🇭' };
     let locationName = 'Philippines';
 
     if (args[0]) {
       const input = args[0].toLowerCase();
       if (timezones[input]) {
-        timezone = timezones[input];
+        tzData = timezones[input];
         locationName = input.charAt(0).toUpperCase() + input.slice(1);
       } else {
-        await reply(`❌ Unknown timezone! Available: ${Object.keys(timezones).join(', ')}`);
+        const available = [...new Set(Object.keys(timezones).filter(k => k.length <= 3))];
+        await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Unknown timezone!
+
+💡 Try: ${available.join(', ')}`);
         return;
       }
     }
@@ -52,30 +58,48 @@ export const command: Command = {
     try {
       const now = new Date();
       
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: timezone,
+      const dateOptions: Intl.DateTimeFormatOptions = {
+        timeZone: tzData.tz,
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+      };
+      
+      const timeOptions: Intl.DateTimeFormatOptions = {
+        timeZone: tzData.tz,
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
         hour12: true,
       };
 
-      const formatted = now.toLocaleString('en-US', options);
-      const [datePart, timePart] = formatted.split(' at ') || [formatted, ''];
+      const dateStr = now.toLocaleString('en-US', dateOptions);
+      const timeStr = now.toLocaleString('en-US', timeOptions);
 
-      let message = `🕐 *Current Time*\n\n`;
-      message += `📍 Location: ${locationName}\n`;
-      message += `📅 Date: ${datePart}\n`;
-      message += `⏰ Time: ${timePart || formatted}\n`;
-      message += `🌐 Timezone: ${timezone}`;
+      await reply(`🕐 『 TIME 』 🕐
+═══════════════════════════
+${tzData.flag} ${locationName}
+═══════════════════════════
 
-      await reply(message);
+◈ DATE
+═══════════════════════════
+📅 ${dateStr}
+
+◈ TIME
+═══════════════════════════
+⏰ ${timeStr}
+
+◈ TIMEZONE
+═══════════════════════════
+🌐 ${tzData.tz}
+
+═══════════════════════════
+${decorations.sparkle} Time flies!`);
     } catch (error) {
-      await reply('❌ Failed to get time information.');
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Failed to get time`);
     }
   },
 };

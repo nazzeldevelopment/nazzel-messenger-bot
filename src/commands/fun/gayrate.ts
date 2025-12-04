@@ -1,13 +1,14 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 export const command: Command = {
   name: 'gayrate',
-  aliases: ['howgay', 'gaytest'],
-  description: 'Check how gay someone is (just for fun!)',
+  aliases: ['howgay', 'gaytest', 'rainbow'],
+  description: 'Check the rainbow meter (just for fun!)',
   category: 'fun',
   usage: 'gayrate [@mention]',
   examples: ['gayrate', 'gayrate @user'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ api, event, args, reply }) {
     let targetId = String(event.senderID);
@@ -26,35 +27,45 @@ export const command: Command = {
       const seed = (targetId + today).split('').reduce((a, c) => a + c.charCodeAt(0), 0);
       const percentage = seed % 101;
 
-      let bar = '';
       const filled = Math.round(percentage / 10);
-      for (let i = 0; i < 10; i++) {
-        bar += i < filled ? '🏳️‍🌈' : '⬜';
-      }
+      const bar = '🏳️‍🌈'.repeat(filled) + '⬜'.repeat(10 - filled);
 
       let comment = '';
+      let emoji = '';
       if (percentage >= 90) {
-        comment = 'Certified rainbow! 🌈✨';
+        emoji = '🌈';
+        comment = 'Certified rainbow!';
       } else if (percentage >= 70) {
-        comment = 'Pretty colorful! 🎨';
+        emoji = '🎨';
+        comment = 'Pretty colorful!';
       } else if (percentage >= 50) {
-        comment = 'Perfectly balanced! ⚖️';
+        emoji = '⚖️';
+        comment = 'Perfectly balanced!';
       } else if (percentage >= 30) {
-        comment = 'Mostly straight! 📏';
+        emoji = '📏';
+        comment = 'Mostly straight!';
       } else {
-        comment = 'Super straight! ➡️';
+        emoji = '➡️';
+        comment = 'Super straight!';
       }
 
-      let message = `🏳️‍🌈 *Gay Rate*\n\n`;
-      message += `👤 ${userName}\n\n`;
-      message += `${bar}\n`;
-      message += `📊 ${percentage}% gay\n\n`;
-      message += `💬 ${comment}\n\n`;
-      message += `(This is just for fun! 😄)`;
+      await reply(`🏳️‍🌈 『 RAINBOW METER 』 🏳️‍🌈
+═══════════════════════════
+👤 ${userName}
+═══════════════════════════
 
-      await reply(message);
+${bar}
+
+═══════════════════════════
+📊 Result: ${percentage}%
+${emoji} ${comment}
+═══════════════════════════
+
+${decorations.sparkle} Just for fun! Love is love!`);
     } catch (error) {
-      await reply('❌ Failed to calculate gayrate.');
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Failed to calculate`);
     }
   },
 };

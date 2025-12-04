@@ -1,13 +1,16 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
+import fmt from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'level',
-  aliases: ['lvl', 'rank'],
+  aliases: ['lvl', 'mylevel'],
   description: 'Show your current level and XP',
   category: 'level',
   usage: 'level [@mention|userID]',
   examples: ['level', 'level @user'],
+  cooldown: 5000,
 
   async execute(context: CommandContext): Promise<void> {
     const { api, event, args, reply } = context;
@@ -27,41 +30,46 @@ const command: Command = {
       const userData = await database.getOrCreateUser(targetId, userName);
       
       if (!userData) {
-        await reply('❌ Could not fetch user data.');
+        await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Could not fetch user data`);
         return;
       }
       
       const level = userData.level;
       const xp = userData.xp;
       const xpForNextLevel = (level + 1) * 100;
-      const progressBar = createProgressBar(xp, xpForNextLevel, 15);
+      const progressBar = fmt.createProgressBar(xp, xpForNextLevel, 12);
       const rank = await getUserRank(targetId);
       
-      const response = `╔═══════════════════════════════╗
-║ ⭐ LEVEL STATS
-╠═══════════════════════════════╣
-║ 👤 ${userName}
-╠═══════════════════════════════╣
-║ 🏆 Level: ${level}
-║ ✨ XP: ${xp}/${xpForNextLevel}
-║ 📊 ${progressBar}
-║ 🎖️ Rank: #${rank}
-║ 💬 Messages: ${userData.totalMessages}
-╚═══════════════════════════════╝`;
+      const rankEmoji = level >= 50 ? '👑' : level >= 30 ? '💎' : level >= 20 ? '🏆' : level >= 10 ? '⭐' : '🌟';
+      const rankMedal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank <= 10 ? '🏅' : '📊';
       
-      await reply(response);
+      await reply(`${rankEmoji} 『 LEVEL STATS 』 ${rankEmoji}
+═══════════════════════════
+👤 ${userName}
+═══════════════════════════
+
+◈ PROGRESS
+═══════════════════════════
+🏆 Level: ${level}
+⭐ XP: ${xp}/${xpForNextLevel}
+${progressBar}
+
+◈ RANKING
+═══════════════════════════
+${rankMedal} Rank: #${rank}
+💬 Messages: ${fmt.formatNumber(userData.totalMessages)}
+
+═══════════════════════════
+${decorations.sparkle} Keep chatting to level up!`);
     } catch (error) {
-      await reply('❌ Failed to fetch level data.');
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Failed to fetch level data`);
     }
   }
 };
-
-function createProgressBar(current: number, max: number, length: number = 15): string {
-  const percentage = Math.min(current / max, 1);
-  const filled = Math.round(percentage * length);
-  const empty = length - filled;
-  return `[${'█'.repeat(filled)}${'░'.repeat(empty)}] ${Math.round(percentage * 100)}%`;
-}
 
 async function getUserRank(userId: string): Promise<number> {
   const leaderboard = await database.getLeaderboard(100);

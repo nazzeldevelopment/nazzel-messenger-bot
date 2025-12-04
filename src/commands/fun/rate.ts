@@ -1,17 +1,31 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 export const command: Command = {
   name: 'rate',
-  aliases: ['rating', 'score'],
+  aliases: ['rating', 'score', 'evaluate'],
   description: 'Rate anything on a scale of 1-10',
   category: 'fun',
   usage: 'rate <thing to rate>',
   examples: ['rate my coding skills', 'rate pizza', 'rate this bot'],
-  cooldown: 3,
+  cooldown: 3000,
 
-  async execute({ event, args, reply }) {
+  async execute({ event, args, reply, prefix }) {
     if (!args.length) {
-      await reply('❌ What should I rate?\n\nUsage: rate <thing to rate>');
+      await reply(`⭐ 『 RATE ANYTHING 』 ⭐
+═══════════════════════════
+${decorations.sparkle} I'll rate anything for you!
+═══════════════════════════
+
+◈ USAGE
+═══════════════════════════
+➤ ${prefix}rate <thing>
+
+◈ EXAMPLES
+═══════════════════════════
+➤ ${prefix}rate pizza
+➤ ${prefix}rate my skills
+➤ ${prefix}rate this weather`);
       return;
     }
 
@@ -22,32 +36,45 @@ export const command: Command = {
 
     let emoji = '';
     let comment = '';
+    let color = '';
 
     if (rating >= 9) {
       emoji = '🌟';
-      comment = 'Absolutely amazing! Chef\'s kiss!';
+      color = '🟣';
+      comment = 'Absolutely amazing!';
     } else if (rating >= 7) {
       emoji = '😊';
-      comment = 'Pretty great! Would recommend!';
+      color = '🔵';
+      comment = 'Pretty great!';
     } else if (rating >= 5) {
       emoji = '🤔';
-      comment = 'It\'s okay, could be better.';
+      color = '🟢';
+      comment = 'It\'s okay I guess';
     } else if (rating >= 3) {
       emoji = '😐';
-      comment = 'Meh, not impressed.';
+      color = '🟡';
+      comment = 'Meh, not impressed';
     } else {
       emoji = '😬';
-      comment = 'Yikes... no comment.';
+      color = '🔴';
+      comment = 'Yikes... no comment';
     }
 
     const stars = '⭐'.repeat(rating) + '☆'.repeat(10 - rating);
 
-    let message = `${emoji} *Rating*\n\n`;
-    message += `📝 "${thing}"\n\n`;
-    message += `${stars}\n`;
-    message += `🎯 Score: ${rating}/10\n\n`;
-    message += `💬 ${comment}`;
+    await reply(`${emoji} 『 RATING 』 ${emoji}
+═══════════════════════════
 
-    await reply(message);
+📝 "${thing}"
+
+═══════════════════════════
+${stars}
+═══════════════════════════
+
+${color} Score: ${rating}/10
+💬 ${comment}
+
+═══════════════════════════
+${decorations.sparkle} Thanks for asking!`);
   },
 };

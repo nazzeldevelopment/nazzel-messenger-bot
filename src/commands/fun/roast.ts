@@ -1,13 +1,12 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const roasts = [
   "You're not stupid; you just have bad luck thinking.",
   "I'd agree with you but then we'd both be wrong.",
   "You're like a cloud. When you disappear, it's a beautiful day.",
-  "I'm not saying I hate you, but I would unplug your life support to charge my phone.",
   "You bring everyone so much joy... when you leave.",
   "If laughter is the best medicine, your face must be curing the world.",
-  "You're proof that even evolution makes mistakes sometimes.",
   "I'd explain it to you, but I left my crayons at home.",
   "You're not completely useless. You can always serve as a bad example.",
   "Some people light up a room when they walk in. You light it up when you leave.",
@@ -21,19 +20,33 @@ const roasts = [
   "Ikaw ang dahilan kung bakit may instruction sa shampoo.",
   "Kung ang cute ay vitamins, ikaw ay malnutrition.",
   "Hindi ka bobo, nahihirapan ka lang mag-isip.",
+  "Your secrets are safe with me. I never even listen when you tell me them.",
+  "You're proof that even Google can't answer everything.",
 ];
+
+const roastEmojis = ['🔥', '💀', '😈', '🌶️', '⚡'];
 
 export const command: Command = {
   name: 'roast',
-  aliases: ['burn', 'insult'],
+  aliases: ['burn', 'insult', 'asar'],
   description: 'Get a friendly roast (just for fun!)',
   category: 'fun',
   usage: 'roast',
   examples: ['roast'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ reply }) {
     const roast = roasts[Math.floor(Math.random() * roasts.length)];
-    await reply(`🔥 *Friendly Roast*\n\n${roast}\n\n(Just for fun! Don't take it seriously 😄)`);
+    const emoji = roastEmojis[Math.floor(Math.random() * roastEmojis.length)];
+    
+    await reply(`${emoji} 『 FRIENDLY ROAST 』 ${emoji}
+═══════════════════════════
+${decorations.fire} Prepare yourself...
+═══════════════════════════
+
+${roast}
+
+═══════════════════════════
+😄 Just for fun! No hard feelings!`);
   },
 };

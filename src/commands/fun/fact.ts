@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { decorations } from '../../lib/messageFormatter.js';
 
 const facts = [
   "Honey never spoils. Archaeologists have found 3000-year-old honey in Egyptian tombs that was still edible!",
@@ -23,19 +24,34 @@ const facts = [
   "The tarsier, one of the world's smallest primates, is found in the Philippines.",
   "Chocolate Lake in the Philippines changes color based on the season.",
   "The Philippines is home to the world's largest pearl, the Pearl of Lao Tzu.",
+  "A single cloud can weigh more than 1 million pounds.",
+  "There's a species of jellyfish that is immortal.",
+  "Humans share 60% of their DNA with bananas.",
 ];
+
+const factEmojis = ['📚', '🧠', '💡', '🌟', '🔬', '🌍'];
 
 export const command: Command = {
   name: 'fact',
-  aliases: ['facts', 'funfact', 'didyouknow'],
+  aliases: ['facts', 'funfact', 'didyouknow', 'trivia'],
   description: 'Get a random interesting fact',
   category: 'fun',
   usage: 'fact',
   examples: ['fact'],
-  cooldown: 5,
+  cooldown: 5000,
 
   async execute({ reply }) {
     const fact = facts[Math.floor(Math.random() * facts.length)];
-    await reply(`📚 *Did You Know?*\n\n${fact}`);
+    const emoji = factEmojis[Math.floor(Math.random() * factEmojis.length)];
+    
+    await reply(`${emoji} 『 DID YOU KNOW? 』 ${emoji}
+═══════════════════════════
+${decorations.sparkle} Random Fact
+═══════════════════════════
+
+${fact}
+
+═══════════════════════════
+🌟 Knowledge is power!`);
   },
 };
