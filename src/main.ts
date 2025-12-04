@@ -7,6 +7,9 @@ import { database, initDatabase } from './database/index.js';
 import { redis } from './lib/redis.js';
 import { antiSpam } from './lib/antiSpam.js';
 import { createServer, startServer } from './services/server.js';
+import { eventHandler } from './lib/eventHandler.js';
+import { maintenance } from './lib/maintenance.js';
+import { badWordsFilter } from './lib/badwords.js';
 import config from '../config.json' with { type: 'json' };
 import type { CommandContext, MessageOptions } from './types/index.js';
 
@@ -14,25 +17,61 @@ const APPSTATE_FILE = './appstate.json';
 const prefix = config.bot.prefix;
 
 async function main(): Promise<void> {
+  console.log(`
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   ███╗   ██╗ █████╗ ███████╗███████╗███████╗██╗         ██████╗  ██████╗ ████████╗   ║
+║   ████╗  ██║██╔══██╗╚══███╔╝╚══███╔╝██╔════╝██║         ██╔══██╗██╔═══██╗╚══██╔══╝   ║
+║   ██╔██╗ ██║███████║  ███╔╝   ███╔╝ █████╗  ██║         ██████╔╝██║   ██║   ██║      ║
+║   ██║╚██╗██║██╔══██║ ███╔╝   ███╔╝  ██╔══╝  ██║         ██╔══██╗██║   ██║   ██║      ║
+║   ██║ ╚████║██║  ██║███████╗███████╗███████╗███████╗    ██████╔╝╚██████╔╝   ██║      ║
+║   ╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝    ╚═════╝  ╚═════╝    ╚═╝      ║
+║                                                                              ║
+║          Advanced Facebook Messenger User-Bot | TypeScript Edition           ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+`);
+  
   BotLogger.startup(`Starting ${config.bot.name} v${config.bot.version}`);
+  
+  console.log('═════════════════════ INITIALIZING SYSTEMS ═════════════════════');
   
   const dbInitialized = await initDatabase();
   
   if (!dbInitialized) {
     BotLogger.warn('MongoDB not connected. Database features will be disabled.');
     BotLogger.info('Set MONGODB_URI environment variable to enable database.');
+  } else {
+    console.log('  [DATABASE]        MongoDB connected successfully');
   }
   
   await redis.connect();
+  if (redis.connected) {
+    console.log('  [CACHE]           Redis connected successfully');
+  }
+  
+  console.log('═══════════════════════ LOADING MODULES ════════════════════════');
   
   await commandHandler.loadCommands();
-  BotLogger.printLoadedCommands(commandHandler.getAllCommands().size);
+  const commandCount = commandHandler.getAllCommands().size;
+  const categories = commandHandler.getCategories();
   
-  BotLogger.printDatabaseInfo(dbInitialized, redis.connected);
+  console.log(`  [COMMANDS]        Loaded ${commandCount} commands in ${categories.length} categories`);
+  for (const category of categories) {
+    const count = commandHandler.getCommandsByCategory(category).length;
+    console.log(`                    - ${category}: ${count} commands`);
+  }
+  
+  console.log('  [MODERATION]      Bad words filter loaded');
+  console.log('  [MAINTENANCE]     Maintenance system ready');
+  console.log('  [EVENTS]          Event handlers initialized');
+  
+  console.log('═════════════════════ STARTING SERVICES ═════════════════════════');
   
   const app = createServer();
   startServer(app);
-  BotLogger.printServerInfo(config.server.port);
+  console.log(`  [SERVER]          Express running on port ${config.server.port}`);
+  console.log(`  [DASHBOARD]       http://0.0.0.0:${config.server.port}`);
   
   let appState: any = null;
   let appStateSource = '';
@@ -41,7 +80,7 @@ async function main(): Promise<void> {
   if (dbAppstate && Array.isArray(dbAppstate) && dbAppstate.length > 0) {
     appState = dbAppstate;
     appStateSource = 'database';
-    BotLogger.appstateStatus('loaded', 'From database (persistent)');
+    console.log('  [APPSTATE]        Loaded from database (persistent)');
   }
   
   if (!appState && fs.existsSync(APPSTATE_FILE)) {
@@ -50,18 +89,18 @@ async function main(): Promise<void> {
       if (fileContent && fileContent.trim().length > 2) {
         appState = JSON.parse(fileContent);
         appStateSource = 'file';
-        BotLogger.appstateStatus('loaded', 'From file');
+        console.log('  [APPSTATE]        Loaded from file');
         
         await database.saveAppstate(appState);
-        BotLogger.info('Appstate synced to database for persistence');
+        console.log('  [APPSTATE]        Synced to database');
       } else {
-        BotLogger.appstateStatus('missing', 'File exists but is empty');
+        console.log('  [APPSTATE]        File exists but is empty');
       }
     } catch (error) {
-      BotLogger.appstateStatus('error', error instanceof Error ? error.message : 'Parse error');
+      console.log('  [APPSTATE]        Error loading from file');
     }
   } else if (!appState) {
-    BotLogger.appstateStatus('missing', 'Not found in database or file');
+    console.log('  [APPSTATE]        Not found in database or file');
   }
   
   const credentials = { appState };
@@ -76,22 +115,24 @@ async function main(): Promise<void> {
   };
   
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
-    BotLogger.warn('No valid appstate found in database or file.');
-    BotLogger.info('fca-unofficial requires cookie-based authentication (appstate.json).');
-    BotLogger.info('Please provide a valid appstate.json file with Facebook cookies.');
-    BotLogger.info('The Express server is running. Bot will not connect to Messenger.');
+    console.log('═══════════════════════ WARNING ════════════════════════════════');
+    console.log('  No valid appstate found.');
+    console.log('  Please provide a valid appstate.json file with Facebook cookies.');
+    console.log('  The Express server is running. Bot will not connect to Messenger.');
+    console.log('═════════════════════════════════════════════════════════════════');
     return;
   }
   
-  BotLogger.printLine('LOGIN FACEBOOK:', 'Attempting login...', undefined, undefined);
+  console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
+  console.log('  [LOGIN]           Attempting Facebook login...');
   
   login(credentials, loginOptions, async (err: any, api: any) => {
     if (err) {
       BotLogger.error('Login failed', err);
       
       if (err.error === 'login-approval') {
-        BotLogger.warn('Two-factor authentication required.');
-        BotLogger.info('Please approve the login from your phone or enter the code.');
+        console.log('  [LOGIN]           Two-factor authentication required.');
+        console.log('                    Please approve the login from your phone.');
       }
       
       return;
@@ -99,15 +140,15 @@ async function main(): Promise<void> {
     
     const currentUserId = api.getCurrentUserID();
     
+    let botName = 'Unknown';
     try {
       const userInfo = await api.getUserInfo(currentUserId);
-      const botName = userInfo[currentUserId]?.name || 'Unknown';
-      BotLogger.printLoginSuccess(botName, currentUserId);
-      BotLogger.printBotInfo(api);
-    } catch (error) {
-      BotLogger.printLoginSuccess(undefined, currentUserId);
-      BotLogger.printBotInfo(api);
-    }
+      botName = userInfo[currentUserId]?.name || 'Unknown';
+    } catch (error) {}
+    
+    console.log('═════════════════════ LOGIN SUCCESSFUL ═════════════════════════');
+    console.log(`  [ACCOUNT]         ${botName}`);
+    console.log(`  [USER ID]         ${currentUserId}`);
     
     try {
       const newAppState = api.getAppState();
@@ -115,14 +156,10 @@ async function main(): Promise<void> {
         fs.writeFileSync(APPSTATE_FILE, JSON.stringify(newAppState, null, 2));
         
         const dbSaved = await database.saveAppstate(newAppState);
-        if (dbSaved) {
-          BotLogger.appstateStatus('saved', 'To file and database');
-        } else {
-          BotLogger.appstateStatus('saved', 'To file only');
-        }
+        console.log(`  [APPSTATE]        Saved to ${dbSaved ? 'file and database' : 'file only'}`);
       }
     } catch (error) {
-      BotLogger.appstateStatus('error', 'Failed to save');
+      console.log('  [APPSTATE]        Failed to save');
     }
     
     api.setOptions({
@@ -133,7 +170,19 @@ async function main(): Promise<void> {
       forceLogin: true,
     });
     
-    BotLogger.printBotStarted();
+    console.log('══════════════════════ BOT INFORMATION ═════════════════════════');
+    console.log(`  [NAME]            ${config.bot.name}`);
+    console.log(`  [VERSION]         ${config.bot.version}`);
+    console.log(`  [PREFIX]          ${prefix}`);
+    console.log(`  [COMMANDS]        ${commandCount} commands loaded`);
+    console.log(`  [NODE]            ${process.version}`);
+    
+    console.log('═══════════════════════ BOT STARTED ════════════════════════════');
+    console.log('  [STATUS]          Bot is now online and listening for messages');
+    console.log('  [FEATURES]        Welcome/Leave messages enabled');
+    console.log('  [FEATURES]        Bad words filter ready');
+    console.log('  [FEATURES]        Maintenance mode available');
+    console.log('═════════════════════════════════════════════════════════════════');
     
     const stopListening = api.listenMqtt(async (err: any, event: any) => {
       if (err) {
@@ -145,11 +194,8 @@ async function main(): Promise<void> {
       }
       
       if (!event) {
-        BotLogger.debug('[EVENT] Received null/undefined event, skipping');
         return;
       }
-      
-      BotLogger.info(`[EVENT RECEIVED] Type: ${event.type || 'unknown'}, ThreadID: ${event.threadID || 'none'}, SenderID: ${event.senderID || 'none'}`);
       
       try {
         await handleEvent(api, event);
@@ -197,11 +243,6 @@ async function handleEvent(api: any, event: any): Promise<void> {
       break;
       
     case 'message_reaction':
-      BotLogger.event('reaction', { 
-        threadId: event.threadID, 
-        userId: event.userID,
-        reaction: event.reaction,
-      });
       break;
       
     case 'typ':
@@ -223,9 +264,6 @@ async function handleMessage(api: any, event: any): Promise<void> {
   
   const isSelfMessage = senderId === currentUserId;
   
-  BotLogger.message(threadId, senderId, body);
-  BotLogger.debug(`Message details: threadType=${event.isGroup ? 'group' : 'private'}, isSelf=${isSelfMessage}, body="${body.substring(0, 50)}"`);
-  
   await database.logEntry({
     type: 'message',
     level: 'info',
@@ -234,12 +272,52 @@ async function handleMessage(api: any, event: any): Promise<void> {
     userId: senderId,
   });
   
+  if (!isSelfMessage) {
+    const detection = await badWordsFilter.detectBadContent(body, threadId);
+    if (detection.detected) {
+      const settings = await badWordsFilter.getSettings(threadId);
+      const warnings = await badWordsFilter.addUserWarning(senderId, threadId);
+      
+      if (settings.action === 'warn' && detection.message) {
+        try {
+          await api.sendMessage(
+            `${detection.message}\n\nWarning ${warnings}/3 - Further violations may result in action.`,
+            threadId
+          );
+        } catch (e) {}
+      }
+      
+      await database.logEntry({
+        type: 'moderation',
+        level: 'warn',
+        message: `Bad content detected: ${detection.type}`,
+        threadId,
+        userId: senderId,
+        metadata: { matches: detection.matches, severity: detection.severity },
+      });
+    }
+  }
+  
   if (config.features.xp.enabled && !isSelfMessage) {
     await handleXP(api, senderId, threadId);
   }
   
   if (body.startsWith(prefix)) {
-    BotLogger.debug(`Command detected: "${body}" from ${isSelfMessage ? 'self' : senderId}`);
+    const maintenanceData = await maintenance.getMaintenanceData();
+    const ownerId = process.env.OWNER_ID;
+    const isOwner = ownerId && senderId === ownerId;
+    
+    if (maintenanceData?.enabled && !isOwner) {
+      const hasNotified = maintenanceData.notifiedGroups.includes(threadId);
+      if (!hasNotified) {
+        try {
+          await api.sendMessage(maintenance.generateMaintenanceMessage(maintenanceData), threadId);
+          await maintenance.addNotifiedGroup(threadId);
+        } catch (e) {}
+      }
+      return;
+    }
+    
     const raw = body.slice(prefix.length).trim();
     const parts = raw.split(/\s+/);
     const commandName = parts.shift()?.toLowerCase() || '';
@@ -259,8 +337,6 @@ async function handleMessage(api: any, event: any): Promise<void> {
           if (messageContent.body) messageContent.body = String(messageContent.body);
         }
         
-        BotLogger.debug(`Sending message to ${targetThread}...`);
-        
         const startTime = Date.now();
         
         const sendWithRetry = async (attempt: number = 1): Promise<{ success: boolean; error?: Error; messageInfo?: any }> => {
@@ -268,7 +344,6 @@ async function handleMessage(api: any, event: any): Promise<void> {
             const messageInfo = await api.sendMessage(messageContent, targetThread);
             return { success: true, messageInfo };
           } catch (e) {
-            BotLogger.debug(`sendMessage attempt ${attempt} error: ${(e as Error).message}`);
             return { success: false, error: e as Error };
           }
         };
@@ -287,21 +362,8 @@ async function handleMessage(api: any, event: any): Promise<void> {
         
         const elapsed = Date.now() - startTime;
         
-        if (result.success) {
-          const preview = typeof message === 'string' ? message.substring(0, 50) : 'attachment/complex message';
-          const msgId = result.messageInfo?.messageID || 'sent';
-          BotLogger.info(`Message sent to ${targetThread} [ID: ${msgId}] in ${elapsed}ms`);
-          BotLogger.messageSent(targetThread, preview);
-        } else {
+        if (!result.success) {
           BotLogger.error(`Failed to send message after 3 attempts (${elapsed}ms): ${result.error?.message}`);
-          
-          database.logEntry({
-            type: 'message_timeout',
-            level: 'error',
-            message: `Message send failed after 3 attempts`,
-            threadId: targetThread,
-            metadata: { elapsed, error: result.error?.message },
-          }).catch(() => {});
         }
       };
       
@@ -321,16 +383,12 @@ async function handleMessage(api: any, event: any): Promise<void> {
       };
       
       try {
-        BotLogger.debug(`Executing command: ${commandName} with args: [${args.join(', ')}]`);
         await commandHandler.executeCommand(context, commandName);
-        BotLogger.debug(`Command ${commandName} execution completed`);
       } catch (error) {
         BotLogger.error(`Command execution failed: ${commandName}`, error);
         try {
           await reply(`An error occurred while executing the command. Please try again.`);
-        } catch (replyError) {
-          BotLogger.error(`Failed to send error message`, replyError);
-        }
+        } catch (replyError) {}
       }
     }
   }
@@ -351,25 +409,27 @@ async function handleXP(api: any, senderId: string, threadId: string): Promise<v
   const result = await database.updateUserXP(senderIdStr, xpGain);
   
   if (result?.leveledUp) {
-    BotLogger.xp(senderIdStr, xpGain, result.user.level);
-    
     try {
       const userInfo = await api.getUserInfo(senderIdStr);
       const userName = userInfo[senderIdStr]?.name || 'User';
       
-      const levelUpMessage = `🎉 Congratulations ${userName}!\n\n⭐ You've reached **Level ${result.user.level}**!\n\nKeep chatting to earn more XP!`;
+      const levelUpMessage = `
+╔══════════════════════════════════════╗
+║         LEVEL UP!               ║
+╠══════════════════════════════════════╣
+║                                      ║
+║  Congratulations ${userName}!        ║
+║                                      ║
+║  You've reached Level ${result.user.level}!       ║
+║                                      ║
+║  Keep chatting to earn more XP!     ║
+║                                      ║
+╚══════════════════════════════════════╝`;
       
       try {
-        const messageInfo = await api.sendMessage(levelUpMessage, threadIdStr);
-        const msgId = normalizeId(messageInfo?.messageID || 'unknown');
-        BotLogger.info(`Level up message sent to ${threadIdStr} [ID: ${msgId}]`);
-        BotLogger.messageSent(threadIdStr, `Level up notification for ${userName}`);
-      } catch (err) {
-        BotLogger.error('Failed to send level up message', err);
-      }
-    } catch (error) {
-      BotLogger.error('Failed to send level up message', error);
-    }
+        await api.sendMessage(levelUpMessage, threadIdStr);
+      } catch (err) {}
+    } catch (error) {}
   }
 }
 
@@ -377,23 +437,21 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
   const { logMessageType, logMessageData, threadID } = event;
   const threadIdStr = normalizeId(threadID);
   
-  BotLogger.event(logMessageType, { threadId: threadIdStr, data: logMessageData });
-  
   if (logMessageType === 'log:subscribe' && logMessageData?.addedParticipants) {
     if (config.features.welcome.enabled) {
       for (const participant of logMessageData.addedParticipants) {
         const userId = normalizeId(participant.userFbId || participant.id?.split(':').pop() || '');
         const userName = participant.fullName || 'Member';
         
-        const welcomeMessage = config.features.welcome.message
-          .replace('{name}', userName)
-          .replace('{prefix}', prefix);
-        
         try {
-          const messageInfo = await api.sendMessage(welcomeMessage, threadIdStr);
-          const msgId = normalizeId(messageInfo?.messageID || 'unknown');
-          BotLogger.info(`Welcome message sent to ${threadIdStr} [ID: ${msgId}]`);
-          BotLogger.messageSent(threadIdStr, `Welcome message for ${userName}`);
+          const welcomeMessage = await eventHandler.generateProfessionalWelcome(
+            api,
+            threadIdStr,
+            userId,
+            userName
+          );
+          
+          await api.sendMessage(welcomeMessage, threadIdStr);
           
           await database.logEntry({
             type: 'event',
@@ -413,13 +471,32 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
     const leftUser = normalizeId(logMessageData?.leftParticipantFbId || '');
     
     if (config.features.autoLeave.logEnabled) {
-      await database.logEntry({
-        type: 'event',
-        level: 'info',
-        message: `User ${leftUser} left the group`,
-        threadId: threadIdStr,
-        userId: leftUser,
-      });
+      try {
+        let userName = 'Member';
+        try {
+          const userInfo = await api.getUserInfo(leftUser);
+          userName = userInfo[leftUser]?.name || 'Member';
+        } catch (e) {}
+        
+        const leaveMessage = await eventHandler.generateProfessionalLeave(
+          api,
+          threadIdStr,
+          leftUser,
+          userName
+        );
+        
+        await api.sendMessage(leaveMessage, threadIdStr);
+        
+        await database.logEntry({
+          type: 'event',
+          level: 'info',
+          message: `User ${userName} left the group`,
+          threadId: threadIdStr,
+          userId: leftUser,
+        });
+      } catch (error) {
+        BotLogger.error('Failed to send leave message', error);
+      }
     }
     
     const antiLeaveEnabled = await database.getSetting<boolean>(`antileave_${threadIdStr}`);
@@ -431,7 +508,15 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
         const userInfo = await api.getUserInfo(leftUser);
         const userName = userInfo[leftUser]?.name || 'Member';
         
-        await api.sendMessage(`🛡️ Anti-Leave: ${userName} has been added back to the group.`, threadIdStr);
+        await api.sendMessage(`
+╔══════════════════════════════════════╗
+║       ANTI-LEAVE ACTIVATED      ║
+╠══════════════════════════════════════╣
+║                                      ║
+║  ${userName} has been added back     ║
+║  to the group automatically.        ║
+║                                      ║
+╚══════════════════════════════════════╝`, threadIdStr);
         
         await database.logEntry({
           type: 'event',
@@ -457,16 +542,22 @@ process.on('unhandledRejection', (reason) => {
 });
 
 process.on('SIGINT', async () => {
-  BotLogger.shutdown('Received SIGINT, shutting down...');
+  console.log('\n═══════════════════════ SHUTTING DOWN ═══════════════════════════');
+  console.log('  [STATUS]          Received shutdown signal');
   await redis.disconnect();
   await database.disconnect();
+  console.log('  [STATUS]          Cleanup complete. Goodbye!');
+  console.log('═════════════════════════════════════════════════════════════════');
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  BotLogger.shutdown('Received SIGTERM, shutting down...');
+  console.log('\n═══════════════════════ SHUTTING DOWN ═══════════════════════════');
+  console.log('  [STATUS]          Received termination signal');
   await redis.disconnect();
   await database.disconnect();
+  console.log('  [STATUS]          Cleanup complete. Goodbye!');
+  console.log('═════════════════════════════════════════════════════════════════');
   process.exit(0);
 });
 
