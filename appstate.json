@@ -6,7 +6,10 @@
 		"path": "/login/device-based/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.969Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": false,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "datr",
@@ -15,7 +18,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": true,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "sb",
@@ -24,7 +30,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": true,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "c_user",
@@ -33,7 +42,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": false,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "xs",
@@ -42,7 +54,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": true,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "pas",
@@ -51,7 +66,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": true,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "vpd",
@@ -60,7 +78,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": false,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "ps_l",
@@ -69,7 +90,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": false,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "ps_n",
@@ -78,7 +102,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": false,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "fr",
@@ -87,7 +114,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": true,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "wl_cbv",
@@ -96,7 +126,10 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": false,
+		"sameSite": "no_restriction"
 	},
 	{
 		"key": "fbl_st",
@@ -105,6 +138,9 @@
 		"path": "/",
 		"hostOnly": false,
 		"creation": "2025-12-04T05:02:26.970Z",
-		"lastAccessed": "2025-12-04T05:02:26.970Z"
+		"lastAccessed": "2025-12-04T05:02:26.970Z",
+		"secure": true,
+		"httpOnly": false,
+		"sameSite": "no_restriction"
 	}
 ]
