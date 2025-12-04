@@ -3,7 +3,7 @@ import { BotLogger } from '../../lib/logger.js';
 
 const command: Command = {
   name: 'addmember',
-  aliases: ['add', 'invite'],
+  aliases: ['add', 'adduser'],
   description: 'Add member(s) to the group using profile link or user ID',
   category: 'admin',
   usage: 'addmember <profile_link|userID> [more...]',

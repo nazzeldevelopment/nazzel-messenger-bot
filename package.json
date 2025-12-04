@@ -1,15 +1,22 @@
 {
   "name": "nazzel-messenger-userbot",
-  "version": "1.3.6",
+  "version": "1.5.0",
   "description": "Advanced Facebook Messenger User-Bot with TypeScript, MongoDB, and comprehensive logging",
   "main": "dist/main.js",
   "type": "module",
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "start": "tsx src/main.ts",
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
     "lint": "eslint src/",
     "format": "prettier --write src/"
+  },
+  "pnpm": {
+    "neverBuiltDependencies": ["sqlite3"],
+    "overrides": {
+      "sqlite3": "npm:better-sqlite3@*"
+    }
   },
   "keywords": [
     "messenger",
@@ -44,6 +51,6 @@
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=20.0.0"
   }
 }
