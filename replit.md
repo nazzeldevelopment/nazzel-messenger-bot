@@ -7,7 +7,7 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 - **neokex-fca 4.5.3** - Advanced Facebook Chat API (November 2025) with MQTT support for all group chats
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
-- **Modular Commands** - 102 commands organized by categories with paginated help
+- **Modular Commands** - 109 commands organized by categories with compact premium design
 - **XP & Leveling** - Automatic XP system with level-up notifications
 - **Music Player** - YouTube audio download and playback
 - **Anti-Leave Protection** - Automatic re-adding of members who leave groups
@@ -21,8 +21,8 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
 ```
 src/
-├── commands/           # Command modules by category (102 total)
-│   ├── admin/          # Admin commands (17 commands)
+├── commands/           # Command modules by category (109 total)
+│   ├── admin/          # Admin commands (21 commands)
 │   ├── fun/            # Fun commands (46 commands)
 │   ├── general/        # General commands (10 commands)
 │   ├── level/          # Level commands (5 commands)
@@ -35,6 +35,16 @@ src/
 ```
 
 ## Recent Changes
+
+- **2025-12-04**: v1.8.0
+  - **NEW**: N!removeall command - Remove all members from group (Owner only, with confirmation)
+  - **NEW**: N!leave command - Make bot leave a group chat by threadId
+  - **REDESIGN**: All command outputs now compact and premium (no bloated messages)
+  - **FIXED**: Welcome/Leave messages now compact with accurate member count
+  - **FIXED**: Shutdown command now properly terminates the bot using SIGTERM
+  - **FIXED**: Level up notifications now compact
+  - **FIXED**: Anti-leave messages now compact
+  - Total commands: 109 (21 admin, 48 fun, 10 general, 5 level, 25 utility)
 
 - **2025-12-04**: v1.7.1
   - **FIXED**: Replaced @dongdev/fca-unofficial with neokex-fca v4.5.3

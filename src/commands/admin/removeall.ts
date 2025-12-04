@@ -16,6 +16,17 @@ const command: Command = {
     const threadId = String(event.threadID);
     const botId = String(api.getCurrentUserID());
     
+    try {
+      const threadInfo = await api.getThreadInfo(threadId);
+      if (!threadInfo.isGroup) {
+        await reply(`❌ Groups only`);
+        return;
+      }
+    } catch (e) {
+      await reply(`❌ Could not verify group`);
+      return;
+    }
+    
     if (args[0] !== 'confirm') {
       await reply(`⚠️ REMOVE ALL
 ━━━━━━━━━━━━━━━
