@@ -5,30 +5,32 @@
 An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
 - **@dongdev/fca-unofficial 3.0.8** - Latest Facebook Chat API (December 2025) with MQTT support, 58 API methods, full Group Chat and Private Message support
-- **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns
+- **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns, coins
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
-- **Modular Commands** - 109 commands organized by categories with compact premium design
+- **Modular Commands** - 123 commands organized by categories with compact premium design
+- **Economy System** - Coins, daily claims, gambling, slots, AI commands
+- **AI Integration** - OpenAI-powered commands (askv1-askv5) with tiered pricing
 - **XP & Leveling** - Automatic XP system with level-up notifications
-- **Music Player** - YouTube audio download and playback
 - **Anti-Leave Protection** - Automatic re-adding of members who leave groups
 - **Comprehensive Logging** - Winston-based categorized logging
-- **Professional Welcome/Leave Messages** - Beautiful formatted messages with group info, timestamps, member counts
+- **Premium Welcome/Leave Messages** - Compact box-style messages with group info, timestamps, member counts
 - **Maintenance Mode** - Enable/disable bot with auto-notification to groups
 - **Bad Words Filter** - Auto-moderation with warning system and configurable actions
-- **Professional Command Designs** - All commands feature emoji indicators and clean separator styling
+- **Premium Compact Design** - All commands use box styling that doesn't obstruct chat flow
 
 ## Architecture
 
 ```
 src/
-├── commands/           # Command modules by category (109 total)
-│   ├── admin/          # Admin commands (21 commands)
-│   ├── fun/            # Fun commands (46 commands)
+├── commands/           # Command modules by category (123 total)
+│   ├── admin/          # Admin commands (24 commands)
+│   ├── economy/        # Economy commands (11 commands)
+│   ├── fun/            # Fun commands (48 commands)
 │   ├── general/        # General commands (10 commands)
 │   ├── level/          # Level commands (5 commands)
-│   └── utility/        # Utility commands (24 commands)
+│   └── utility/        # Utility commands (25 commands)
 ├── database/           # MongoDB native driver and schema
-├── lib/                # Core libraries (logger, redis, antiSpam, commandHandler)
+├── lib/                # Core libraries (logger, redis, antiSpam, commandHandler, eventHandler)
 ├── services/           # Express server for status/logs API
 ├── types/              # TypeScript type definitions
 └── main.ts             # Bot entry point
@@ -36,116 +38,34 @@ src/
 
 ## Recent Changes
 
-- **2025-12-05**: v1.9.0
-  - **UPGRADED**: Migrated to @dongdev/fca-unofficial v3.0.8 (latest and most actively maintained FCA library)
-  - **IMPROVED**: 58 FCA API methods available with enhanced MQTT support
-  - **IMPROVED**: Full Group Chat and Private Message support
-  - **IMPROVED**: Auto-reconnect and online presence features
-  - **IMPROVED**: Enhanced type definitions with comprehensive API coverage
-  - Clean startup with successful login and MQTT listener
+- **2025-12-05**: v2.1.0
+  - **RENAMED**: AI commands now askv1-askv5 (was ask, askpro, askcode, askcreative, askmax)
+  - **NEW**: askv5 now uses real payment methods (PayPal, GCash, PayMaya, Bank Transfer) instead of coins
+  - **REDESIGN**: All commands now use compact box styling (╭─╮ ╰─╯) that doesn't obstruct chat
+  - **IMPROVED**: Welcome/goodbye messages with time-based greetings and random emojis
+  - **FIXED**: shutdown command properly terminates with Redis/MongoDB disconnect
+  - **FIXED**: removeall command with dynamic prefix in confirmation
+  - **FIXED**: FCA config with sequelize: false, sqlite: false to suppress internal warnings
+
+- **2025-12-05**: v2.0.0
+  - **NEW CATEGORY**: Economy System with 11 commands
+  - **AI Commands**: askv1 (5 coins), askv2 (15 coins), askv3 (20 coins), askv4 (25 coins), askv5 (PAID)
+  - **Economy**: balance, claim, coinflip, gamble, slots, richest
+  - **Admin**: addcoins, removecoins for coin management
+  - Total commands: 123 in 6 categories
 
 - **2025-12-04**: v1.8.0
-  - **NEW**: N!removeall command - Remove all members from group (Owner only, with confirmation)
+  - **NEW**: N!removeall command - Remove all members from group (Owner only)
   - **NEW**: N!leave command - Make bot leave a group chat by threadId
-  - **REDESIGN**: All command outputs now compact and premium (no bloated messages)
-  - **FIXED**: Welcome/Leave messages now compact with accurate member count
-  - **FIXED**: Shutdown command now properly terminates the bot using SIGTERM
-  - **FIXED**: Level up notifications now compact
-  - **FIXED**: Anti-leave messages now compact
-  - Total commands: 109 (21 admin, 48 fun, 10 general, 5 level, 25 utility)
-
-- **2025-12-04**: v1.7.1
-  - **FIXED**: Replaced @dongdev/fca-unofficial with neokex-fca v4.5.3
-  - **FIXED**: "this.lib.Database is not a constructor" error completely resolved
-  - Clean startup with no database warnings
-  - All group chats and private messages fully supported
-
-- **2025-12-04**: v1.7.0
-  - Added 5 new commands: shutdown, eval, magic, affirmation, reminder (107 total)
-  - Enhanced messageFormatter with extended decorations and accurate Philippine Time
-  - Redesigned welcome/leave messages with time-based greetings
-  - Fixed ping and uptime commands with real-time system status
-  - Updated CHANGELOG.md with comprehensive v1.7.0 patch notes
-
-- **2025-12-04**: v1.6.0
-  - **Complete Command Redesign**: All 102+ commands redesigned with professional emoji styling
-  - Created centralized messageFormatter.ts utility with category-based color themes
-  - Replaced ASCII boxes with clean emoji indicators and separator lines (═══════)
-  - Added category-specific emoji headers: 『 TITLE 』
-  - Color themes: General=Blue, Fun=Pink/Purple, Level=Gold, Utility=Cyan, Admin=Red
-  - Updated CHANGELOG.md with comprehensive v1.6.0 patch notes
-
-- **2025-12-04**: v1.5.0
-  - Migrated from npm to pnpm 10.24.0 for better disk usage and faster installs
-  - Added prefix change functionality (owner/admin can change prefix per group)
-  - Redesigned key commands with professional ASCII-art box layouts
-  - Fixed N!invite bug by removing 'invite' alias from addmember command
-  - Added CHANGELOG.md with all patch notes from v1.0.0 to v1.5.0
-  - Enhanced commands: broadcast, prefix, invite, ping, info, announce, kick, ban
-
-- **2025-12-04**: v1.4.0
-  - Added Professional Welcome/Leave Messages with group info, timestamps, member counts
-  - Added Maintenance Mode system (N!maintenance on/off/status)
-  - Added Bad Words Filter with warning system (3 strikes)
-  - Added 15 new commands (102 total)
-  - Redesigned help command with beautiful ASCII-art layout
-  - Enhanced startup logging with professional banners
-
-- **2025-12-04**: v1.3.6
-  - Migrated from ws3-fca to @dongdev/fca-unofficial v3.0.8
-  - Improved MQTT support for receiving messages in all group chats
-  - Fixed group chat message receiving issues
-
-- **2025-12-04**: v1.3.5
-  - Added Anti-Leave Protection (N!antileave on/off/status)
-  - Added 30 new commands (total now 87 commands)
-  - New Fun: meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock
-  - New Utility: weather, qr, define, flip, countdown, password, color, ascii, base64
-
-- **2025-12-04**: v1.3.4
-  - Fixed private message commands showing "undefined" values
-  - Changed `rank` command to use `getOrCreateUser()` for proper user data creation
-  - Bot now works in any Messenger group chat without restrictions
-  - Added progress bar visualization to rank command output
-
-- **2025-12-03**: v1.3.3
-  - Final fix for MessageID type error using `('' + id).trim()` pattern
-  - Added 3-retry message sending system with progressive delays
-  - Fixed ping, announce, broadcast, remind commands to use centralized reply function
-  - Fixed kick, addmember, setnickname, profile, level commands with ID normalization
-  - Removed problematic typing indicator that caused delays
-  - All commands now use the robust sendMessage wrapper with retry logic
-
-- **2025-12-03**: v1.3.2
-  - Fixed "MessageID should be of type string and not String" error
-  - Centralized ID normalization in event dispatcher
-  - Applied String() conversion across all 25+ command files
-  - Bot now responds correctly in group chats and private messages
-
-- **2025-12-03**: v1.3.0
-  - Re-added Redis for anti-spam cooldown tracking
-  - Added comprehensive rate limiting system to prevent Facebook bans
-  - Individual cooldowns for all 57 commands
-  - In-memory fallback when Redis unavailable
-
-- **2025-12-03**: v1.2.0 (BREAKING)
-  - Migrated from PostgreSQL (Neon + Drizzle ORM) to MongoDB
-  - Removed hardcoded user agent from Facebook login
-  - Enhanced message sending with detailed success/failure confirmation logging
-
-- **2025-12-03**: v1.1.3
-  - Fixed bot not responding to commands in Group Chats and Private Messages
-  - Enhanced message handling with detailed debug logging
-
-- **2025-12-02**: v1.0.0
-  - Initial release with TypeScript implementation
+  - **REDESIGN**: All command outputs now compact and premium
 
 ## User Preferences
 
 - Prefix: `N!` (configurable in config.json and per-group via N!prefix command)
 - Language: TypeScript with strict mode
-- Package Manager: pnpm 10.24.0 (for better disk usage)
+- Package Manager: npm (pnpm has issues with native modules)
 - Node.js: v20.x or higher
+- Design Style: Compact box styling (╭─╮ ╰─╯) that doesn't obstruct chat
 
 ## Configuration
 
@@ -160,6 +80,7 @@ src/
 - `MONGODB_URI` - MongoDB connection string (required for database features)
 - `REDIS_URL` - Redis connection string (optional, uses in-memory fallback)
 - `OWNER_ID` - Bot owner's Facebook ID
+- `OPENAI_API_KEY` - OpenAI API key for AI commands
 
 **Authentication**: `appstate.json`
 - Contains Facebook session cookies for login
@@ -175,15 +96,26 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 - **Auto-Block**: Users exceeding limits are blocked for 30 seconds
 - **Per-Command Cooldowns**: Individual cooldowns ranging from 3s to 30s
 
-## Commands Quick Reference (107 Total)
+## Commands Quick Reference (123 Total)
 
-| Category | Commands |
-|----------|----------|
-| General (10) | help, ping, info, uptime, profile, say, about, changelog, rules, invite |
-| Admin (19) | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave, maintenance, moderation, shutdown, eval |
-| Level (5) | level, xp, leaderboard, givexp, rank |
-| Utility (25) | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64, botstats, userinfo, groupinfo, reminder |
-| Fun (48) | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock, fortune, dare, truth, wouldyourather, pickup, personality, confess, zodiac, nickname, compatibility, magic, affirmation |
+| Category | Count | Commands |
+|----------|-------|----------|
+| Admin | 24 | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave, maintenance, moderation, shutdown, eval, leave, removeall, addcoins, removecoins, deleteacc |
+| Economy | 11 | balance, claim, coinflip, gamble, slots, richest, askv1, askv2, askv3, askv4, askv5 |
+| Fun | 48 | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock, fortune, dare, truth, wouldyourather, pickup, personality, confess, zodiac, nickname, compatibility, magic, affirmation |
+| General | 10 | help, ping, info, uptime, profile, say, about, changelog, rules, invite |
+| Level | 5 | level, xp, leaderboard, givexp, rank |
+| Utility | 25 | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64, botstats, userinfo, groupinfo, reminder |
+
+## AI Commands Pricing
+
+| Command | Model | Cost | Description |
+|---------|-------|------|-------------|
+| askv1 | GPT-4o-mini | 5 coins | Fast basic responses |
+| askv2 | GPT-4o | 15 coins | Better quality responses |
+| askv3 | GPT-4o | 20 coins | Programming/coding help |
+| askv4 | GPT-4o | 25 coins | Creative writing/stories |
+| askv5 | GPT-4o | PAID | Premium (PayPal/GCash/PayMaya) |
 
 ## API Endpoints
 
@@ -195,31 +127,30 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 
 ## Database Collections (MongoDB)
 
-- `users` - User data, XP, levels
+- `users` - User data, XP, levels, coins, streaks
 - `threads` - Group settings
 - `logs` - Categorized bot logs
 - `command_stats` - Command usage tracking
-- `settings` - Key-value settings storage (includes per-group prefixes)
+- `settings` - Key-value settings storage (includes per-group prefixes, premium access)
 - `cooldowns` - Command cooldowns with TTL auto-expiration
-- `xp_cooldowns` - XP gain cooldowns with TTL auto-expiration
+- `transactions` - Coin transaction history
 - `appstate` - Facebook session persistence
 
-## Cooldown Storage (Redis/In-Memory)
+## Premium Compact Design v2
 
-- `global_cooldown:{userId}` - Global command cooldown
-- `rate_count:{userId}` - Command count per minute
-- `blocked:{userId}` - Temporary block status
-- `thread_rate:{threadId}` - Thread command count
-- `cmd_cooldown:{userId}:{command}` - Per-command cooldown
-- `xp_cooldown:{userId}` - XP gain cooldown
+All commands feature compact box styling that doesn't obstruct chat:
+```
+╭───────────────────╮
+│   🤖 AI v1       │
+╰───────────────────╯
+[Response content]
 
-## Professional Command Designs
+💰 -5 │ Bal: 1,000
+```
 
-All commands feature professional emoji-based styling with:
-- Category-specific emoji headers: 『 COMMAND TITLE 』
-- Clean separator lines using ═══════════════════════════
-- Contextual emoji indicators (✅ success, ❌ error, 🔵 info, etc.)
-- Color-coded themes per category (General=Blue, Fun=Pink, Level=Gold, etc.)
-- Progress bars using █ and ░ characters
-- Consistent section formatting with ◈ SECTION labels
-- decorations object for sparkles (✨), stars (⭐), hearts (💖), fire (🔥)
+Design principles:
+- Box headers with Unicode characters (╭─╮ ╰─╯)
+- Minimal footers with essential info only
+- Dynamic prefix in all command outputs
+- Category-specific emojis
+- Compact error messages
