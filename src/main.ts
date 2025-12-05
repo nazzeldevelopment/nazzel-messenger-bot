@@ -112,9 +112,8 @@ async function main(): Promise<void> {
     autoMarkRead: config.bot.autoMarkRead,
     autoMarkDelivery: config.bot.autoMarkDelivery,
     forceLogin: true,
-    database: false,
-    backup: false,
-    logging: false,
+    online: true,
+    autoReconnect: true,
   };
   
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
