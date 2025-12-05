@@ -21,9 +21,9 @@ logs/
 npm-debug.log*
 pnpm-debug.log*
 
-# Music downloads
-music/
-downloads/
+# Music downloads (root level only, not src/commands/music)
+/music/
+/downloads/
 
 # IDE
 .vscode/
