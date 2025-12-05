@@ -17,7 +17,7 @@ const APPSTATE_FILE = './appstate.json';
 const prefix = config.bot.prefix;
 
 const recentEvents = new Map<string, number>();
-const EVENT_DEBOUNCE_MS = 5000;
+const EVENT_DEBOUNCE_MS = 30000;
 
 function isEventDuplicate(eventKey: string): boolean {
   const now = Date.now();
@@ -29,9 +29,15 @@ function isEventDuplicate(eventKey: string): boolean {
   
   recentEvents.set(eventKey, now);
   
-  if (recentEvents.size > 100) {
-    const oldestKey = recentEvents.keys().next().value;
-    if (oldestKey) recentEvents.delete(oldestKey);
+  for (const [key, time] of recentEvents.entries()) {
+    if (now - time > EVENT_DEBOUNCE_MS * 2) {
+      recentEvents.delete(key);
+    }
+  }
+  
+  if (recentEvents.size > 500) {
+    const keysToDelete = Array.from(recentEvents.keys()).slice(0, 100);
+    keysToDelete.forEach(key => recentEvents.delete(key));
   }
   
   return false;
