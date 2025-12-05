@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2025-12-05
+
+### Changed
+
+#### AI Commands Renamed (askv1-askv5)
+- **askv1** (was ask) - Basic AI, 5 coins (aliases: ai, gpt, ask, chatgpt)
+- **askv2** (was askpro) - Pro AI, 15 coins (aliases: askpro, gptpro, aipro)
+- **askv3** (was askcode) - Code help, 20 coins (aliases: askcode, code, codehelp)
+- **askv4** (was askcreative) - Creative AI, 25 coins (aliases: askcreative, creative, story, write)
+- **askv5** (was askmax) - PREMIUM PAID (PayPal/GCash) (aliases: askmax, gptmax, aimax, premium)
+
+#### Premium Payment System (askv5)
+- Removed coin-based payment for askv5
+- Added real payment method support: PayPal, GCash, PayMaya, Bank Transfer
+- Premium access stored in database per user (`premium_{userId}`)
+- Owner has unlimited access
+
+#### Premium Compact Design v2
+All commands redesigned with compact box styling that doesn't obstruct group chat:
+- Box-style headers: `╭───────────────────╮` / `╰───────────────────╯`
+- Minimal footers: `💰 -5 │ Bal: 1,000`
+- Compact error messages
+- Dynamic prefix in all command outputs
+
+### Fixed
+
+#### FCA-ERROR Resolution
+- Completely disabled FCA internal SQLite: `database.type: "none"`, `sqlite: false`, `sequelize: false`
+- Fixed "this.lib.Database is not a constructor" error permanently
+
+#### Admin Commands
+- **shutdown**: Proper graceful shutdown with Redis/MongoDB disconnect and process.exit(0)
+- **removeall**: Dynamic prefix in confirmation message, proper member removal with rate limiting
+
+### Improved
+
+#### Welcome/Goodbye Messages
+- Compact premium design with box styling
+- Time-based greetings (Good Morning/Afternoon/Evening/Night)
+- Random emojis for variety
+- Member count and stats display
+- Dynamic prefix in Quick Start section
+- Shorter group name display (20 char limit)
+
+#### Economy Commands
+- **balance**: Compact wallet display with tier emoji (💰💵🪙💸)
+- **claim**: Streak emoji indicators (🌟🔥✨)
+- **slots**: Visual slot machine with symbol display
+- **gamble**: Roll display with multiplier results
+- **coinflip**: Visual coin display with pick/result
+- **richest**: Compact leaderboard with medal emojis
+
+### Technical
+- All commands now receive `prefix` in context for dynamic prefix display
+- FCA config: Added `sequelize: false`, `sqlite: false` flags
+- Premium access check via `database.getSetting<boolean>(`premium_${userId}`)`
+
+---
+
 ## [2.0.0] - 2025-12-05
 
 ### Added
@@ -33,14 +92,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Bot Version**: Updated to 2.0.0
 - **Total Commands**: Now 123 commands in 7 categories (added economy category)
-- **Command Categories**: Added new "Economy" category with 💰 emoji indicator
+- **Command Categories**: Added new "Economy" category with coin emoji indicator
 - **Database Schema**: Added coin-related fields (coins, dailyStreak, lastClaim, coinTransactions)
 - **Configuration**: Added economy category and cooldowns in config.json
 
 ### Technical
 - **OpenAI Integration**: Added openai package for AI-powered commands
 - **Database Functions**: Added coin management functions (addCoins, removeCoins, getUserCoins, claimDaily, getCoinsLeaderboard)
-- **Slot Machine**: 7 symbols with payouts from 3x (🍒) to 25x (7️⃣)
+- **Slot Machine**: 7 symbols with payouts from 3x (cherry) to 25x (7)
 - **Gamble System**: Risk-based betting with progressive multipliers
 - **Daily Rewards**: Streak-based bonus system with 24-hour cooldown
 - **Coin Transactions**: Tracked with type, amount, description, and timestamp
@@ -148,8 +207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Category color themes**: Pre-defined color schemes for each command type
 
 ### Design Philosophy
-- Moved from ASCII box characters to clean separator lines (━━━━━━━)
-- Added category-specific emoji headers: 『 TITLE 』
+- Moved from ASCII box characters to clean separator lines
+- Added category-specific emoji headers
 - Implemented consistent section separators
 - Added contextual emoji indicators for status/results
 - Enhanced error messages with fire/warning indicators
@@ -338,7 +397,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Migrated from facebook-chat-api to ws3-fca 3.4.2
-- Added 36 new commands (27 → 63 total)
+- Added 36 new commands (27 to 63 total)
 - New Fun: joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate
 - New Utility: avatar, remind, poll, calc, time, translate, shorten, memberlist
 - New Admin: ban, unban, setname, setemoji, setnickname, adminlist, broadcast
