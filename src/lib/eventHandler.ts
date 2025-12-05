@@ -4,27 +4,34 @@ import config from '../../config.json' with { type: 'json' };
 
 const prefix = config.bot.prefix;
 
-function getPhilippineTime(): Date {
-  const now = new Date();
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const philippineOffset = 8 * 60 * 60000;
-  return new Date(utc + philippineOffset);
-}
-
-function formatShortTime(): string {
-  const d = getPhilippineTime();
-  return d.toLocaleString('en-PH', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
+function getPhilippineTimeString(options: Intl.DateTimeFormatOptions): string {
+  return new Date().toLocaleString('en-PH', {
+    ...options,
     timeZone: 'Asia/Manila'
   });
 }
 
+function getPhilippineHour(): number {
+  const timeStr = new Date().toLocaleString('en-US', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone: 'Asia/Manila'
+  });
+  return parseInt(timeStr, 10);
+}
+
+function formatShortTime(): string {
+  return getPhilippineTimeString({
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
 function getGreeting(): string {
-  const hour = getPhilippineTime().getHours();
+  const hour = getPhilippineHour();
   if (hour >= 5 && hour < 12) return 'Good Morning';
   if (hour >= 12 && hour < 17) return 'Good Afternoon';
   if (hour >= 17 && hour < 21) return 'Good Evening';
@@ -109,16 +116,14 @@ export async function generateProfessionalLeave(
 }
 
 export function getAccurateTime(): string {
-  const d = getPhilippineTime();
-  return d.toLocaleString('en-PH', {
+  return getPhilippineTimeString({
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: true,
-    timeZone: 'Asia/Manila'
+    hour12: true
   });
 }
 
@@ -127,7 +132,7 @@ export function getAccurateShortTime(): string {
 }
 
 export function getPhilippineDateTime(): Date {
-  return getPhilippineTime();
+  return new Date();
 }
 
 export const eventHandler = {

@@ -16,6 +16,27 @@ import type { CommandContext, MessageOptions } from './types/index.js';
 const APPSTATE_FILE = './appstate.json';
 const prefix = config.bot.prefix;
 
+const recentEvents = new Map<string, number>();
+const EVENT_DEBOUNCE_MS = 5000;
+
+function isEventDuplicate(eventKey: string): boolean {
+  const now = Date.now();
+  const lastTime = recentEvents.get(eventKey);
+  
+  if (lastTime && (now - lastTime) < EVENT_DEBOUNCE_MS) {
+    return true;
+  }
+  
+  recentEvents.set(eventKey, now);
+  
+  if (recentEvents.size > 100) {
+    const oldestKey = recentEvents.keys().next().value;
+    if (oldestKey) recentEvents.delete(oldestKey);
+  }
+  
+  return false;
+}
+
 async function main(): Promise<void> {
   console.log(`
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -440,6 +461,12 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
         const userId = normalizeId(participant.userFbId || participant.id?.split(':').pop() || '');
         const userName = participant.fullName || 'Member';
         
+        const eventKey = `welcome_${threadIdStr}_${userId}`;
+        if (isEventDuplicate(eventKey)) {
+          BotLogger.debug(`Duplicate welcome event ignored for ${userName} in ${threadIdStr}`);
+          continue;
+        }
+        
         try {
           const welcomeMessage = await eventHandler.generateProfessionalWelcome(
             api,
@@ -466,6 +493,12 @@ async function handleGroupEvent(api: any, event: any): Promise<void> {
   
   if (logMessageType === 'log:unsubscribe') {
     const leftUser = normalizeId(logMessageData?.leftParticipantFbId || '');
+    
+    const leaveEventKey = `leave_${threadIdStr}_${leftUser}`;
+    if (isEventDuplicate(leaveEventKey)) {
+      BotLogger.debug(`Duplicate leave event ignored for ${leftUser} in ${threadIdStr}`);
+      return;
+    }
     
     if (config.features.autoLeave.logEnabled) {
       try {
