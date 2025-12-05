@@ -7,7 +7,7 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 - **@dongdev/fca-unofficial 3.0.8** - Latest Facebook Chat API (December 2025) with MQTT support, 58 API methods, full Group Chat and Private Message support
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns, coins
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
-- **Modular Commands** - 123 commands organized by categories with compact premium design
+- **Modular Commands** - 129 commands organized by categories with compact premium design
 - **Economy System** - Coins, daily claims, gambling, slots, AI commands
 - **AI Integration** - OpenAI-powered commands (askv1-askv5) with tiered pricing
 - **XP & Leveling** - Automatic XP system with level-up notifications
@@ -22,9 +22,9 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
 ```
 src/
-├── commands/           # Command modules by category (123 total)
+├── commands/           # Command modules by category (129 total)
 │   ├── admin/          # Admin commands (24 commands)
-│   ├── economy/        # Economy commands (11 commands)
+│   ├── economy/        # Economy commands (17 commands)
 │   ├── fun/            # Fun commands (48 commands)
 │   ├── general/        # General commands (10 commands)
 │   ├── level/          # Level commands (5 commands)
@@ -47,9 +47,14 @@ src/
     - `fish` - Go fishing with rarity-based rewards (45sec cooldown)
     - `hunt` - Hunt animals with rarity-based rewards (1min cooldown)
   - **REDESIGN**: All commands now use professional box styling (┏━┓┗━┛)
-  - **IMPROVED**: Help, ping, balance, claim, slots, gamble commands beautified
+  - **IMPROVED**: Help command with popular commands section and category previews
   - **IMPROVED**: Welcome/goodbye messages with accurate member counts and group names
   - **IMPROVED**: Event debounce increased to 30 seconds to prevent duplicates
+  - **FIXED**: Removed sqlite3/better-sqlite3 dependencies - uses MongoDB only
+  - **FIXED**: "Database is not a constructor" error resolved
+  - **FIXED**: removeall command now properly detects group chats and removes all members
+  - **FIXED**: moderation command consolidated - no duplicate status displays
+  - **FIXED**: about command now shows "Nazzel Official Website" instead of FCA API
   - **TOTAL**: 129 commands in 6 categories (17 economy commands)
 
 - **2025-12-05**: v2.1.0
