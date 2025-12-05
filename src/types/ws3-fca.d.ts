@@ -269,6 +269,63 @@ declare module '@dongdev/fca-unofficial' {
       form: any,
       callback?: (err: Error | null, data: any) => void
     ): Promise<any>;
+    getUserID(
+      name: string,
+      callback?: (err: Error | null, obj: any) => void
+    ): Promise<any>;
+    deleteThread(
+      threadID: string | string[],
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    changeArchivedStatus(
+      threadID: string | string[],
+      archive: boolean,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    changeBlockedStatus(
+      userID: string,
+      block: boolean,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    createNewGroup(
+      participantIDs: string[],
+      groupTitle: string,
+      callback?: (err: Error | null, threadID: string) => void
+    ): Promise<string>;
+    forwardAttachment(
+      attachmentID: string,
+      threadID: string | string[],
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    markAsReadAll(
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    editMessage(
+      message: string,
+      messageID: string,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    uploadAttachment(
+      attachment: NodeJS.ReadableStream | NodeJS.ReadableStream[],
+      callback?: (err: Error | null, attachmentID: string[]) => void
+    ): Promise<string[]>;
+    changeAdminStatus(
+      threadID: string,
+      adminIDs: string | string[],
+      isAdmin: boolean,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    setApprovalMode(
+      approval: boolean,
+      threadID: string,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
+    handleApproval(
+      threadID: string,
+      userID: string,
+      approve: boolean,
+      callback?: (err: Error | null) => void
+    ): Promise<void>;
   }
 
   function login(

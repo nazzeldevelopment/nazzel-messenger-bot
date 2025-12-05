@@ -1,6 +1,6 @@
 {
   "name": "nazzel-messenger-userbot",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Advanced Facebook Messenger User-Bot with TypeScript, MongoDB, and comprehensive logging",
   "main": "dist/main.js",
   "type": "module",
@@ -34,7 +34,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "@distube/ytdl-core": "^4.16.12",
-    "@dongdev/fca-unofficial": "^3.0.8",
+    "@dongdev/fca-unofficial": "^3.0.12",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "archiver": "^7.0.1",
