@@ -38,7 +38,15 @@ src/
 
 ## Recent Changes
 
-- **2025-12-05**: v2.2.0 (Current)
+- **2025-12-05**: v2.2.1 (Current)
+  - **FIXED**: Updated all dependencies to latest stable versions
+  - **FIXED**: pnpm lockfile configuration mismatch for deployments
+  - **FIXED**: sqlite3 native bindings rebuilt for Node.js v20
+  - **FIXED**: Removed unused fluent-ffmpeg dependency (deprecated)
+  - **FIXED**: Updated tough-cookie override to v5.1.2
+  - **IMPROVED**: Node.js engine requirement lowered to >=20.0.0 for compatibility
+
+- **2025-12-05**: v2.2.0
   - **NEW ECONOMY COMMANDS**: Added 6 new economy commands with professional design
     - `work` - Work jobs to earn 50-200 coins (1min cooldown)
     - `rob` - Attempt to steal coins from other users (2min cooldown, 55% success rate)
@@ -82,7 +90,7 @@ src/
 
 - Prefix: `N!` (configurable in config.json and per-group via N!prefix command)
 - Language: TypeScript with strict mode
-- Package Manager: npm (pnpm has issues with native modules)
+- Package Manager: pnpm (with native module rebuild support)
 - Node.js: v20.x or higher
 - Design Style: Compact box styling (╭─╮ ╰─╯) that doesn't obstruct chat
 
