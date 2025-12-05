@@ -7,6 +7,102 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.4.0] - 2025-12-05
+
+### Added
+
+#### New Music Category - Complete Music Player System (27 commands)
+
+**Basic Playback:**
+- **play** - Play music from YouTube by title or link
+- **song** - Download high-quality MP3 from YouTube
+- **ytmp3** - Convert YouTube video to MP3
+- **ytmp4** - Convert YouTube video to MP4
+- **pause** - Pause the currently playing music
+- **resume** - Resume the paused music
+- **stop** - Stop music playback and clear queue
+- **volume** - Adjust the music volume (0-200)
+- **nowplaying** - Show currently playing track (aliases: np)
+
+**Queue Management:**
+- **queue** - View the current music queue
+- **skip** - Skip to the next song in queue
+- **remove** - Remove a specific song from queue
+- **clearqueue** - Clear the entire music queue
+- **addqueue** - Add a song to the queue
+- **loop** - Toggle loop for the current track
+- **loopqueue** - Toggle loop for the entire queue
+- **shuffle** - Shuffle the music queue
+- **playnext** - Add a song to play next in queue
+- **autoplay** - Toggle autoplay for suggested songs
+- **history** - View recently played songs
+
+**Audio Effects:**
+- **bassboost** - Adjust bass boost level (0-100)
+- **pitch** - Adjust the pitch of the music (-12 to 12)
+- **speed** - Change playback speed (0.5 to 2.0)
+- **seek** - Seek to a specific position in the track
+
+**Search & Info:**
+- **lyrics** - Get lyrics for a song
+- **ytsearch** - Search YouTube for videos (top 5 results)
+- **searchmusic** - Search for music by query
+- **songinfo** - Get information about a song
+
+**Audio Editing:**
+- **trimmp3** - Trim/cut a part of an audio file
+- **mergeaudio** - Merge two audio files together
+- **convertmp3** - Convert audio/video to MP3 format
+
+#### New Utility Commands - File Operations (16 commands)
+
+**Media Processing:**
+- **trim** - Trim audio or video file
+- **merge** - Merge two files together
+- **extractaudio** - Extract audio from a video file
+- **extracttext** - Extract text from image or PDF (OCR)
+
+**PDF Tools:**
+- **img2pdf** - Convert image(s) to PDF
+- **pdfmerge** - Merge multiple PDF files into one
+- **compresspdf** - Compress PDF to reduce file size
+
+**Archive Tools:**
+- **unzip** - Extract files from a ZIP archive
+- **zipfiles** - Create a ZIP archive from files
+- **fileinfo** - Get information about a file
+
+**Reminder System:**
+- **remindme** - Set a reminder for yourself (supports s/m/h/d)
+- **reminderlist** - View your active reminders
+- **reminderdelete** - Delete a reminder by ID
+
+**Notes System:**
+- **noteadd** - Add a new note
+- **notelist** - View all your saved notes
+- **notedelete** - Delete a note by ID
+
+#### New Moderation Commands - Protection Features (5 commands)
+- **antiswear** - Toggle anti-swear/profanity filter (on/off)
+- **raidguard** - Toggle raid protection for the group (on/off)
+- **autoremove** - Auto-remove join spammers (on/off)
+- **blockselfbot** - Block self-bot/automated accounts (on/off)
+- **blocktagall** - Block @everyone/@all tag spam (on/off)
+
+### Changed
+- Added new Music category with complete music player system
+- All new commands use professional box styling (┏━┓┗━┛)
+- Enhanced utility commands with file operations
+- Improved moderation with new protection features
+
+### Technical
+- **Total Commands**: 211 in 7 categories (+48 new commands)
+- Added 48 new TypeScript command files
+- New music category folder: src/commands/music/
+- All moderation toggles stored per-group in MongoDB settings collection
+
+---
+
 ## [2.3.0] - 2025-12-05
 
 ### Added
