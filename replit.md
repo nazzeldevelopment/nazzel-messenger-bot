@@ -4,7 +4,7 @@
 
 An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
-- **neokex-fca 4.5.3** - Advanced Facebook Chat API (November 2025) with MQTT support for all group chats
+- **@dongdev/fca-unofficial 3.0.8** - Latest Facebook Chat API (December 2025) with MQTT support, 58 API methods, full Group Chat and Private Message support
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
 - **Modular Commands** - 109 commands organized by categories with compact premium design
@@ -35,6 +35,14 @@ src/
 ```
 
 ## Recent Changes
+
+- **2025-12-05**: v1.9.0
+  - **UPGRADED**: Migrated to @dongdev/fca-unofficial v3.0.8 (latest and most actively maintained FCA library)
+  - **IMPROVED**: 58 FCA API methods available with enhanced MQTT support
+  - **IMPROVED**: Full Group Chat and Private Message support
+  - **IMPROVED**: Auto-reconnect and online presence features
+  - **IMPROVED**: Enhanced type definitions with comprehensive API coverage
+  - Clean startup with successful login and MQTT listener
 
 - **2025-12-04**: v1.8.0
   - **NEW**: N!removeall command - Remove all members from group (Owner only, with confirmation)
