@@ -19,6 +19,37 @@ const prefix = config.bot.prefix;
 const recentEvents = new Map<string, number>();
 const EVENT_DEBOUNCE_MS = 30000;
 
+// Message deduplication to prevent duplicate processing (FCA may emit same message twice)
+const processedMessages = new Map<string, number>();
+const MESSAGE_DEBOUNCE_MS = 5000;
+
+function isMessageDuplicate(messageId: string): boolean {
+  if (!messageId) return false;
+  
+  const now = Date.now();
+  const lastTime = processedMessages.get(messageId);
+  
+  if (lastTime && (now - lastTime) < MESSAGE_DEBOUNCE_MS) {
+    return true;
+  }
+  
+  processedMessages.set(messageId, now);
+  
+  // Cleanup old entries
+  for (const [key, time] of processedMessages.entries()) {
+    if (now - time > MESSAGE_DEBOUNCE_MS * 2) {
+      processedMessages.delete(key);
+    }
+  }
+  
+  if (processedMessages.size > 500) {
+    const keysToDelete = Array.from(processedMessages.keys()).slice(0, 100);
+    keysToDelete.forEach(key => processedMessages.delete(key));
+  }
+  
+  return false;
+}
+
 function isEventDuplicate(eventKey: string): boolean {
   const now = Date.now();
   const lastTime = recentEvents.get(eventKey);
@@ -287,12 +318,48 @@ async function handleMessage(api: any, event: any): Promise<void> {
   const body = event.body || '';
   const threadId = String(event.threadID);
   const senderId = String(event.senderID);
+  const messageId = String(event.messageID || '');
   const currentUserId = String(api.getCurrentUserID());
   
   if (!body.trim()) return;
   
-  const isSelfMessage = senderId === currentUserId;
+  // Check for duplicate message (FCA may emit same message twice as message + message_reply)
+  if (messageId && isMessageDuplicate(messageId)) {
+    BotLogger.debug(`Duplicate message ignored: ${messageId}`);
+    return;
+  }
   
+  const isSelfMessage = senderId === currentUserId;
+  const customPrefix = await database.getSetting<string>(`prefix_${threadId}`) || prefix;
+  
+  // Check if group is locked FIRST - before any other processing
+  if (!isSelfMessage) {
+    const lockKey = `locked_${threadId}`;
+    const isLocked = await database.getSetting(lockKey);
+    
+    if (isLocked === 'true') {
+      const ownerId = process.env.OWNER_ID;
+      const isOwner = ownerId && senderId === ownerId;
+      
+      if (!isOwner) {
+        try {
+          const threadInfo = await api.getThreadInfo(threadId);
+          const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
+          const isAdmin = adminIDs.includes(senderId);
+          
+          if (!isAdmin) {
+            // Non-admin in locked group - ignore completely (no logging, no moderation)
+            return;
+          }
+        } catch (error) {
+          BotLogger.debug(`Could not check admin status for locked group: ${error}`);
+          // If we can't verify, still allow the message to go through for safety
+        }
+      }
+    }
+  }
+  
+  // Log message after lock check
   await database.logEntry({
     type: 'message',
     level: 'info',
@@ -301,6 +368,7 @@ async function handleMessage(api: any, event: any): Promise<void> {
     userId: senderId,
   });
   
+  // Bad words filter (only for non-self messages)
   if (!isSelfMessage) {
     const detection = await badWordsFilter.detectBadContent(body, threadId);
     if (detection.detected) {
@@ -330,8 +398,6 @@ async function handleMessage(api: any, event: any): Promise<void> {
   if (config.features.xp.enabled && !isSelfMessage) {
     await handleXP(api, senderId, threadId);
   }
-  
-  const customPrefix = await database.getSetting<string>(`prefix_${threadId}`) || prefix;
   
   if (body.startsWith(customPrefix)) {
     const maintenanceData = await maintenance.getMaintenanceData();

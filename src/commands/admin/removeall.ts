@@ -19,10 +19,12 @@ const command: Command = {
     
     let threadInfo: any = null;
     let groupName = 'Unknown Group';
+    let adminIDs: string[] = [];
     
     try {
       threadInfo = await api.getThreadInfo(threadId);
       groupName = threadInfo.threadName || threadInfo.name || 'Unknown Group';
+      adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
       
       const isGroup = threadInfo.isGroup || 
                       threadInfo.threadType === 2 || 
@@ -30,24 +32,35 @@ const command: Command = {
                       (threadInfo.participants && threadInfo.participants.length > 2);
       
       if (!isGroup) {
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗘𝗥𝗥𝗢𝗥 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ This command only works in group chats!
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 Use this in a group conversation`);
+        await reply(`╔══════════════════════════╗
+║      ❌ ERROR ❌      ║
+╠══════════════════════════╣
+║ This command only works  ║
+║ in group chats!          ║
+╚══════════════════════════╝`);
+        return;
+      }
+      
+      // Check if bot is admin
+      if (!adminIDs.includes(botId)) {
+        await reply(`╔══════════════════════════╗
+║      ❌ ERROR ❌      ║
+╠══════════════════════════╣
+║ Bot must be admin to     ║
+║ remove members!          ║
+╠══════════════════════════╣
+║ 💡 Make bot admin first  ║
+╚══════════════════════════╝`);
         return;
       }
     } catch (e) {
       BotLogger.error('RemoveAll: Failed to get thread info', e);
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗘𝗥𝗥𝗢𝗥 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ Could not get group information.
-Please try again later.`);
+      await reply(`╔══════════════════════════╗
+║      ❌ ERROR ❌      ║
+╠══════════════════════════╣
+║ Could not get group info ║
+║ Please try again later   ║
+╚══════════════════════════╝`);
       return;
     }
     
@@ -55,106 +68,95 @@ Please try again later.`);
                         (threadInfo.participants?.map((p: any) => p.userID || p.id)) || 
                         [];
     
+    // Filter: remove everyone except bot, sender, and other admins
+    const toRemove = participants.filter((id: string) => {
+      const idStr = String(id);
+      return idStr !== botId && idStr !== senderId && !adminIDs.includes(idStr);
+    });
+    
     const memberCount = participants.length;
+    const shortGroupName = groupName.length > 18 ? groupName.substring(0, 15) + '...' : groupName;
     
     if (args[0] !== 'confirm') {
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃   ⚠️ 𝗥𝗘𝗠𝗢𝗩𝗘 𝗔𝗟𝗟 ⚠️   ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-┌─────────────────────────────┐
-│ 📛 Group: ${groupName.substring(0, 20)}
-│ 👥 Members: ${memberCount}
-└─────────────────────────────┘
-
-🚨 WARNING: This will remove ALL members!
-⚠️ This action cannot be undone!
-
-┌── 𝗧𝗼 𝗖𝗼𝗻𝗳𝗶𝗿𝗺 ──┐
-│ ${prefix}removeall confirm
-└─────────────────────────────┘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏳ You have 60 seconds to confirm`);
+      await reply(`╔══════════════════════════╗
+║   ⚠️ REMOVE ALL ⚠️   ║
+╠══════════════════════════╣
+║ 📛 ${shortGroupName.padEnd(20)}║
+║ 👥 Total: ${String(memberCount).padEnd(14)}║
+║ 🎯 To Remove: ${String(toRemove.length).padEnd(10)}║
+║ 🛡️ Protected: ${String(adminIDs.length).padEnd(10)}║
+╠══════════════════════════╣
+║ 🚨 This will kick all    ║
+║ non-admin members!       ║
+╠══════════════════════════╣
+║ 💡 ${prefix}removeall confirm ║
+╚══════════════════════════╝`);
       return;
     }
     
-    try {
-      const toRemove = participants.filter((id: string) => 
-        String(id) !== botId && String(id) !== senderId
-      );
-      
-      if (toRemove.length === 0) {
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ℹ️ 𝗜𝗡𝗙𝗢 ℹ️     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-📋 No members to remove.
-👥 Only you and the bot remain in the group.`);
-        return;
-      }
-      
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃   🔄 𝗥𝗘𝗠𝗢𝗩𝗜𝗡𝗚... 🔄   ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-┌─────────────────────────────┐
-│ 📛 Group: ${groupName.substring(0, 20)}
-│ 👥 Removing: ${toRemove.length} members
-│ ⏳ Estimated: ~${Math.ceil(toRemove.length * 1.5)}s
-└─────────────────────────────┘
-
-Please wait...`);
-      
-      let removed = 0;
-      let failed = 0;
-      
-      for (const userId of toRemove) {
-        try {
-          await api.removeUserFromGroup(String(userId), threadId);
-          removed++;
-          await new Promise(r => setTimeout(r, 1500));
-        } catch (e: any) {
-          failed++;
-          BotLogger.debug(`Failed to remove ${userId}: ${e.message || e}`);
-        }
-      }
-      
-      const successRate = Math.round((removed / toRemove.length) * 100);
-      const statusEmoji = successRate >= 80 ? '✅' : successRate >= 50 ? '⚠️' : '❌';
-      
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃   ${statusEmoji} 𝗖𝗢𝗠𝗣𝗟𝗘𝗧𝗘𝗗 ${statusEmoji}   ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-┌── 📊 𝗥𝗲𝘀𝘂𝗹𝘁𝘀 ──┐
-│ ✓ Removed: ${removed}
-│ ✗ Failed: ${failed}
-│ 📈 Success: ${successRate}%
-└─────────────────────────────┘
-
-${removed > 0 ? '🎯 Operation completed!' : '⚠️ No members were removed'}
-${failed > 0 ? `💡 ${failed} members may have admin rights or left` : ''}`);
-      
-      BotLogger.info(`RemoveAll: Removed ${removed}/${toRemove.length} from ${threadId} (${groupName})`);
-      
-    } catch (err) {
-      BotLogger.error('RemoveAll failed', err);
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗘𝗥𝗥𝗢𝗥 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ Failed to remove members.
-
-┌── 𝗣𝗼𝘀𝘀𝗶𝗯𝗹𝗲 𝗥𝗲𝗮𝘀𝗼𝗻𝘀 ──┐
-│ • Bot is not admin
-│ • Rate limited by Facebook
-│ • Network error
-└─────────────────────────────┘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 Make sure bot has admin rights`);
+    if (toRemove.length === 0) {
+      await reply(`╔══════════════════════════╗
+║      ℹ️ INFO ℹ️      ║
+╠══════════════════════════╣
+║ No members to remove!    ║
+║ Only admins remain.      ║
+╚══════════════════════════╝`);
+      return;
     }
+    
+    await reply(`╔══════════════════════════╗
+║   🔄 REMOVING... 🔄   ║
+╠══════════════════════════╣
+║ 📛 ${shortGroupName.padEnd(20)}║
+║ 👥 Removing: ${String(toRemove.length).padEnd(11)}║
+║ ⏳ Est: ~${String(Math.ceil(toRemove.length * 1.5)).padEnd(14)}s║
+╠══════════════════════════╣
+║ Please wait...           ║
+╚══════════════════════════╝`);
+    
+    let removed = 0;
+    let failed = 0;
+    const failedUsers: string[] = [];
+    
+    for (const userId of toRemove) {
+      const userIdStr = String(userId);
+      try {
+        // Use the correct API method with proper parameters
+        await new Promise<void>((resolve, reject) => {
+          api.removeUserFromGroup(userIdStr, threadId, (err: any) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+        });
+        removed++;
+        BotLogger.debug(`Successfully removed ${userIdStr} from ${threadId}`);
+      } catch (e: any) {
+        failed++;
+        failedUsers.push(userIdStr);
+        BotLogger.debug(`Failed to remove ${userIdStr}: ${e.message || e}`);
+      }
+      // Wait between removals to avoid rate limiting
+      await new Promise(r => setTimeout(r, 1200));
+    }
+    
+    const successRate = toRemove.length > 0 ? Math.round((removed / toRemove.length) * 100) : 0;
+    const statusEmoji = successRate >= 80 ? '✅' : successRate >= 50 ? '⚠️' : '❌';
+    
+    await reply(`╔══════════════════════════╗
+║   ${statusEmoji} COMPLETED ${statusEmoji}   ║
+╠══════════════════════════╣
+║ ✓ Removed: ${String(removed).padEnd(13)}║
+║ ✗ Failed: ${String(failed).padEnd(14)}║
+║ 📈 Success: ${String(successRate).padEnd(12)}%║
+╠══════════════════════════╣
+${removed > 0 ? '║ 🎯 Operation completed!  ║' : '║ ⚠️ No members removed!   ║'}
+${failed > 0 ? `║ 💡 ${failed} may be admins/left  ║` : ''}
+╚══════════════════════════╝`);
+    
+    BotLogger.info(`RemoveAll: Removed ${removed}/${toRemove.length} from ${threadId} (${groupName})`);
   }
 };
 

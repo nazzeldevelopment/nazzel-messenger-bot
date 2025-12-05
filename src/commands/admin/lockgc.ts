@@ -1,7 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'lockgc',
@@ -21,10 +20,14 @@ const command: Command = {
       const isLocked = await database.getSetting(lockKey);
       
       if (isLocked === 'true') {
-        await reply(`${decorations.fire} 『 ALREADY LOCKED 』
-═══════════════════════════
-🔒 This group is already locked
-💡 Use ${prefix}unlockgc to unlock`);
+        await reply(`╔══════════════════════════╗
+║   🔒 ALREADY LOCKED 🔒   ║
+╠══════════════════════════╣
+║ This group is already    ║
+║ locked!                  ║
+╠══════════════════════════╣
+║ 💡 ${prefix}unlockgc to unlock ║
+╚══════════════════════════╝`);
         return;
       }
       
@@ -38,29 +41,31 @@ const command: Command = {
       
       BotLogger.info(`Locked group ${event.threadID}`);
       
-      await reply(`🔒 『 GROUP LOCKED 』 🔒
-═══════════════════════════
-${decorations.fire} Chat Restricted
-═══════════════════════════
-
-◈ STATUS
-═══════════════════════════
-🔒 Mode: LOCKED
-👥 Who can chat: Admins Only
-⏰ Time: ${timestamp}
-
-◈ NOTE
-═══════════════════════════
-Non-admin messages will be
-handled by the bot moderator.
-
-═══════════════════════════
-💡 Use ${prefix}unlockgc to unlock`);
+      await reply(`╔══════════════════════════╗
+║   🔒 GROUP LOCKED 🔒   ║
+╠══════════════════════════╣
+║ 🔥 Chat Restricted       ║
+╠══════════════════════════╣
+║ ◈ STATUS                 ║
+╠══════════════════════════╣
+║ 🔒 Mode: LOCKED          ║
+║ 👥 Chat: Admins Only     ║
+║ ⏰ ${timestamp.substring(0, 20)}   ║
+╠══════════════════════════╣
+║ ◈ NOTE                   ║
+╠══════════════════════════╣
+║ Non-admin messages will  ║
+║ be ignored by the bot.   ║
+╠══════════════════════════╣
+║ 💡 ${prefix}unlockgc to unlock ║
+╚══════════════════════════╝`);
     } catch (err) {
       BotLogger.error(`Failed to lock group ${event.threadID}`, err);
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Failed to lock group`);
+      await reply(`╔══════════════════════════╗
+║      ❌ ERROR ❌      ║
+╠══════════════════════════╣
+║ Failed to lock group     ║
+╚══════════════════════════╝`);
     }
   }
 };

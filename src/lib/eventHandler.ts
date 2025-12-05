@@ -123,32 +123,25 @@ export async function generateProfessionalWelcome(
   const customPrefix = await database.getSetting<string>(`prefix_${threadId}`) || defaultPrefix;
   
   const displayGroupName = groupName || 'this group';
-  const shortGroupName = displayGroupName.length > 25 ? displayGroupName.substring(0, 22) + '...' : displayGroupName;
-  const memberText = memberCount > 0 ? `${memberCount.toLocaleString()} members` : 'Growing community';
+  const shortGroupName = displayGroupName.length > 20 ? displayGroupName.substring(0, 17) + '...' : displayGroupName;
+  const shortUserProfile = userProfile.length > 20 ? userProfile.substring(0, 17) + '...' : userProfile;
+  const memberText = memberCount > 0 ? `${memberCount}` : '?';
 
-  return `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ✨ 𝗪𝗘𝗟𝗖𝗢𝗠𝗘 ✨     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-${greeting}! ${greetingEmoji}
-
-┌─────────────────────────────┐
-│ 👤 ${userProfile}
-│ 🏠 ${shortGroupName}
-│ 👥 ${memberText}
-│ 📅 ${shortTime}
-└─────────────────────────────┘
-
-┌── 𝗤𝘂𝗶𝗰𝗸 𝗦𝘁𝗮𝗿𝘁 ──┐
-│ ${customPrefix}help  ➜ All Commands
-│ ${customPrefix}ping  ➜ Check Status
-│ ${customPrefix}rules ➜ Group Rules
-└────────────────────┘
-
-💫 ${quote}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎊 𝗘𝗻𝗷𝗼𝘆 𝘆𝗼𝘂𝗿 𝘀𝘁𝗮𝘆! 🎊`;
+  return `╔══════════════════════════╗
+║   ✨ WELCOME ✨   ║
+╠══════════════════════════╣
+║ ${greeting}! ${greetingEmoji}
+╠══════════════════════════╣
+║ 👤 ${shortUserProfile}
+║ 🏠 ${shortGroupName}
+║ 👥 ${memberText} members
+║ 📅 ${shortTime}
+╠══════════════════════════╣
+║ 💡 ${customPrefix}help - Commands
+║ 💡 ${customPrefix}rules - Rules
+╠══════════════════════════╣
+║ 💫 ${quote}
+╚══════════════════════════╝`;
 }
 
 export async function generateProfessionalLeave(
@@ -200,35 +193,30 @@ export async function generateProfessionalLeave(
   const shortTime = formatShortTime();
   const quote = getRandomGoodbyeQuote();
   const displayGroupName = groupName || 'this group';
-  const shortGroupName = displayGroupName.length > 25 ? displayGroupName.substring(0, 22) + '...' : displayGroupName;
-  const memberText = memberCount > 0 ? `${memberCount.toLocaleString()} remaining` : 'Members remaining';
+  const shortGroupName = displayGroupName.length > 20 ? displayGroupName.substring(0, 17) + '...' : displayGroupName;
+  const shortUserProfile = userProfile.length > 20 ? userProfile.substring(0, 17) + '...' : userProfile;
+  const memberText = memberCount > 0 ? `${memberCount}` : '?';
 
-  const levelStars = '⭐'.repeat(Math.min(userLevel, 5)) || '✧';
   const xpNeeded = (userLevel + 1) * 100;
   const xpProgress = Math.round((userXP / xpNeeded) * 100);
 
-  return `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     👋 𝗚𝗢𝗢𝗗𝗕𝗬𝗘 👋     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-┌─────────────────────────────┐
-│ 👤 ${userProfile}
-│ 🏠 ${shortGroupName}
-│ 👥 ${memberText}
-│ 📅 ${shortTime}
-└─────────────────────────────┘
-
-┌── 𝗨𝘀𝗲𝗿 𝗦𝘁𝗮𝘁𝘀 ──┐
-│ 🏆 Level ${userLevel} ${levelStars}
-│ ✨ ${userXP.toLocaleString()}/${xpNeeded} XP (${xpProgress}%)
-│ 💬 ${userMessages.toLocaleString()} messages
-│ 💰 ${userCoins.toLocaleString()} coins
-└────────────────────┘
-
-💫 ${quote}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🌸 𝗧𝗮𝗸𝗲 𝗰𝗮𝗿𝗲! 𝗦𝗲𝗲 𝘆𝗼𝘂 𝗮𝗴𝗮𝗶𝗻! 🌸`;
+  return `╔══════════════════════════╗
+║   👋 GOODBYE 👋   ║
+╠══════════════════════════╣
+║ 👤 ${shortUserProfile}
+║ 🏠 ${shortGroupName}
+║ 👥 ${memberText} remaining
+║ 📅 ${shortTime}
+╠══════════════════════════╣
+║ 🏆 Level ${userLevel} ⭐
+║ ✨ ${userXP}/${xpNeeded} XP (${xpProgress}%)
+║ 💬 ${userMessages} msgs
+║ 💰 ${userCoins} coins
+╠══════════════════════════╣
+║ 💫 ${quote}
+╠══════════════════════════╣
+║ 🌸 Take care! See you! 🌸
+╚══════════════════════════╝`;
 }
 
 export function getAccurateTime(): string {

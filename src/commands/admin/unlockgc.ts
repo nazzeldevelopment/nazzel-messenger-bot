@@ -1,7 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'unlockgc',
@@ -21,10 +20,13 @@ const command: Command = {
       const isLocked = await database.getSetting(lockKey);
       
       if (isLocked !== 'true') {
-        await reply(`${decorations.fire} 『 NOT LOCKED 』
-═══════════════════════════
-🔓 This group is not locked
-💡 Use ${prefix}lockgc to lock`);
+        await reply(`╔══════════════════════════╗
+║   🔓 NOT LOCKED 🔓   ║
+╠══════════════════════════╣
+║ This group is not locked ║
+╠══════════════════════════╣
+║ 💡 ${prefix}lockgc to lock     ║
+╚══════════════════════════╝`);
         return;
       }
       
@@ -38,24 +40,26 @@ const command: Command = {
       
       BotLogger.info(`Unlocked group ${event.threadID}`);
       
-      await reply(`🔓 『 GROUP UNLOCKED 』 🔓
-═══════════════════════════
-${decorations.fire} Chat Opened
-═══════════════════════════
-
-◈ STATUS
-═══════════════════════════
-🔓 Mode: UNLOCKED
-👥 Who can chat: Everyone
-⏰ Time: ${timestamp}
-
-═══════════════════════════
-${decorations.sparkle} Everyone can chat now!`);
+      await reply(`╔══════════════════════════╗
+║   🔓 GROUP UNLOCKED 🔓   ║
+╠══════════════════════════╣
+║ 🔥 Chat Opened           ║
+╠══════════════════════════╣
+║ ◈ STATUS                 ║
+╠══════════════════════════╣
+║ 🔓 Mode: UNLOCKED        ║
+║ 👥 Chat: Everyone        ║
+║ ⏰ ${timestamp.substring(0, 20)}   ║
+╠══════════════════════════╣
+║ ✨ Everyone can chat now!║
+╚══════════════════════════╝`);
     } catch (err) {
       BotLogger.error(`Failed to unlock group ${event.threadID}`, err);
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Failed to unlock group`);
+      await reply(`╔══════════════════════════╗
+║      ❌ ERROR ❌      ║
+╠══════════════════════════╣
+║ Failed to unlock group   ║
+╚══════════════════════════╝`);
     }
   }
 };
