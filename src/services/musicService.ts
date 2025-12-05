@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { database } from '../database/index.js';
 import { redis } from '../lib/redis.js';
 import { logger } from '../lib/logger.js';
+import { getUncachableSpotifyClient, isSpotifyConnected } from '../lib/spotify.js';
 
 export interface TrackInfo {
   title: string;
@@ -12,6 +13,7 @@ export interface TrackInfo {
   author?: string;
   source: 'youtube' | 'spotify';
   audioUrl?: string;
+  spotifyId?: string;
 }
 
 export interface QueueState {
@@ -30,6 +32,15 @@ export interface MusicHistory {
   track: TrackInfo;
   playedAt: Date;
   requestedBy: string;
+}
+
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: { name: string }[];
+  album: { name: string; images: { url: string }[] };
+  duration_ms: number;
+  external_urls: { spotify: string };
 }
 
 class MusicService {
@@ -329,9 +340,211 @@ class MusicService {
     }
   }
 
-  async searchSpotify(query: string): Promise<TrackInfo[]> {
-    const results = await this.searchYouTube(`${query} audio`, 5);
-    return results.map(r => ({ ...r, source: 'spotify' as const }));
+  async searchSpotify(query: string, limit: number = 5): Promise<TrackInfo[]> {
+    try {
+      const connected = await isSpotifyConnected();
+      if (!connected) {
+        logger.warn('Spotify not connected, falling back to YouTube search');
+        const results = await this.searchYouTube(`${query} audio`, limit);
+        return results.map(r => ({ ...r, source: 'spotify' as const }));
+      }
+
+      const spotify = await getUncachableSpotifyClient();
+      const limitValue = Math.min(limit, 50) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 15 | 20 | 25 | 50;
+      const searchResult = await spotify.search(query, ['track'], undefined, limitValue);
+      
+      const tracks: TrackInfo[] = [];
+      
+      for (const track of searchResult.tracks.items) {
+        const artistName = track.artists.map(a => a.name).join(', ');
+        const searchQuery = `${track.name} ${artistName}`;
+        
+        const ytResults = await this.searchYouTube(searchQuery, 1);
+        if (ytResults.length > 0) {
+          tracks.push({
+            title: track.name,
+            url: ytResults[0].url,
+            duration: Math.floor(track.duration_ms / 1000),
+            thumbnail: track.album.images[0]?.url,
+            author: artistName,
+            source: 'spotify',
+            spotifyId: track.id,
+          });
+        }
+      }
+      
+      return tracks;
+    } catch (error) {
+      logger.error('Spotify search failed', { query, error });
+      const results = await this.searchYouTube(`${query} audio`, limit);
+      return results.map(r => ({ ...r, source: 'spotify' as const }));
+    }
+  }
+
+  async getSpotifyTrack(trackId: string): Promise<TrackInfo | null> {
+    try {
+      const connected = await isSpotifyConnected();
+      if (!connected) return null;
+
+      const spotify = await getUncachableSpotifyClient();
+      const track = await spotify.tracks.get(trackId);
+      
+      const artistName = track.artists.map(a => a.name).join(', ');
+      const searchQuery = `${track.name} ${artistName}`;
+      
+      const ytResults = await this.searchYouTube(searchQuery, 1);
+      if (ytResults.length === 0) return null;
+      
+      return {
+        title: track.name,
+        url: ytResults[0].url,
+        duration: Math.floor(track.duration_ms / 1000),
+        thumbnail: track.album.images[0]?.url,
+        author: artistName,
+        source: 'spotify',
+        spotifyId: track.id,
+      };
+    } catch (error) {
+      logger.error('Failed to get Spotify track', { trackId, error });
+      return null;
+    }
+  }
+
+  async getSpotifyPlaylist(playlistId: string): Promise<TrackInfo[]> {
+    try {
+      const connected = await isSpotifyConnected();
+      if (!connected) return [];
+
+      const spotify = await getUncachableSpotifyClient();
+      const playlist = await spotify.playlists.getPlaylist(playlistId);
+      
+      const tracks: TrackInfo[] = [];
+      
+      for (const item of playlist.tracks.items.slice(0, 25)) {
+        if (!item.track || item.track.type !== 'track') continue;
+        
+        const track = item.track;
+        const artistName = track.artists.map(a => a.name).join(', ');
+        const searchQuery = `${track.name} ${artistName}`;
+        
+        const ytResults = await this.searchYouTube(searchQuery, 1);
+        if (ytResults.length > 0) {
+          tracks.push({
+            title: track.name,
+            url: ytResults[0].url,
+            duration: Math.floor(track.duration_ms / 1000),
+            thumbnail: track.album.images[0]?.url,
+            author: artistName,
+            source: 'spotify',
+            spotifyId: track.id,
+          });
+        }
+      }
+      
+      return tracks;
+    } catch (error) {
+      logger.error('Failed to get Spotify playlist', { playlistId, error });
+      return [];
+    }
+  }
+
+  async getUserPlaylists(): Promise<{ id: string; name: string; trackCount: number }[]> {
+    try {
+      const connected = await isSpotifyConnected();
+      if (!connected) return [];
+
+      const spotify = await getUncachableSpotifyClient();
+      const playlists = await spotify.currentUser.playlists.playlists();
+      
+      return playlists.items.map(p => ({
+        id: p.id,
+        name: p.name,
+        trackCount: p.tracks?.total ?? 0,
+      }));
+    } catch (error) {
+      logger.error('Failed to get user playlists', { error });
+      return [];
+    }
+  }
+
+  async getRecentlyPlayed(): Promise<TrackInfo[]> {
+    try {
+      const connected = await isSpotifyConnected();
+      if (!connected) return [];
+
+      const spotify = await getUncachableSpotifyClient();
+      const recent = await spotify.player.getRecentlyPlayedTracks(10);
+      
+      const tracks: TrackInfo[] = [];
+      
+      for (const item of recent.items) {
+        const track = item.track;
+        const artistName = track.artists.map(a => a.name).join(', ');
+        
+        tracks.push({
+          title: track.name,
+          url: track.external_urls.spotify,
+          duration: Math.floor(track.duration_ms / 1000),
+          thumbnail: track.album.images[0]?.url,
+          author: artistName,
+          source: 'spotify',
+          spotifyId: track.id,
+        });
+      }
+      
+      return tracks;
+    } catch (error) {
+      logger.error('Failed to get recently played', { error });
+      return [];
+    }
+  }
+
+  async getTopTracks(): Promise<TrackInfo[]> {
+    try {
+      const connected = await isSpotifyConnected();
+      if (!connected) return [];
+
+      const spotify = await getUncachableSpotifyClient();
+      const top = await spotify.currentUser.topItems('tracks', undefined, 10);
+      
+      const tracks: TrackInfo[] = [];
+      
+      for (const track of top.items) {
+        const artistName = track.artists.map(a => a.name).join(', ');
+        
+        tracks.push({
+          title: track.name,
+          url: track.external_urls.spotify,
+          duration: Math.floor(track.duration_ms / 1000),
+          thumbnail: track.album.images[0]?.url,
+          author: artistName,
+          source: 'spotify',
+          spotifyId: track.id,
+        });
+      }
+      
+      return tracks;
+    } catch (error) {
+      logger.error('Failed to get top tracks', { error });
+      return [];
+    }
+  }
+
+  isSpotifyUrl(url: string): boolean {
+    return url.includes('spotify.com') || url.includes('open.spotify');
+  }
+
+  extractSpotifyId(url: string): { type: 'track' | 'playlist' | 'album'; id: string } | null {
+    const trackMatch = url.match(/track\/([a-zA-Z0-9]+)/);
+    if (trackMatch) return { type: 'track', id: trackMatch[1] };
+    
+    const playlistMatch = url.match(/playlist\/([a-zA-Z0-9]+)/);
+    if (playlistMatch) return { type: 'playlist', id: playlistMatch[1] };
+    
+    const albumMatch = url.match(/album\/([a-zA-Z0-9]+)/);
+    if (albumMatch) return { type: 'album', id: albumMatch[1] };
+    
+    return null;
   }
 }
 

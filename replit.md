@@ -8,7 +8,7 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns, coins
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
 - **Modular Commands** - 215 commands organized by 7 categories with compact premium design
-- **Music Player System** - Complete music commands for playback, queue, effects, search, and audio editing
+- **Music Player System** - Complete music commands with YouTube & Spotify integration for playback, queue, effects, search, and audio editing
 - **Economy System** - Coins, daily claims, gambling, slots, AI commands
 - **AI Integration** - OpenAI-powered commands (askv1-askv5) with tiered pricing
 - **XP & Leveling** - Automatic XP system with level-up notifications
@@ -40,7 +40,14 @@ src/
 
 ## Recent Changes
 
-- **2025-12-05**: v2.4.0 (Current)
+- **2025-12-05**: v2.4.1 (Current)
+  - **SPOTIFY INTEGRATION**: Full Spotify support with Replit Connector
+  - **SPOTIFY SEARCH**: searchmusic now uses Spotify API when connected
+  - **SPOTIFY PLAYLISTS**: Play Spotify playlists and tracks directly via URL
+  - **YOUTUBE FALLBACK**: Automatic YouTube fallback when Spotify unavailable
+  - **IMPROVED**: play command now supports Spotify track/playlist URLs
+
+- **2025-12-05**: v2.4.0
   - **NEW CATEGORY**: Music Player System with 31 commands
   - **NEW MUSIC PLAYBACK**: play, song, ytmp3, ytmp4, pause, resume, stop, volume, nowplaying
   - **NEW QUEUE MANAGEMENT**: queue, skip, remove, clearqueue, addqueue, loop, loopqueue, shuffle, playnext, autoplay, history
