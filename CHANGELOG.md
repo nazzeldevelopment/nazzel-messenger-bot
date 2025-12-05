@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.0] - 2025-12-05
+
+### Added
+
+#### Advanced Messenger Music Bot - Full-Featured Music System
+
+Fully-featured music bot for Facebook Messenger with YouTube and Spotify integration, supporting both individual and group chats.
+
+**Music Playback:**
+- **play** - Play song from YouTube or Spotify by title/URL
+- **pause** - Pause current playback
+- **resume** - Resume paused song
+- **skip** - Skip to next song in queue
+- **stop** - Stop playback and clear queue
+- **nowplaying** (np) - Show current song info with progress tracking
+- High-quality audio streaming from YouTube and Spotify
+- Voice message support for audio playback
+- Real-time playback controls
+
+**Queue Management:**
+- **queue** (q) - Display current queue
+- **shuffle** - Shuffle queue order
+- **loop** [off/song/queue] - Set loop mode
+- **remove** [position] - Remove song from queue
+- **clear** - Clear entire queue
+- **move** [from] [to] - Reorder queue
+- **autoplay** - Toggle autoplay for suggested songs
+- Multi-user queue management in group chats
+
+**Search & Discovery:**
+- **search** [query] - Search for songs
+- **add** [url] - Add song to queue
+- **playlist** [url] - Import entire YouTube/Spotify playlist
+- **lyrics** [song] - Get and display song lyrics
+
+**Audio Controls:**
+- **volume** [0-100] - Adjust volume level
+- **seek** [timestamp] - Jump to specific time position
+- **filter** [bass/nightcore/vaporwave] - Apply audio filters
+
+**Voice Message Support:**
+- Send voice messages to play audio directly
+- Automatic audio conversion and streaming
+
+### Changed
+- Enhanced Spotify integration with Web API
+- Improved YouTube audio quality with @distube/ytdl-core
+- Better group chat session handling with per-chat queues
+- Collaborative playlist support for multi-user queue management
+
+### Technical
+- **Total Commands**: 215+ in 7 categories
+- **New Dependencies**: @distube/ytdl-core, @spotify/web-api-ts-sdk, fluent-ffmpeg
+- **Audio Processing**: FFmpeg integration for audio conversion and filters
+- **Session Management**: Per-chat music sessions stored in Redis
+- **Spotify OAuth**: Full authentication flow for playlist access
+
+---
+
 ## [2.4.0] - 2025-12-05
 
 ### Added
