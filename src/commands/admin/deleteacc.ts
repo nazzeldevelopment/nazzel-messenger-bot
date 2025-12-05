@@ -25,8 +25,8 @@ export const command: Command = {
     if (args.length < 1) {
       await reply(`❌ USAGE ERROR
 ━━━━━━━━━━━━━━━
-📌 N!deleteacc <@user>
-📌 N!deleteacc <userID> confirm
+📌 W!deleteacc <@user>
+📌 W!deleteacc <userID> confirm
 ━━━━━━━━━━━━━━━
 ⚠️ This action is irreversible!`);
       return;
