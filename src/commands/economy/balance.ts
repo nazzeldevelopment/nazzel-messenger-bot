@@ -10,7 +10,7 @@ export const command: Command = {
   examples: ['balance', 'bal', 'coins @user'],
   cooldown: 3000,
 
-  async execute({ api, event, args, reply }) {
+  async execute({ api, event, args, reply, prefix }) {
     let targetId = ('' + event.senderID).trim();
     let isSelf = true;
     
@@ -43,25 +43,30 @@ export const command: Command = {
       const level = user.level ?? 0;
 
       const coinEmoji = coins >= 10000 ? '💰' : coins >= 1000 ? '💵' : coins >= 100 ? '🪙' : '💸';
+      const shortName = userName.length > 15 ? userName.substring(0, 12) + '...' : userName;
 
-      const message = isSelf
-        ? `${coinEmoji} YOUR BALANCE
-━━━━━━━━━━━━━━━
+      if (isSelf) {
+        await reply(`╭───────────────────╮
+│  ${coinEmoji} MY WALLET     │
+╰───────────────────╯
 💰 ${coins.toLocaleString()} coins
 🔥 ${streak}x streak
 🏆 Level ${level}
-━━━━━━━━━━━━━━━
-📌 N!claim - Daily reward
-📌 N!slots - Try your luck`
-        : `${coinEmoji} BALANCE
-━━━━━━━━━━━━━━━
-👤 ${userName}
+
+╭─ Earn More ─╮
+│ ${prefix}claim  │
+│ ${prefix}slots  │
+│ ${prefix}gamble │
+╰─────────────╯`);
+      } else {
+        await reply(`╭───────────────────╮
+│  ${coinEmoji} BALANCE      │
+╰───────────────────╯
+👤 ${shortName}
 💰 ${coins.toLocaleString()} coins
 🔥 ${streak}x streak
-🏆 Level ${level}
-━━━━━━━━━━━━━━━`;
-
-      await reply(message);
+🏆 Level ${level}`);
+      }
     } catch (error) {
       await reply(`❌ Failed to get balance`);
     }

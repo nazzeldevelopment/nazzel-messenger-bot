@@ -10,19 +10,21 @@ export const command: Command = {
   examples: ['coinflip heads 100', 'cf tails 500'],
   cooldown: 5000,
 
-  async execute({ api, event, args, reply }) {
+  async execute({ api, event, args, reply, prefix }) {
     const userId = ('' + event.senderID).trim();
 
     if (args.length < 2) {
-      await reply(`🪙 COINFLIP
-━━━━━━━━━━━━━━━
-📌 N!coinflip <heads|tails> <bet>
-💵 Minimum bet: 10 coins
-🎲 Win = 2x your bet
-━━━━━━━━━━━━━━━
-Examples:
-N!cf heads 100
-N!cf tails 500`);
+      await reply(`╭───────────────────╮
+│   🪙 COINFLIP    │
+╰───────────────────╯
+📌 ${prefix}cf <h/t> <bet>
+💵 Min: 10 coins
+🎲 Win = 2x bet
+
+╭─ Example ─╮
+│ ${prefix}cf h 100 │
+│ ${prefix}cf t 500 │
+╰──────────╯`);
       return;
     }
 
@@ -30,30 +32,29 @@ N!cf tails 500`);
     const bet = parseInt(args[1], 10);
 
     if (choice !== 'heads' && choice !== 'tails' && choice !== 'h' && choice !== 't') {
-      await reply(`❌ Choose 'heads' or 'tails'`);
+      await reply(`❌ Choose 'h' (heads) or 't' (tails)`);
       return;
     }
 
     const normalizedChoice = (choice === 'h' || choice === 'heads') ? 'heads' : 'tails';
 
     if (isNaN(bet) || bet < 10) {
-      await reply(`❌ Minimum bet is 10 coins`);
+      await reply(`❌ Min bet: 10 coins`);
       return;
     }
 
     if (bet > 10000) {
-      await reply(`❌ Maximum bet is 10,000 coins`);
+      await reply(`❌ Max bet: 10,000 coins`);
       return;
     }
 
     const currentCoins = await database.getUserCoins(userId);
     if (currentCoins < bet) {
-      await reply(`❌ INSUFFICIENT BALANCE
-━━━━━━━━━━━━━━━
-💰 You have: ${currentCoins.toLocaleString()} coins
-💵 Bet amount: ${bet.toLocaleString()} coins
-━━━━━━━━━━━━━━━
-📌 N!claim - Get daily coins`);
+      await reply(`╭───────────────────╮
+│   💸 NO COINS    │
+╰───────────────────╯
+💰 Have: ${currentCoins.toLocaleString()}
+💵 Bet: ${bet.toLocaleString()}`);
       return;
     }
 
@@ -72,16 +73,17 @@ N!cf tails 500`);
 
     const coinEmoji = result === 'heads' ? '🪙' : '💿';
     const resultEmoji = won ? '🎉' : '😢';
+    const pickEmoji = normalizedChoice === 'heads' ? '🪙' : '💿';
 
-    await reply(`${coinEmoji} COINFLIP ${resultEmoji}
-━━━━━━━━━━━━━━━
-🎯 Your pick: ${normalizedChoice.toUpperCase()}
-🪙 Result: ${result.toUpperCase()}
-━━━━━━━━━━━━━━━
+    await reply(`╭───────────────────╮
+│  ${coinEmoji} COINFLIP ${resultEmoji} │
+╰───────────────────╯
+${pickEmoji} Pick: ${normalizedChoice.toUpperCase()}
+${coinEmoji} Got: ${result.toUpperCase()}
+
 ${won 
-  ? `✅ You WON ${winnings.toLocaleString()} coins!` 
-  : `❌ You lost ${bet.toLocaleString()} coins`}
-💵 Balance: ${newBalance.toLocaleString()} coins
-━━━━━━━━━━━━━━━`);
+  ? `✅ WON +${winnings.toLocaleString()}` 
+  : `❌ Lost -${bet.toLocaleString()}`}
+💵 Bal: ${newBalance.toLocaleString()}`);
   },
 };

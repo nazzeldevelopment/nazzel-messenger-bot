@@ -10,38 +10,39 @@ export const command: Command = {
   examples: ['gamble 100', 'gamble 500'],
   cooldown: 8000,
 
-  async execute({ api, event, args, reply }) {
+  async execute({ api, event, args, reply, prefix }) {
     const userId = ('' + event.senderID).trim();
     const bet = parseInt(args[0], 10);
 
     if (!args[0] || isNaN(bet) || bet < 10) {
-      await reply(`🎲 GAMBLE
-━━━━━━━━━━━━━━━
-📌 N!gamble <bet>
-💵 Minimum bet: 10 coins
-━━━━━━━━━━━━━━━
-🎯 Win Chances:
-• 45% - Win 2x
-• 20% - Win 3x
-• 10% - Win 5x
-• 5% - JACKPOT 10x
-• 20% - Lose all
-━━━━━━━━━━━━━━━`);
+      await reply(`╭───────────────────╮
+│   🎲 GAMBLE      │
+╰───────────────────╯
+📌 ${prefix}gamble <bet>
+💵 Min: 10 coins
+
+╭─ Chances ─╮
+│ 45% = 2x  │
+│ 20% = 3x  │
+│ 10% = 5x  │
+│ 5% = 10x  │
+│ 20% = 0x  │
+╰──────────╯`);
       return;
     }
 
     if (bet > 50000) {
-      await reply(`❌ Maximum bet is 50,000 coins`);
+      await reply(`❌ Max bet: 50,000 coins`);
       return;
     }
 
     const currentCoins = await database.getUserCoins(userId);
     if (currentCoins < bet) {
-      await reply(`❌ INSUFFICIENT BALANCE
-━━━━━━━━━━━━━━━
-💰 You have: ${currentCoins.toLocaleString()} coins
-💵 Bet amount: ${bet.toLocaleString()} coins
-━━━━━━━━━━━━━━━`);
+      await reply(`╭───────────────────╮
+│   💸 NO COINS    │
+╰───────────────────╯
+💰 Have: ${currentCoins.toLocaleString()}
+💵 Bet: ${bet.toLocaleString()}`);
       return;
     }
 
@@ -64,7 +65,7 @@ export const command: Command = {
       emoji = '🌟';
     } else if (roll < 80) {
       multiplier = 10;
-      resultText = '🔥 JACKPOT 🔥';
+      resultText = 'JACKPOT';
       emoji = '💎';
     } else {
       multiplier = 0;
@@ -86,16 +87,16 @@ export const command: Command = {
 
     const rollDisplay = Math.floor(roll);
 
-    await reply(`🎲 GAMBLE ${emoji}
-━━━━━━━━━━━━━━━
+    await reply(`╭───────────────────╮
+│   🎲 GAMBLE ${emoji}   │
+╰───────────────────╯
 🎯 Roll: ${rollDisplay}/100
-━━━━━━━━━━━━━━━
+
 ${multiplier > 0 
   ? `${resultText}! ${multiplier}x
-💰 Won: ${winnings.toLocaleString()} coins` 
+💰 +${winnings.toLocaleString()}` 
   : `${resultText}
-💔 Lost: ${bet.toLocaleString()} coins`}
-💵 Balance: ${newBalance.toLocaleString()} coins
-━━━━━━━━━━━━━━━`);
+💔 -${bet.toLocaleString()}`}
+💵 Bal: ${newBalance.toLocaleString()}`);
   },
 };

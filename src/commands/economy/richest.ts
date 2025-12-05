@@ -10,18 +10,18 @@ export const command: Command = {
   examples: ['richest', 'richest 20'],
   cooldown: 10000,
 
-  async execute({ api, event, args, reply }) {
+  async execute({ api, event, args, reply, prefix }) {
     const limit = Math.min(parseInt(args[0], 10) || 10, 20);
 
     try {
       const leaderboard = await database.getCoinsLeaderboard(limit);
       
       if (leaderboard.length === 0) {
-        await reply(`💰 RICHEST
-━━━━━━━━━━━━━━━
+        await reply(`╭───────────────────╮
+│   💰 RICHEST     │
+╰───────────────────╯
 ❌ No users with coins yet!
-📌 Use N!claim to get started
-━━━━━━━━━━━━━━━`);
+📌 Use ${prefix}claim to start`);
         return;
       }
 
@@ -43,7 +43,7 @@ export const command: Command = {
       for (let i = 0; i < leaderboard.length; i++) {
         const user = leaderboard[i];
         const name = userNames[user.id] || user.name || 'Unknown';
-        const shortName = name.length > 15 ? name.substring(0, 12) + '...' : name;
+        const shortName = name.length > 12 ? name.substring(0, 10) + '..' : name;
         
         let rankEmoji = '';
         if (i === 0) rankEmoji = '🥇';
@@ -54,12 +54,12 @@ export const command: Command = {
         list += `${rankEmoji} ${shortName}: ${(user.coins ?? 0).toLocaleString()}\n`;
       }
 
-      await reply(`💰 RICHEST USERS
-━━━━━━━━━━━━━━━
+      await reply(`╭───────────────────╮
+│   💰 RICHEST     │
+╰───────────────────╯
 ${list.trim()}
-━━━━━━━━━━━━━━━
-📌 N!claim - Daily coins
-📌 N!slots - Try your luck`);
+
+📌 ${prefix}claim - Daily coins`);
     } catch (error) {
       await reply(`❌ Failed to get leaderboard`);
     }

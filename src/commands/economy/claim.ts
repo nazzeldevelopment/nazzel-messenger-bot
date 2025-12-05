@@ -10,12 +10,13 @@ export const command: Command = {
   examples: ['claim', 'daily'],
   cooldown: 5000,
 
-  async execute({ api, event, reply }) {
+  async execute({ api, event, reply, prefix }) {
     const userId = ('' + event.senderID).trim();
 
     try {
       const userInfo = await api.getUserInfo(userId);
       const userName = userInfo[userId]?.name || 'User';
+      const shortName = userName.length > 12 ? userName.substring(0, 10) + '...' : userName;
 
       const result = await database.claimDaily(userId);
       
@@ -29,12 +30,12 @@ export const command: Command = {
             })
           : 'soon';
 
-        await reply(`⏰ COOLDOWN
-━━━━━━━━━━━━━━━
+        await reply(`╭───────────────────╮
+│   ⏰ COOLDOWN    │
+╰───────────────────╯
 ❌ ${result.message}
-🔥 Current streak: ${result.streak}x
-⏰ Next claim: ${nextClaimTime}
-━━━━━━━━━━━━━━━`);
+🔥 Streak: ${result.streak}x
+⏰ Next: ${nextClaimTime}`);
         return;
       }
 
@@ -42,14 +43,15 @@ export const command: Command = {
       const user = await database.getOrCreateUser(userId);
       const newBalance = user?.coins ?? result.coins;
 
-      await reply(`🎁 DAILY REWARD
-━━━━━━━━━━━━━━━
-👤 ${userName}
-━━━━━━━━━━━━━━━
+      await reply(`╭───────────────────╮
+│   🎁 CLAIMED!    │
+╰───────────────────╯
+👤 ${shortName}
+
 💰 +${result.coins} coins
 ${streakEmoji} Streak: ${result.streak}x
-💵 Balance: ${newBalance.toLocaleString()}
-━━━━━━━━━━━━━━━
+💵 Total: ${newBalance.toLocaleString()}
+
 📌 Claim again in 24hrs
 💡 Keep streak for bonus!`);
     } catch (error) {

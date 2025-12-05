@@ -29,39 +29,42 @@ export const command: Command = {
   examples: ['slots 100', 'slots 500'],
   cooldown: 5000,
 
-  async execute({ api, event, args, reply }) {
+  async execute({ api, event, args, reply, prefix }) {
     const userId = ('' + event.senderID).trim();
     const bet = parseInt(args[0], 10);
 
     if (!args[0] || isNaN(bet) || bet < 10) {
-      await reply(`🎰 SLOTS
-━━━━━━━━━━━━━━━
-📌 N!slots <bet>
-💵 Minimum bet: 10 coins
-━━━━━━━━━━━━━━━
-🍒🍒🍒 = 3x
-🍋🍋🍋 = 4x
-🍊🍊🍊 = 5x
-🍇🍇🍇 = 6x
-⭐⭐⭐ = 10x
-💎💎💎 = 15x
-7️⃣7️⃣7️⃣ = 25x`);
+      await reply(`╭───────────────────╮
+│   🎰 SLOTS       │
+╰───────────────────╯
+📌 ${prefix}slots <bet>
+💵 Min: 10 coins
+
+╭─ Payouts ─╮
+│ 🍒x3 = 3x │
+│ 🍋x3 = 4x │
+│ 🍊x3 = 5x │
+│ 🍇x3 = 6x │
+│ ⭐x3 = 10x│
+│ 💎x3 = 15x│
+│ 7️⃣x3 = 25x│
+╰──────────╯`);
       return;
     }
 
     if (bet > 10000) {
-      await reply(`❌ Maximum bet is 10,000 coins`);
+      await reply(`❌ Max bet: 10,000 coins`);
       return;
     }
 
     const currentCoins = await database.getUserCoins(userId);
     if (currentCoins < bet) {
-      await reply(`❌ INSUFFICIENT BALANCE
-━━━━━━━━━━━━━━━
-💰 You have: ${currentCoins.toLocaleString()} coins
-💵 Bet amount: ${bet.toLocaleString()} coins
-━━━━━━━━━━━━━━━
-📌 N!claim - Get daily coins`);
+      await reply(`╭───────────────────╮
+│   💸 NO COINS    │
+╰───────────────────╯
+💰 Have: ${currentCoins.toLocaleString()}
+💵 Bet: ${bet.toLocaleString()}
+📌 ${prefix}claim for coins`);
       return;
     }
 
@@ -81,26 +84,28 @@ export const command: Command = {
     }
 
     const twoMatch = (result[0] === result[1] || result[1] === result[2] || result[0] === result[2]) && !payout;
+
+    let resultEmoji = '';
+    let resultMsg = '';
     
-    let statusMsg = '';
-    let emoji = '';
     if (winnings > 0) {
-      emoji = '🎉';
-      statusMsg = `💰 Won: ${winnings.toLocaleString()} coins (${payout}x)`;
+      resultEmoji = '🎉';
+      resultMsg = `💰 +${winnings.toLocaleString()} (${payout}x)`;
     } else if (twoMatch) {
-      emoji = '😮';
-      statusMsg = `💔 So close! Lost ${bet.toLocaleString()} coins`;
+      resultEmoji = '😮';
+      resultMsg = `💔 -${bet.toLocaleString()} (so close!)`;
     } else {
-      emoji = '😢';
-      statusMsg = `💔 Lost ${bet.toLocaleString()} coins`;
+      resultEmoji = '😢';
+      resultMsg = `💔 -${bet.toLocaleString()}`;
     }
 
-    await reply(`🎰 SLOTS ${emoji}
-━━━━━━━━━━━━━━━
-  [ ${result[0]} | ${result[1]} | ${result[2]} ]
-━━━━━━━━━━━━━━━
-${statusMsg}
-💵 Balance: ${newBalance.toLocaleString()} coins
-━━━━━━━━━━━━━━━`);
+    await reply(`╭───────────────────╮
+│   🎰 SLOTS ${resultEmoji}    │
+╰───────────────────╯
+┌─────────────┐
+│ ${result[0]} │ ${result[1]} │ ${result[2]} │
+└─────────────┘
+${resultMsg}
+💵 Bal: ${newBalance.toLocaleString()}`);
   },
 };

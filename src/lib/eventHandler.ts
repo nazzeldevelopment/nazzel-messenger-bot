@@ -2,7 +2,7 @@ import { database } from '../database/index.js';
 import { BotLogger } from './logger.js';
 import config from '../../config.json' with { type: 'json' };
 
-const prefix = config.bot.prefix;
+const defaultPrefix = config.bot.prefix;
 
 function getPhilippineTimeString(options: Intl.DateTimeFormatOptions): string {
   return new Date().toLocaleString('en-PH', {
@@ -38,6 +38,16 @@ function getGreeting(): string {
   return 'Good Night';
 }
 
+function getRandomWelcomeEmoji(): string {
+  const emojis = ['🎉', '🌟', '✨', '💫', '🎊', '🥳', '🌈', '💖'];
+  return emojis[Math.floor(Math.random() * emojis.length)];
+}
+
+function getRandomGoodbyeEmoji(): string {
+  const emojis = ['👋', '🌸', '💔', '🍃', '🌙', '⭐', '🦋', '🌺'];
+  return emojis[Math.floor(Math.random() * emojis.length)];
+}
+
 export async function generateProfessionalWelcome(
   api: any,
   threadId: string,
@@ -63,15 +73,27 @@ export async function generateProfessionalWelcome(
   
   const shortTime = formatShortTime();
   const greeting = getGreeting();
+  const emoji = getRandomWelcomeEmoji();
+  
+  const customPrefix = await database.getSetting<string>(`prefix_${threadId}`) || defaultPrefix;
+  
+  const shortGroupName = groupName.length > 20 ? groupName.substring(0, 17) + '...' : groupName;
 
-  return `✨ WELCOME ✨
-━━━━━━━━━━━━━━━
-💫 ${greeting}, ${userProfile}!
-🏠 ${groupName}
-👥 Members: ${memberCount}
-━━━━━━━━━━━━━━━
-📌 ${prefix}help - Commands
-⏰ ${shortTime}`;
+  return `╭────────────────────╮
+│  ${emoji} WELCOME ${emoji}  │
+╰────────────────────╯
+${greeting}! 🌟
+
+👤 ${userProfile}
+🏠 ${shortGroupName}
+👥 Member #${memberCount}
+⏰ ${shortTime}
+
+╭─ Quick Start ─╮
+│ ${customPrefix}help - Commands │
+│ ${customPrefix}ping - Status  │
+╰───────────────╯
+🎉 Enjoy your stay!`;
 }
 
 export async function generateProfessionalLeave(
@@ -83,6 +105,8 @@ export async function generateProfessionalLeave(
   let groupName = 'Group Chat';
   let memberCount = 0;
   let userProfile = userName || 'Member';
+  let userLevel = 0;
+  let userMessages = 0;
   
   try {
     const threadInfo = await api.getThreadInfo(threadId);
@@ -99,20 +123,35 @@ export async function generateProfessionalLeave(
         BotLogger.debug(`Could not get user info for ${userId}`);
       }
     }
+    
+    const userData = await database.getUser(userId);
+    if (userData) {
+      userLevel = userData.level || 0;
+      userMessages = userData.totalMessages || 0;
+    }
   } catch (error) {
     BotLogger.debug(`Failed to get thread info: ${error}`);
   }
   
   const shortTime = formatShortTime();
+  const emoji = getRandomGoodbyeEmoji();
+  const shortGroupName = groupName.length > 20 ? groupName.substring(0, 17) + '...' : groupName;
 
-  return `👋 GOODBYE
-━━━━━━━━━━━━━━━
-💔 ${userProfile} left
-🏠 ${groupName}
+  return `╭────────────────────╮
+│  ${emoji} GOODBYE ${emoji}  │
+╰────────────────────╯
+👤 ${userProfile}
+🏠 ${shortGroupName}
+
+╭─ Stats ─╮
+│ 🏆 Lv.${userLevel}  │
+│ 💬 ${userMessages.toLocaleString()} msgs │
+╰─────────╯
+
 👥 Remaining: ${memberCount}
-━━━━━━━━━━━━━━━
-🌸 Take care!
-⏰ ${shortTime}`;
+⏰ ${shortTime}
+
+🌸 Take care! See you again!`;
 }
 
 export function getAccurateTime(): string {

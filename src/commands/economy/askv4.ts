@@ -10,32 +10,31 @@ function getOpenAI(): OpenAI | null {
 }
 
 export const command: Command = {
-  name: 'askcreative',
-  aliases: ['askv4', 'creative', 'story', 'write'],
+  name: 'askv4',
+  aliases: ['askcreative', 'creative', 'story', 'write'],
   description: 'Creative writing and stories (costs 25 coins)',
   category: 'economy',
-  usage: 'askcreative <prompt>',
-  examples: ['askcreative Write a short poem about the moon'],
+  usage: 'askv4 <prompt>',
+  examples: ['askv4 Write a short poem about the moon'],
   cooldown: 20000,
 
-  async execute({ api, event, args, reply }) {
+  async execute({ api, event, args, reply, prefix }) {
     const userId = ('' + event.senderID).trim();
     const prompt = args.join(' ').trim();
 
     if (!prompt) {
-      await reply(`✨ CREATIVE AI
-━━━━━━━━━━━━━━━
-📌 N!askcreative <prompt>
+      await reply(`╭───────────────────╮
+│  ✨ AI v4 CREATE │
+╰───────────────────╯
+📌 ${prefix}askv4 <prompt>
 💰 Cost: 25 coins
-🎨 Stories, poems, creative writing
-━━━━━━━━━━━━━━━
-Example: N!askcreative Write a haiku about rain`);
+🎨 Stories & poems`);
       return;
     }
 
     const client = getOpenAI();
     if (!client) {
-      await reply(`❌ AI service is not configured`);
+      await reply(`❌ AI service not configured`);
       return;
     }
 
@@ -43,11 +42,12 @@ Example: N!askcreative Write a haiku about rain`);
     const currentCoins = await database.getUserCoins(userId);
     
     if (currentCoins < cost) {
-      await reply(`❌ INSUFFICIENT BALANCE
-━━━━━━━━━━━━━━━
-💰 You have: ${currentCoins.toLocaleString()} coins
-💵 Cost: ${cost} coins
-━━━━━━━━━━━━━━━`);
+      await reply(`╭───────────────────╮
+│   💸 NO COINS    │
+╰───────────────────╯
+💰 Have: ${currentCoins.toLocaleString()}
+💵 Need: ${cost}
+📌 ${prefix}claim for coins`);
       return;
     }
 
@@ -68,18 +68,19 @@ Example: N!askcreative Write a haiku about rain`);
 
       const answer = response.choices[0]?.message?.content || "I couldn't generate a response.";
       
-      await database.removeCoins(userId, cost, 'ai_usage', 'AI creative command');
+      await database.removeCoins(userId, cost, 'ai_usage', 'AI askv4 command');
       const newBalance = await database.getUserCoins(userId);
 
       const truncatedAnswer = answer.length > 1600 ? answer.substring(0, 1600) + '...' : answer;
 
-      await reply(`✨ CREATIVE RESPONSE
-━━━━━━━━━━━━━━━
+      await reply(`╭───────────────────╮
+│  ✨ AI v4 CREATE │
+╰───────────────────╯
 ${truncatedAnswer}
-━━━━━━━━━━━━━━━
-💰 -${cost} coins | Balance: ${newBalance.toLocaleString()}`);
+
+💰 -${cost} │ Bal: ${newBalance.toLocaleString()}`);
     } catch (error: any) {
-      await reply(`❌ AI Error: ${error.message || 'Failed to get response'}`);
+      await reply(`❌ ${error.message || 'AI Error'}`);
     }
   },
 };
