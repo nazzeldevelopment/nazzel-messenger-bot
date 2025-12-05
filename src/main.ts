@@ -1,8 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-// @ts-ignore - neokex-fca has incorrect type exports
-import * as fca from 'neokex-fca';
-const login = fca.login;
+import login from '@dongdev/fca-unofficial';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
