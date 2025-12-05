@@ -15,7 +15,12 @@
   "pnpm": {
     "overrides": {
       "tough-cookie": "^5.1.2"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "sqlite3",
+      "@ffmpeg-installer/linux-x64",
+      "esbuild"
+    ]
   },
   "keywords": [
     "messenger",
