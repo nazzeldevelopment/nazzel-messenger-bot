@@ -65,6 +65,7 @@ export interface AudioProcessingOptions {
 class MusicService {
   private threadStates: Map<string, QueueState> = new Map();
   private history: Map<string, MusicHistory[]> = new Map();
+  private loadedFromRedis: Set<string> = new Set();
   private tempDir: string = '/tmp/music';
   private maxDuration: number = 600;
   private maxQueueSize: number = 50;
@@ -93,6 +94,21 @@ class MusicService {
       });
     }
     return this.threadStates.get(threadId)!;
+  }
+
+  async getStateAsync(threadId: string): Promise<QueueState> {
+    if (!this.loadedFromRedis.has(threadId)) {
+      await this.loadStateFromRedis(threadId);
+      this.loadedFromRedis.add(threadId);
+    }
+    return this.getState(threadId);
+  }
+
+  async ensureStateLoaded(threadId: string): Promise<void> {
+    if (!this.loadedFromRedis.has(threadId)) {
+      await this.loadStateFromRedis(threadId);
+      this.loadedFromRedis.add(threadId);
+    }
   }
 
   async saveStateToRedis(threadId: string): Promise<void> {
