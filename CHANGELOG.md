@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### New Music Category - Complete Music Player System (27 commands)
+#### New Music Category - Complete Music Player System (31 commands)
 
 **Basic Playback:**
 - **play** - Play music from YouTube by title or link
@@ -96,8 +96,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved moderation with new protection features
 
 ### Technical
-- **Total Commands**: 211 in 7 categories (+48 new commands)
-- Added 48 new TypeScript command files
+- **Total Commands**: 215 in 7 categories (+52 new commands)
+- Added 52 new TypeScript command files
 - New music category folder: src/commands/music/
 - All moderation toggles stored per-group in MongoDB settings collection
 
