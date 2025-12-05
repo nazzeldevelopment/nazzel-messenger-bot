@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### Complete Advanced Music System - 24 Fully Implemented Commands
+#### Complete Advanced Music System - 31 Fully Implemented Commands
 
-All music commands are fully functional with YouTube integration, Spotify support, Redis caching, and MongoDB persistence. Audio is sent as voice messages for Messenger Group Chat compatibility.
+All music commands are fully functional with YouTube integration, Spotify support, Redis caching, and MongoDB persistence. Audio is sent as voice messages (file attachments) for Messenger Group Chat compatibility.
 
 **Core Playback Commands:**
 - **play** `<title/link>` - Play music from YouTube (auto-search or direct link) - Sends as voice message
