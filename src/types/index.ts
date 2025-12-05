@@ -102,7 +102,7 @@ export interface Command {
   name: string;
   aliases?: string[];
   description: string;
-  category: 'general' | 'admin' | 'music' | 'level' | 'utility' | 'fun';
+  category: 'general' | 'admin' | 'music' | 'level' | 'utility' | 'fun' | 'economy';
   usage?: string;
   examples?: string[];
   cooldown?: number;

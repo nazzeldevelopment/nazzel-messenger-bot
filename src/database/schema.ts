@@ -4,9 +4,22 @@ export interface User {
   xp: number;
   level: number;
   totalMessages: number;
+  coins: number;
   lastXpGain?: Date;
+  lastDailyClaim?: Date;
+  dailyStreak: number;
   joinedAt: Date;
   updatedAt: Date;
+}
+
+export interface Transaction {
+  id?: string;
+  userId: string;
+  type: 'claim' | 'game_win' | 'game_loss' | 'admin_add' | 'admin_remove' | 'ai_usage' | 'transfer';
+  amount: number;
+  balance: number;
+  description: string;
+  createdAt: Date;
 }
 
 export interface Thread {

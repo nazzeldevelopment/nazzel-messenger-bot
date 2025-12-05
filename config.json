@@ -1,7 +1,7 @@
 {
   "bot": {
     "name": "Nazzel Bot",
-    "version": "1.7.1",
+    "version": "2.0.0",
     "prefix": "N!",
     "description": "Advanced Facebook Messenger User-Bot",
     "selfListen": true,
@@ -90,6 +90,11 @@
         "name": "Fun",
         "description": "Fun and entertainment commands",
         "emoji": "🎮"
+      },
+      "economy": {
+        "name": "Economy",
+        "description": "Coins, rewards, and economy commands",
+        "emoji": "💰"
       }
     },
     "helpPerPage": 5,
@@ -100,7 +105,8 @@
       "utility": 4000,
       "level": 5000,
       "music": 8000,
-      "admin": 3000
+      "admin": 3000,
+      "economy": 5000
     },
     "commandCooldowns": {
       "help": 3000,

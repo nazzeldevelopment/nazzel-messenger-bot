@@ -43,6 +43,7 @@
     "ioredis": "^5.8.2",
     "mongodb": "^7.0.0",
     "node-fetch": "^3.3.2",
+    "openai": "^6.10.0",
     "uuid": "^11.0.3",
     "winston": "^3.17.0",
     "ytdl-core": "^4.11.5"

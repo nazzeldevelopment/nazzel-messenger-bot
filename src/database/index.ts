@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection, ObjectId, Document } from 'mongodb';
 import { logger } from '../lib/logger.js';
-import type { User, Thread, Log, CommandStat, MusicQueueItem, Setting, Cooldown, NewLog } from './schema.js';
+import type { User, Thread, Log, CommandStat, MusicQueueItem, Setting, Cooldown, NewLog, Transaction } from './schema.js';
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
@@ -64,6 +64,13 @@ async function createIndexes(): Promise<void> {
     await cooldowns.createIndex({ id: 1 }, { unique: true });
     await cooldowns.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
     await cooldowns.createIndex({ type: 1, userId: 1 });
+
+    const transactions = db.collection('transactions');
+    await transactions.createIndex({ userId: 1 });
+    await transactions.createIndex({ createdAt: -1 });
+    await transactions.createIndex({ type: 1 });
+    
+    await users.createIndex({ coins: -1 });
   } catch (error) {
     logger.error('Failed to create indexes', { error });
   }
@@ -99,6 +106,8 @@ export class Database {
         xp: 0,
         level: 0,
         totalMessages: 0,
+        coins: 0,
+        dailyStreak: 0,
         joinedAt: now,
         updatedAt: now,
       };
@@ -504,6 +513,194 @@ export class Database {
 
   async checkCommandCooldown(userId: string, command: string, cooldownMs: number): Promise<{ onCooldown: boolean; remaining: number }> {
     return this.checkCooldown(userId, `cmd:${command}`, cooldownMs);
+  }
+
+  async getUserCoins(userId: string): Promise<number> {
+    const user = await this.getOrCreateUser(userId);
+    return user?.coins ?? 0;
+  }
+
+  async addCoins(userId: string, amount: number, type: Transaction['type'], description: string): Promise<{ success: boolean; newBalance: number }> {
+    const users = getCollection<User>('users');
+    const transactions = getCollection<Transaction>('transactions');
+    if (!users) return { success: false, newBalance: 0 };
+
+    try {
+      const user = await this.getOrCreateUser(userId);
+      if (!user) return { success: false, newBalance: 0 };
+
+      const newBalance = (user.coins ?? 0) + amount;
+      
+      await users.updateOne(
+        { id: userId },
+        { $set: { coins: newBalance, updatedAt: new Date() } }
+      );
+
+      if (transactions) {
+        await transactions.insertOne({
+          userId,
+          type,
+          amount,
+          balance: newBalance,
+          description,
+          createdAt: new Date(),
+        });
+      }
+
+      return { success: true, newBalance };
+    } catch (error) {
+      logger.error('Failed to add coins', { userId, amount, error });
+      return { success: false, newBalance: 0 };
+    }
+  }
+
+  async removeCoins(userId: string, amount: number, type: Transaction['type'], description: string): Promise<{ success: boolean; newBalance: number }> {
+    const users = getCollection<User>('users');
+    const transactions = getCollection<Transaction>('transactions');
+    if (!users) return { success: false, newBalance: 0 };
+
+    try {
+      const user = await this.getOrCreateUser(userId);
+      if (!user) return { success: false, newBalance: 0 };
+
+      const currentCoins = user.coins ?? 0;
+      if (currentCoins < amount) {
+        return { success: false, newBalance: currentCoins };
+      }
+
+      const newBalance = currentCoins - amount;
+      
+      await users.updateOne(
+        { id: userId },
+        { $set: { coins: newBalance, updatedAt: new Date() } }
+      );
+
+      if (transactions) {
+        await transactions.insertOne({
+          userId,
+          type,
+          amount: -amount,
+          balance: newBalance,
+          description,
+          createdAt: new Date(),
+        });
+      }
+
+      return { success: true, newBalance };
+    } catch (error) {
+      logger.error('Failed to remove coins', { userId, amount, error });
+      return { success: false, newBalance: 0 };
+    }
+  }
+
+  async claimDaily(userId: string): Promise<{ success: boolean; coins: number; streak: number; nextClaim?: Date; message: string }> {
+    const users = getCollection<User>('users');
+    if (!users) return { success: false, coins: 0, streak: 0, message: 'Database unavailable' };
+
+    try {
+      const user = await this.getOrCreateUser(userId);
+      if (!user) return { success: false, coins: 0, streak: 0, message: 'User not found' };
+
+      const now = new Date();
+      const lastClaim = user.lastDailyClaim ? new Date(user.lastDailyClaim) : null;
+      
+      if (lastClaim) {
+        const hoursSinceLastClaim = (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursSinceLastClaim < 24) {
+          const nextClaim = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
+          const hoursRemaining = Math.ceil(24 - hoursSinceLastClaim);
+          return { 
+            success: false, 
+            coins: 0, 
+            streak: user.dailyStreak ?? 0,
+            nextClaim,
+            message: `You can claim again in ${hoursRemaining} hours` 
+          };
+        }
+      }
+
+      let newStreak = 1;
+      if (lastClaim) {
+        const hoursSinceLastClaim = (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60);
+        if (hoursSinceLastClaim <= 48) {
+          newStreak = (user.dailyStreak ?? 0) + 1;
+        }
+      }
+
+      const baseReward = 100;
+      const streakBonus = Math.min(newStreak * 10, 100);
+      const totalReward = baseReward + streakBonus;
+
+      const newBalance = (user.coins ?? 0) + totalReward;
+
+      await users.updateOne(
+        { id: userId },
+        { 
+          $set: { 
+            coins: newBalance, 
+            dailyStreak: newStreak,
+            lastDailyClaim: now,
+            updatedAt: now 
+          } 
+        }
+      );
+
+      const transactions = getCollection<Transaction>('transactions');
+      if (transactions) {
+        await transactions.insertOne({
+          userId,
+          type: 'claim',
+          amount: totalReward,
+          balance: newBalance,
+          description: `Daily claim (streak: ${newStreak})`,
+          createdAt: now,
+        });
+      }
+
+      return { 
+        success: true, 
+        coins: totalReward, 
+        streak: newStreak,
+        message: `Claimed ${totalReward} coins (streak: ${newStreak}x)` 
+      };
+    } catch (error) {
+      logger.error('Failed to claim daily', { userId, error });
+      return { success: false, coins: 0, streak: 0, message: 'Failed to claim' };
+    }
+  }
+
+  async getCoinsLeaderboard(limit: number = 10): Promise<User[]> {
+    const users = getCollection<User>('users');
+    if (!users) return [];
+    
+    try {
+      return await users
+        .find({ coins: { $gt: 0 } })
+        .sort({ coins: -1 })
+        .limit(limit)
+        .toArray() as User[];
+    } catch (error) {
+      logger.error('Failed to get coins leaderboard', { error });
+      return [];
+    }
+  }
+
+  async deleteUserAccount(userId: string): Promise<boolean> {
+    const users = getCollection<User>('users');
+    const transactions = getCollection<Transaction>('transactions');
+    if (!users) return false;
+
+    try {
+      await users.deleteOne({ id: userId });
+      if (transactions) {
+        await transactions.deleteMany({ userId });
+      }
+      return true;
+    } catch (error) {
+      logger.error('Failed to delete user account', { userId, error });
+      return false;
+    }
   }
 
   async disconnect(): Promise<void> {
