@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2025-12-05
+
+### Added
+
+#### Economy System (NEW CATEGORY - 11 Commands)
+- **N!balance** - Check your coin balance (aliases: bal, coins, wallet, money)
+- **N!claim** - Claim daily coins reward with streak bonus system (aliases: daily, reward, collect)
+- **N!coinflip** - Flip a coin and bet on heads/tails, 2x payout (aliases: cf, flip)
+- **N!gamble** - Gamble with varying odds: 45% 2x, 20% 3x, 10% 5x, 5% 10x jackpot (aliases: bet, risk, allin)
+- **N!slots** - Play slot machine with symbol payouts from 3x to 25x jackpot (aliases: slot, spin, jackpot)
+- **N!richest** - View the richest users leaderboard (aliases: topcoins, coinsleaderboard)
+
+#### AI-Powered Commands with Coin Costs
+- **N!ask** - Basic AI assistant (5 coins) - Uses GPT-4o-mini for quick responses (aliases: ai, gpt, chatgpt)
+- **N!askpro** - Pro AI with better quality (15 coins) - Uses GPT-4o (aliases: aipro, gptpro)
+- **N!askcode** - Coding help assistant (20 coins) - Programming-focused GPT-4o (aliases: code, codehelp)
+- **N!askcreative** - Creative writing AI (25 coins) - Stories, poems, creative content (aliases: creative, story, write)
+- **N!askmax** - Premium AI longest responses (50 coins) - Comprehensive GPT-4o responses (aliases: premium, aimax)
+
+#### Admin Coin Management
+- **N!addcoins** - Add coins to a user (Owner only) (aliases: givecoins, addbal, givemoney)
+- **N!removecoins** - Remove coins from a user (Owner only) (aliases: takecoins, removebal, takemoney)
+
+### Changed
+- **Bot Version**: Updated to 2.0.0
+- **Total Commands**: Now 123 commands in 7 categories (added economy category)
+- **Command Categories**: Added new "Economy" category with 💰 emoji indicator
+- **Database Schema**: Added coin-related fields (coins, dailyStreak, lastClaim, coinTransactions)
+- **Configuration**: Added economy category and cooldowns in config.json
+
+### Technical
+- **OpenAI Integration**: Added openai package for AI-powered commands
+- **Database Functions**: Added coin management functions (addCoins, removeCoins, getUserCoins, claimDaily, getCoinsLeaderboard)
+- **Slot Machine**: 7 symbols with payouts from 3x (🍒) to 25x (7️⃣)
+- **Gamble System**: Risk-based betting with progressive multipliers
+- **Daily Rewards**: Streak-based bonus system with 24-hour cooldown
+- **Coin Transactions**: Tracked with type, amount, description, and timestamp
+
+---
+
 ## [1.8.0] - 2025-12-04
 
 ### Added
