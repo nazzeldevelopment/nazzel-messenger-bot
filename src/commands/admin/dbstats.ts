@@ -1,7 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'dbstats',
@@ -29,35 +28,43 @@ const command: Command = {
       
       const totalCommands = commandStats.reduce((acc, stat) => acc + stat.count, 0);
       
-      await reply(`📊 『 DATABASE STATS 』 📊
-═══════════════════════════
-${decorations.fire} Database Overview
-═══════════════════════════
+      const timestamp = new Date().toLocaleString('en-PH', {
+        timeZone: 'Asia/Manila',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      await reply(`╭─────────────────╮
+│ 📊 DATABASE STATS
+╰─────────────────╯
 
 ◈ COLLECTIONS
-═══════════════════════════
-👥 Total Users: ${totalUsers.toLocaleString()}
-💬 Total Threads: ${totalThreads.toLocaleString()}
-📊 Command Executions: ${totalCommands.toLocaleString()}
+👥 Users: ${totalUsers.toLocaleString()}
+💬 Threads: ${totalThreads.toLocaleString()}
+📊 Commands: ${totalCommands.toLocaleString()}
 
 ◈ TOP COMMANDS
-═══════════════════════════
 ${topCmdsList || 'No data yet'}
 
 ◈ STATUS
-═══════════════════════════
 ✅ Database: Connected
 🗄️ Type: MongoDB
 
-═══════════════════════════
-${decorations.sparkle} Nazzel Bot Database`);
+⏰ ${timestamp}
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
       
       BotLogger.info('Database stats retrieved');
     } catch (err) {
       BotLogger.error('Failed to get database stats', err);
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Failed to get database stats`);
+      await reply(`╭─────────────────╮
+│ ❌ ERROR
+╰─────────────────╯
+Failed to get database stats.`);
     }
   }
 };

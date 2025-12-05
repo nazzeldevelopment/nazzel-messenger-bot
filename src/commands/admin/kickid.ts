@@ -1,6 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
-import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'kickid',
@@ -14,73 +13,114 @@ const command: Command = {
 
   async execute(context: CommandContext): Promise<void> {
     const { api, event, args, reply, prefix } = context;
+    const threadId = String(event.threadID);
+    const botId = String(api.getCurrentUserID());
     
     if (!args[0] || !/^\d+$/.test(args[0])) {
-      await reply(`🔨 『 KICK BY ID 』 🔨
-═══════════════════════════
-${decorations.fire} Remove user by ID
-═══════════════════════════
+      await reply(`╭─────────────────╮
+│ 🔨 KICK BY ID
+╰─────────────────╯
 
-◈ USAGE
-═══════════════════════════
-➤ ${prefix}kickid <userID>
+Remove user by Facebook ID.
 
-◈ EXAMPLE
-═══════════════════════════
-➤ ${prefix}kickid 123456789012345`);
+📝 Usage: ${prefix}kickid <userID>
+📝 Example: ${prefix}kickid 12345
+
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
       return;
     }
     
-    const targetId = args[0].trim();
+    const targetId = String(args[0]).trim();
     
     if (targetId === String(event.senderID)) {
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ You cannot kick yourself!`);
+      await reply(`╭─────────────────╮
+│ ❌ DENIED
+╰─────────────────╯
+You cannot kick yourself!`);
+      return;
+    }
+
+    if (targetId === botId) {
+      await reply(`╭─────────────────╮
+│ ❌ DENIED
+╰─────────────────╯
+Cannot kick the bot itself!
+Use ${prefix}leave instead.`);
       return;
     }
     
     try {
+      const threadInfo = await api.getThreadInfo(threadId);
+      const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
+      
+      if (!adminIDs.includes(botId)) {
+        await reply(`╭─────────────────╮
+│ ❌ NO PERMISSION
+╰─────────────────╯
+Bot must be admin to kick.
+Please make bot admin first.`);
+        return;
+      }
+
       const userInfo = await api.getUserInfo(targetId);
-      const userName = userInfo[targetId]?.name || 'Unknown';
+      const userName = userInfo[targetId]?.name || 'Unknown User';
       
-      const threadId = String(event.threadID);
-      await api.removeUserFromGroup(targetId, threadId);
+      await new Promise<void>((resolve, reject) => {
+        api.removeUserFromGroup(targetId, threadId, (err: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
       
-      const timestamp = new Date().toLocaleString('en-US', {
+      const timestamp = new Date().toLocaleString('en-PH', {
         timeZone: 'Asia/Manila',
-        dateStyle: 'medium',
-        timeStyle: 'short'
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
       });
       
       BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
       
-      await reply(`🔨 『 USER KICKED 』 🔨
-═══════════════════════════
-${decorations.fire} Successfully Removed
-═══════════════════════════
+      await reply(`╭─────────────────╮
+│ ✅ USER KICKED
+╰─────────────────╯
 
-◈ USER INFO
-═══════════════════════════
-👤 Name: ${userName}
-🆔 ID: ${targetId}
-⏰ Time: ${timestamp}
-✅ Status: Removed
+👤 ${userName}
+🆔 ${targetId}
+⏰ ${timestamp}
 
-═══════════════════════════
-${decorations.sparkle} User has been kicked`);
-    } catch (err) {
+Successfully removed!
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
+    } catch (err: any) {
       BotLogger.error(`Failed to kick user ${targetId}`, err);
-      await reply(`${decorations.fire} 『 KICK FAILED 』
-═══════════════════════════
-❌ Failed to remove user
+      
+      let errorMsg = 'Failed to remove user.';
+      if (err?.message?.includes('admin')) {
+        errorMsg = 'Cannot kick group admin.';
+      } else if (err?.message?.includes('permission')) {
+        errorMsg = 'Bot lacks admin permission.';
+      }
+      
+      await reply(`╭─────────────────╮
+│ ❌ KICK FAILED
+╰─────────────────╯
 
-◈ POSSIBLE REASONS
-═══════════════════════════
-• Bot lacks admin permissions
-• User already removed
-• User is a group admin
-• Invalid user ID`);
+${errorMsg}
+
+Possible reasons:
+• User is an admin
+• User already left
+• Invalid user ID
+• Bot not admin`);
     }
   }
 };

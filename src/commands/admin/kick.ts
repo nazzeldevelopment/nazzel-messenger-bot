@@ -1,6 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
-import { adminMessage, error, info } from '../../lib/messageFormatter.js';
 
 const command: Command = {
   name: 'kick',
@@ -14,56 +13,119 @@ const command: Command = {
 
   async execute(context: CommandContext): Promise<void> {
     const { api, event, args, reply, prefix } = context;
+    const threadId = String(event.threadID);
+    const botId = String(api.getCurrentUserID());
     
     let targetId: string | null = null;
     
     if (event.mentions && Object.keys(event.mentions).length > 0) {
-      targetId = ('' + Object.keys(event.mentions)[0]).trim();
+      targetId = String(Object.keys(event.mentions)[0]).trim();
     } else if (args[0] && /^\d+$/.test(args[0])) {
-      targetId = ('' + args[0]).trim();
+      targetId = String(args[0]).trim();
     }
     
     if (!targetId) {
-      await reply(info('KICK USER', 
-        `Please mention a user or provide their ID to kick.\n\nUsage: ${prefix}kick @user\nExample: ${prefix}kick 123456789`
-      ));
+      await reply(`╭─────────────────╮
+│ 🔨 KICK USER
+╰─────────────────╯
+
+Mention or provide user ID.
+
+📝 Usage: ${prefix}kick @user
+📝 Example: ${prefix}kick 12345
+
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
       return;
     }
     
-    if (targetId === ('' + event.senderID).trim()) {
-      await reply(error('KICK DENIED', 'You cannot kick yourself from the group!'));
+    if (targetId === String(event.senderID)) {
+      await reply(`╭─────────────────╮
+│ ❌ DENIED
+╰─────────────────╯
+You cannot kick yourself!`);
+      return;
+    }
+
+    if (targetId === botId) {
+      await reply(`╭─────────────────╮
+│ ❌ DENIED
+╰─────────────────╯
+Cannot kick the bot itself!
+Use ${prefix}leave instead.`);
       return;
     }
     
     try {
+      const threadInfo = await api.getThreadInfo(threadId);
+      const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
+      
+      if (!adminIDs.includes(botId)) {
+        await reply(`╭─────────────────╮
+│ ❌ NO PERMISSION
+╰─────────────────╯
+Bot must be admin to kick.
+Please make bot admin first.`);
+        return;
+      }
+
       const userInfo = await api.getUserInfo(targetId);
-      const userName = userInfo[targetId]?.name || 'Unknown';
+      const userName = userInfo[targetId]?.name || 'Unknown User';
       
-      const threadId = ('' + event.threadID).trim();
-      await api.removeUserFromGroup(targetId, threadId);
+      await new Promise<void>((resolve, reject) => {
+        api.removeUserFromGroup(targetId, threadId, (err: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
       
-      const timestamp = new Date().toLocaleString('en-US', {
+      const timestamp = new Date().toLocaleString('en-PH', {
         timeZone: 'Asia/Manila',
-        dateStyle: 'medium',
-        timeStyle: 'short'
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
       });
       
       BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
       
-      await reply(adminMessage('USER KICKED', 
-        `${userName} has been removed from the group.`,
-        [
-          { label: '👤 Name', value: userName },
-          { label: '🆔 ID', value: targetId },
-          { label: '⏰ Time', value: timestamp },
-          { label: '✅ Status', value: 'Successfully Removed' }
-        ]
-      ));
-    } catch (err) {
+      await reply(`╭─────────────────╮
+│ ✅ USER KICKED
+╰─────────────────╯
+
+👤 ${userName}
+🆔 ${targetId}
+⏰ ${timestamp}
+
+Successfully removed!
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
+    } catch (err: any) {
       BotLogger.error(`Failed to kick user ${targetId}`, err);
-      await reply(error('KICK FAILED', 
-        'Failed to remove user.\n\nPossible reasons:\n• Bot lacks admin permissions\n• User already removed\n• User is a group admin'
-      ));
+      
+      let errorMsg = 'Failed to remove user.';
+      if (err?.message?.includes('admin')) {
+        errorMsg = 'Cannot kick group admin.';
+      } else if (err?.message?.includes('permission')) {
+        errorMsg = 'Bot lacks admin permission.';
+      }
+      
+      await reply(`╭─────────────────╮
+│ ❌ KICK FAILED
+╰─────────────────╯
+
+${errorMsg}
+
+Possible reasons:
+• User is an admin
+• User already left
+• Bot not admin`);
     }
   }
 };

@@ -1,5 +1,4 @@
 import type { Command, CommandContext } from '../../types/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
 import config from '../../../config.json' with { type: 'json' };
 
 const command: Command = {
@@ -35,30 +34,37 @@ const command: Command = {
     const heapUsed = (memUsage.heapUsed / 1024 / 1024).toFixed(2);
     const heapTotal = (memUsage.heapTotal / 1024 / 1024).toFixed(2);
     
-    await reply(`📦 『 BOT VERSION 』 📦
-═══════════════════════════
-${decorations.fire} System Information
-═══════════════════════════
+    const timestamp = new Date().toLocaleString('en-PH', {
+      timeZone: 'Asia/Manila',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    await reply(`╭─────────────────╮
+│ 📦 BOT VERSION
+╰─────────────────╯
 
 ◈ BOT INFO
-═══════════════════════════
 🤖 Name: ${config.bot.name}
 📦 Version: v${config.bot.version}
 🔧 Prefix: ${config.bot.prefix}
 
 ◈ SYSTEM
-═══════════════════════════
 ⚙️ Node.js: ${nodeVersion}
 💻 Platform: ${platform}
-🏗️ Architecture: ${arch}
+🏗️ Arch: ${arch}
 
 ◈ PERFORMANCE
-═══════════════════════════
 ⏱️ Uptime: ${uptimeStr}
 💾 Memory: ${heapUsed}/${heapTotal} MB
 
-═══════════════════════════
-${decorations.sparkle} Nazzel Bot - Advanced FB Bot`);
+⏰ ${timestamp}
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
   }
 };
 

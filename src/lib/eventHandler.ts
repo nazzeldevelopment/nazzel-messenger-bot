@@ -87,7 +87,8 @@ export async function generateProfessionalWelcome(
   api: any,
   threadId: string,
   userId: string,
-  userName: string
+  userName: string,
+  addedParticipantsCount: number = 1
 ): Promise<string> {
   let groupName = '';
   let memberCount = 0;
@@ -123,25 +124,29 @@ export async function generateProfessionalWelcome(
   const customPrefix = await database.getSetting<string>(`prefix_${threadId}`) || defaultPrefix;
   
   const displayGroupName = groupName || 'this group';
-  const shortGroupName = displayGroupName.length > 20 ? displayGroupName.substring(0, 17) + '...' : displayGroupName;
-  const shortUserProfile = userProfile.length > 20 ? userProfile.substring(0, 17) + '...' : userProfile;
+  const shortGroupName = displayGroupName.length > 18 ? displayGroupName.substring(0, 15) + '...' : displayGroupName;
+  const shortUserProfile = userProfile.length > 18 ? userProfile.substring(0, 15) + '...' : userProfile;
   const memberText = memberCount > 0 ? `${memberCount}` : '?';
 
-  return `╔══════════════════════════╗
-║   ✨ WELCOME ✨   ║
-╠══════════════════════════╣
-║ ${greeting}! ${greetingEmoji}
-╠══════════════════════════╣
-║ 👤 ${shortUserProfile}
-║ 🏠 ${shortGroupName}
-║ 👥 ${memberText} members
-║ 📅 ${shortTime}
-╠══════════════════════════╣
-║ 💡 ${customPrefix}help - Commands
-║ 💡 ${customPrefix}rules - Rules
-╠══════════════════════════╣
-║ 💫 ${quote}
-╚══════════════════════════╝`;
+  return `╭─────────────────╮
+│ ✨ WELCOME ✨
+╰─────────────────╯
+
+${greeting}! ${greetingEmoji}
+
+👤 ${shortUserProfile}
+🏠 ${shortGroupName}
+👥 ${memberText} members
+📅 ${shortTime}
+
+💡 ${customPrefix}help - Commands
+💡 ${customPrefix}rules - Rules
+
+💫 ${quote}
+
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`;
 }
 
 export async function generateProfessionalLeave(
@@ -193,30 +198,34 @@ export async function generateProfessionalLeave(
   const shortTime = formatShortTime();
   const quote = getRandomGoodbyeQuote();
   const displayGroupName = groupName || 'this group';
-  const shortGroupName = displayGroupName.length > 20 ? displayGroupName.substring(0, 17) + '...' : displayGroupName;
-  const shortUserProfile = userProfile.length > 20 ? userProfile.substring(0, 17) + '...' : userProfile;
+  const shortGroupName = displayGroupName.length > 18 ? displayGroupName.substring(0, 15) + '...' : displayGroupName;
+  const shortUserProfile = userProfile.length > 18 ? userProfile.substring(0, 15) + '...' : userProfile;
   const memberText = memberCount > 0 ? `${memberCount}` : '?';
 
   const xpNeeded = (userLevel + 1) * 100;
   const xpProgress = Math.round((userXP / xpNeeded) * 100);
 
-  return `╔══════════════════════════╗
-║   👋 GOODBYE 👋   ║
-╠══════════════════════════╣
-║ 👤 ${shortUserProfile}
-║ 🏠 ${shortGroupName}
-║ 👥 ${memberText} remaining
-║ 📅 ${shortTime}
-╠══════════════════════════╣
-║ 🏆 Level ${userLevel} ⭐
-║ ✨ ${userXP}/${xpNeeded} XP (${xpProgress}%)
-║ 💬 ${userMessages} msgs
-║ 💰 ${userCoins} coins
-╠══════════════════════════╣
-║ 💫 ${quote}
-╠══════════════════════════╣
-║ 🌸 Take care! See you! 🌸
-╚══════════════════════════╝`;
+  return `╭─────────────────╮
+│ 👋 GOODBYE 👋
+╰─────────────────╯
+
+👤 ${shortUserProfile}
+🏠 ${shortGroupName}
+👥 ${memberText} remaining
+📅 ${shortTime}
+
+🏆 Level ${userLevel} ⭐
+✨ ${userXP}/${xpNeeded} XP (${xpProgress}%)
+💬 ${userMessages} msgs
+💰 ${userCoins} coins
+
+💫 ${quote}
+
+🌸 Take care! See you! 🌸
+
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`;
 }
 
 export function getAccurateTime(): string {

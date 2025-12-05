@@ -6,7 +6,7 @@ export const command: Command = {
   description: 'Change the group chat name',
   category: 'admin',
   usage: 'setname <new name>',
-  examples: ['setname Cool Group Chat', 'setname Nazzel Bot Users'],
+  examples: ['setname Cool Group Chat', 'setname Wisdom Bot Users'],
   cooldown: 30,
   adminOnly: true,
 

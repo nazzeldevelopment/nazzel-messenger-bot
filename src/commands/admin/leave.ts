@@ -25,23 +25,49 @@ const command: Command = {
         groupName = threadInfo.name || 'Group Chat';
       } catch (e) {}
       
-      await reply(`👋 LEAVING
-━━━━━━━━━━━━━━━
+      const timestamp = new Date().toLocaleString('en-PH', {
+        timeZone: 'Asia/Manila',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      await reply(`╭─────────────────╮
+│ 👋 LEAVING
+╰─────────────────╯
+
 🏠 ${groupName}
 🆔 ${targetThread}
-━━━━━━━━━━━━━━━
-Goodbye everyone!`);
+⏰ ${timestamp}
+
+Goodbye everyone! 💫
+
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
       
       await new Promise(r => setTimeout(r, 1000));
       
-      await api.removeUserFromGroup(botId, targetThread);
+      await new Promise<void>((resolve, reject) => {
+        api.removeUserFromGroup(botId, targetThread, (err: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
       
       BotLogger.info(`Bot left group: ${targetThread} (${groupName})`);
       
     } catch (err) {
       BotLogger.error(`Failed to leave group ${targetThread}`, err);
-      await reply(`❌ LEAVE FAILED
-━━━━━━━━━━━━━━━
+      await reply(`╭─────────────────╮
+│ ❌ LEAVE FAILED
+╰─────────────────╯
+
 Could not leave the group.
 Check if threadId is valid.`);
     }

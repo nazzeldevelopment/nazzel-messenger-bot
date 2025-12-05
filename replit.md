@@ -1,10 +1,10 @@
-# Nazzel Messenger User-Bot
+# Wisdom Bot - Facebook Messenger User-Bot
 
 ### Overview
-The Nazzel Messenger User-Bot is an advanced Facebook Messenger bot built with TypeScript. Its primary purpose is to enhance the Messenger experience with a rich set of features, including a comprehensive music player system, an economy system, AI integration, XP and leveling, and robust moderation tools. The bot aims to provide a premium, compact, and highly functional interaction within Facebook Messenger group chats and private messages, utilizing the latest Facebook Chat API.
+Wisdom Bot is an advanced Facebook Messenger bot built with TypeScript. Its primary purpose is to enhance the Messenger experience with a rich set of features, including a comprehensive music player system, an economy system, AI integration, XP and leveling, and robust moderation tools. The bot aims to provide a premium, compact, and highly functional interaction within Facebook Messenger group chats and private messages, utilizing the latest Facebook Chat API (v3.0.12).
 
 ### User Preferences
-- Prefix: `N!` (configurable in config.json and per-group via N!prefix command)
+- Prefix: `W!` (configurable in config.json and per-group via W!prefix command)
 - Language: TypeScript with strict mode
 - Package Manager: pnpm (with native module rebuild support)
 - Node.js: v20.x or higher
@@ -37,7 +37,7 @@ The bot's architecture is modular, with commands organized by category, making i
 - **API Endpoints**: Provides basic API endpoints for bot status, health checks, and logs.
 
 ### External Dependencies
-- **@dongdev/fca-unofficial 3.0.8**: Facebook Chat API with MQTT support.
+- **@dongdev/fca-unofficial 3.0.12**: Facebook Chat API with MQTT support.
 - **MongoDB**: Primary database for persistent storage.
 - **Redis**: Used for anti-spam and fast in-memory caching.
 - **OpenAI API**: For AI commands (askv1-askv5).

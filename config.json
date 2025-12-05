@@ -1,7 +1,7 @@
 {
   "bot": {
-    "name": "Nazzel Bot",
-    "version": "2.6.0",
+    "name": "Wisdom Bot",
+    "version": "2.7.0",
     "prefix": "W!",
     "description": "Advanced Facebook Messenger User-Bot",
     "selfListen": true,
