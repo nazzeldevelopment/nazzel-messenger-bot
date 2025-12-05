@@ -8,50 +8,53 @@ const command: Command = {
   category: 'admin',
   usage: 'moderation <option> [value]',
   examples: [
-    'moderation status',
+    'moderation',
     'moderation badwords on',
     'moderation spam off',
     'moderation addword badword',
-    'moderation removeword badword',
   ],
   adminOnly: true,
 
   async execute(context: CommandContext): Promise<void> {
-    const { args, reply, event } = context;
+    const { args, reply, event, prefix } = context;
     const threadId = event.threadID;
+    const settings = await badWordsFilter.getSettings(threadId);
 
-    if (args.length === 0) {
-      const settings = await badWordsFilter.getSettings(threadId);
+    if (args.length === 0 || args[0]?.toLowerCase() === 'status') {
+      const badwordsStatus = settings.badWordsEnabled ? '🟢 ON' : '🔴 OFF';
+      const spamStatus = settings.spamEnabled ? '🟢 ON' : '🔴 OFF';
+      const linksStatus = settings.linksEnabled ? '🟢 ON' : '🔴 OFF';
+      const phoneStatus = settings.phoneEnabled ? '🟢 ON' : '🔴 OFF';
+      const capsStatus = settings.capsEnabled ? '🟢 ON' : '🔴 OFF';
       
-      await reply(`
-╔══════════════════════════════════════╗
-║    AUTO-MODERATION SETTINGS     ║
-╠══════════════════════════════════════╣
-║                                      ║
-║  CURRENT STATUS                 ║
-╠══════════════════════════════════════╣
-║  Bad Words: ${settings.badWordsEnabled ? 'ON' : 'OFF'}
-║  Spam Detection: ${settings.spamEnabled ? 'ON' : 'OFF'}
-║  Link Blocking: ${settings.linksEnabled ? 'ON' : 'OFF'}
-║  Phone Blocking: ${settings.phoneEnabled ? 'ON' : 'OFF'}
-║  Caps Lock: ${settings.capsEnabled ? 'ON' : 'OFF'}
-║  Action: ${settings.action.toUpperCase()}
-║  Custom Words: ${settings.customBadWords.length}
-║                                      ║
-╠══════════════════════════════════════╣
-║  COMMANDS                       ║
-╠══════════════════════════════════════╣
-║  ${context.prefix}mod badwords <on/off>
-║  ${context.prefix}mod spam <on/off>
-║  ${context.prefix}mod links <on/off>
-║  ${context.prefix}mod phone <on/off>
-║  ${context.prefix}mod caps <on/off>
-║  ${context.prefix}mod action <warn/delete>
-║  ${context.prefix}mod addword <word>
-║  ${context.prefix}mod removeword <word>
-║  ${context.prefix}mod listwords
-║                                      ║
-╚══════════════════════════════════════╝`);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃   🛡️ 𝗔𝗨𝗧𝗢-𝗠𝗢𝗗𝗘𝗥𝗔𝗧𝗜𝗢𝗡 🛡️   ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+┌── 📊 𝗦𝘁𝗮𝘁𝘂𝘀 ──┐
+│ 🚫 Bad Words: ${badwordsStatus}
+│ 📨 Spam: ${spamStatus}
+│ 🔗 Links: ${linksStatus}
+│ 📱 Phone: ${phoneStatus}
+│ 🔠 Caps Lock: ${capsStatus}
+│ ⚡ Action: ${settings.action.toUpperCase()}
+│ 📝 Custom Words: ${settings.customBadWords.length}
+└─────────────────────────────┘
+
+┌── 🔧 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 ──┐
+│ ${prefix}mod badwords <on/off>
+│ ${prefix}mod spam <on/off>
+│ ${prefix}mod links <on/off>
+│ ${prefix}mod phone <on/off>
+│ ${prefix}mod caps <on/off>
+│ ${prefix}mod action <warn/delete>
+│ ${prefix}mod addword <word>
+│ ${prefix}mod removeword <word>
+│ ${prefix}mod listwords
+└─────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 Example: ${prefix}mod badwords on`);
       return;
     }
 
@@ -63,12 +66,23 @@ const command: Command = {
       case 'badword': {
         if (value === 'on' || value === 'true') {
           await badWordsFilter.updateSettings({ badWordsEnabled: true }, threadId);
-          await reply('Bad words filter has been enabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🚫 Bad words filter: 🟢 ENABLED
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 Messages with bad words will be moderated`);
         } else if (value === 'off' || value === 'false') {
           await badWordsFilter.updateSettings({ badWordsEnabled: false }, threadId);
-          await reply('Bad words filter has been disabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🚫 Bad words filter: 🔴 DISABLED`);
         } else {
-          await reply('Usage: moderation badwords <on/off>');
+          await reply(`⚠️ Usage: ${prefix}mod badwords <on/off>`);
         }
         break;
       }
@@ -76,12 +90,20 @@ const command: Command = {
       case 'spam': {
         if (value === 'on' || value === 'true') {
           await badWordsFilter.updateSettings({ spamEnabled: true }, threadId);
-          await reply('Spam detection has been enabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+📨 Spam detection: 🟢 ENABLED`);
         } else if (value === 'off' || value === 'false') {
           await badWordsFilter.updateSettings({ spamEnabled: false }, threadId);
-          await reply('Spam detection has been disabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+📨 Spam detection: 🔴 DISABLED`);
         } else {
-          await reply('Usage: moderation spam <on/off>');
+          await reply(`⚠️ Usage: ${prefix}mod spam <on/off>`);
         }
         break;
       }
@@ -90,12 +112,20 @@ const command: Command = {
       case 'link': {
         if (value === 'on' || value === 'true') {
           await badWordsFilter.updateSettings({ linksEnabled: true }, threadId);
-          await reply('Link blocking has been enabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔗 Link blocking: 🟢 ENABLED`);
         } else if (value === 'off' || value === 'false') {
           await badWordsFilter.updateSettings({ linksEnabled: false }, threadId);
-          await reply('Link blocking has been disabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔗 Link blocking: 🔴 DISABLED`);
         } else {
-          await reply('Usage: moderation links <on/off>');
+          await reply(`⚠️ Usage: ${prefix}mod links <on/off>`);
         }
         break;
       }
@@ -103,12 +133,20 @@ const command: Command = {
       case 'phone': {
         if (value === 'on' || value === 'true') {
           await badWordsFilter.updateSettings({ phoneEnabled: true }, threadId);
-          await reply('Phone number blocking has been enabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+📱 Phone blocking: 🟢 ENABLED`);
         } else if (value === 'off' || value === 'false') {
           await badWordsFilter.updateSettings({ phoneEnabled: false }, threadId);
-          await reply('Phone number blocking has been disabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+📱 Phone blocking: 🔴 DISABLED`);
         } else {
-          await reply('Usage: moderation phone <on/off>');
+          await reply(`⚠️ Usage: ${prefix}mod phone <on/off>`);
         }
         break;
       }
@@ -116,12 +154,20 @@ const command: Command = {
       case 'caps': {
         if (value === 'on' || value === 'true') {
           await badWordsFilter.updateSettings({ capsEnabled: true }, threadId);
-          await reply('Caps lock detection has been enabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔠 Caps lock detection: 🟢 ENABLED`);
         } else if (value === 'off' || value === 'false') {
           await badWordsFilter.updateSettings({ capsEnabled: false }, threadId);
-          await reply('Caps lock detection has been disabled.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔠 Caps lock detection: 🔴 DISABLED`);
         } else {
-          await reply('Usage: moderation caps <on/off>');
+          await reply(`⚠️ Usage: ${prefix}mod caps <on/off>`);
         }
         break;
       }
@@ -129,9 +175,13 @@ const command: Command = {
       case 'action': {
         if (value === 'warn' || value === 'delete' || value === 'mute' || value === 'kick') {
           await badWordsFilter.updateSettings({ action: value as any }, threadId);
-          await reply(`Moderation action has been set to: ${value.toUpperCase()}`);
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗨𝗣𝗗𝗔𝗧𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+⚡ Moderation action: ${value.toUpperCase()}`);
         } else {
-          await reply('Usage: moderation action <warn/delete/mute/kick>');
+          await reply(`⚠️ Usage: ${prefix}mod action <warn/delete/mute/kick>`);
         }
         break;
       }
@@ -139,59 +189,63 @@ const command: Command = {
       case 'addword': {
         const word = args.slice(1).join(' ');
         if (!word) {
-          await reply('Please specify a word to add.');
+          await reply(`⚠️ Please specify a word to add.\nUsage: ${prefix}mod addword <word>`);
           return;
         }
         await badWordsFilter.addCustomBadWord(word, threadId);
-        await reply(`Added "${word}" to the bad words list.`);
+        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗪𝗢𝗥𝗗 𝗔𝗗𝗗𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+📝 Added "${word}" to the bad words list.`);
         break;
       }
 
       case 'removeword': {
         const word = args.slice(1).join(' ');
         if (!word) {
-          await reply('Please specify a word to remove.');
+          await reply(`⚠️ Please specify a word to remove.\nUsage: ${prefix}mod removeword <word>`);
           return;
         }
         await badWordsFilter.removeCustomBadWord(word, threadId);
-        await reply(`Removed "${word}" from the bad words list.`);
+        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     ✅ 𝗪𝗢𝗥𝗗 𝗥𝗘𝗠𝗢𝗩𝗘𝗗 ✅     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+📝 Removed "${word}" from the bad words list.`);
         break;
       }
 
       case 'listwords': {
-        const settings = await badWordsFilter.getSettings(threadId);
         if (settings.customBadWords.length === 0) {
-          await reply('No custom bad words have been added.');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     📝 𝗕𝗔𝗗 𝗪𝗢𝗥𝗗𝗦 📝     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+ℹ️ No custom bad words have been added.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 Add words: ${prefix}mod addword <word>`);
         } else {
-          await reply(`
-╔══════════════════════════════════════╗
-║    CUSTOM BAD WORDS LIST        ║
-╠══════════════════════════════════════╣
-${settings.customBadWords.map((w, i) => `║  ${i + 1}. ${w}`).join('\n')}
-╚══════════════════════════════════════╝`);
+          const wordList = settings.customBadWords.map((w, i) => `│ ${i + 1}. ${w}`).join('\n');
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     📝 𝗕𝗔𝗗 𝗪𝗢𝗥𝗗𝗦 📝     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+┌── 📋 𝗖𝘂𝘀𝘁𝗼𝗺 𝗟𝗶𝘀𝘁 ──┐
+${wordList}
+└─────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Total: ${settings.customBadWords.length} words`);
         }
         break;
       }
 
-      case 'status': {
-        const settings = await badWordsFilter.getSettings(threadId);
-        await reply(`
-╔══════════════════════════════════════╗
-║    AUTO-MODERATION STATUS       ║
-╠══════════════════════════════════════╣
-║  Bad Words: ${settings.badWordsEnabled ? 'ENABLED' : 'DISABLED'}
-║  Spam Detection: ${settings.spamEnabled ? 'ENABLED' : 'DISABLED'}
-║  Link Blocking: ${settings.linksEnabled ? 'ENABLED' : 'DISABLED'}
-║  Phone Blocking: ${settings.phoneEnabled ? 'ENABLED' : 'DISABLED'}
-║  Caps Lock: ${settings.capsEnabled ? 'ENABLED' : 'DISABLED'}
-║  Action: ${settings.action.toUpperCase()}
-║  Custom Words: ${settings.customBadWords.length}
-╚══════════════════════════════════════╝`);
-        break;
-      }
-
       default:
-        await reply(`Unknown option: ${option}. Use ${context.prefix}moderation for help.`);
+        await reply(`⚠️ Unknown option: ${option}
+
+💡 Use ${prefix}mod for help.`);
     }
   },
 };

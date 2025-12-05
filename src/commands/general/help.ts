@@ -19,6 +19,15 @@ const command: Command = {
       level: '🏆', utility: '🔧', economy: '💰'
     };
     
+    const popularCommands: Record<string, string[]> = {
+      admin: ['kick', 'ban', 'announce', 'broadcast', 'moderation'],
+      fun: ['joke', '8ball', 'meme', 'love', 'ship', 'rps', 'roast'],
+      general: ['ping', 'info', 'profile', 'about', 'changelog'],
+      level: ['level', 'leaderboard', 'rank', 'xp'],
+      utility: ['translate', 'weather', 'calc', 'avatar', 'poll'],
+      economy: ['balance', 'claim', 'slots', 'gamble', 'work', 'fish', 'hunt']
+    };
+    
     if (args.length === 0) {
       const categories = commandHandler.getCategories();
       const totalCommands = commandHandler.getAllCommands().size;
@@ -31,6 +40,7 @@ const command: Command = {
 ┌─────────────────────────────┐
 │ 📌 Prefix: ${prefix}
 │ 📊 Total: ${totalCommands} commands
+│ 🎯 6 Categories Available
 └─────────────────────────────┘
 
 ┌── 📂 𝗖𝗮𝘁𝗲𝗴𝗼𝗿𝗶𝗲𝘀 ──┐\n`;
@@ -38,10 +48,23 @@ const command: Command = {
       for (const category of categories) {
         const count = commandHandler.getCommandsByCategory(category).length;
         const emoji = categoryEmojis[category] || '📁';
+        const popular = popularCommands[category]?.slice(0, 3).join(', ') || '';
         help += `│ ${emoji} ${category.charAt(0).toUpperCase() + category.slice(1)} (${count})\n`;
+        if (popular) {
+          help += `│   └ ${popular}...\n`;
+        }
       }
 
       help += `└────────────────────┘
+
+┌── ⭐ 𝗣𝗼𝗽𝘂𝗹𝗮𝗿 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 ──┐
+│ 💰 ${prefix}claim - Daily coins
+│ 🎰 ${prefix}slots - Slot machine
+│ 🎣 ${prefix}fish - Go fishing
+│ 🔫 ${prefix}hunt - Hunt animals
+│ 💼 ${prefix}work - Earn coins
+│ 🎲 ${prefix}gamble - Risk it all
+└─────────────────────────────┘
 
 ┌── 𝗛𝗼𝘄 𝘁𝗼 𝗨𝘀𝗲 ──┐
 │ ${prefix}help <category>
@@ -49,7 +72,7 @@ const command: Command = {
 └────────────────────┘
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 Example: ${prefix}help fun`;
+💡 Example: ${prefix}help economy`;
 
       await reply(help);
       return;
@@ -61,7 +84,7 @@ const command: Command = {
     if (categories.includes(firstArg)) {
       const page = parseInt(args[1]) || 1;
       const commands = commandHandler.getCommandsByCategory(firstArg);
-      const perPage = 8;
+      const perPage = 10;
       const totalPages = Math.ceil(commands.length / perPage);
       const currentPage = Math.min(Math.max(1, page), totalPages);
       
@@ -70,33 +93,38 @@ const command: Command = {
       
       const emoji = categoryEmojis[firstArg] || '📁';
       const categoryName = firstArg.charAt(0).toUpperCase() + firstArg.slice(1);
+      const popular = popularCommands[firstArg] || [];
       
       let help = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃   ${emoji} ${categoryName.toUpperCase()} COMMANDS ${emoji}   ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-┌─────────────────────────────┐\n`;
+┌── 📋 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 (${commands.length}) ──┐\n`;
 
       for (const cmd of pageCommands) {
+        const isPopular = popular.includes(cmd.name) ? '⭐' : '➤';
         const cmdAliases = cmd.aliases?.length ? ` (${cmd.aliases[0]})` : '';
-        help += `│ ➤ ${prefix}${cmd.name}${cmdAliases}\n`;
+        const desc = cmd.description.length > 25 ? cmd.description.substring(0, 22) + '...' : cmd.description;
+        help += `│ ${isPopular} ${prefix}${cmd.name}${cmdAliases}\n│   └ ${desc}\n`;
       }
 
       help += `└─────────────────────────────┘
 
 ┌─────────────────────────────┐
-│ 📄 Page ${currentPage}/${totalPages} │ ${commands.length} commands
+│ 📄 Page ${currentPage}/${totalPages} │ Total: ${commands.length}
 └─────────────────────────────┘`;
       
       if (totalPages > 1) {
         help += `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
         if (currentPage < totalPages) {
-          help += `\n➤ Next: ${prefix}help ${firstArg} ${currentPage + 1}`;
+          help += `\n➡️ Next: ${prefix}help ${firstArg} ${currentPage + 1}`;
         }
         if (currentPage > 1) {
-          help += `\n➤ Prev: ${prefix}help ${firstArg} ${currentPage - 1}`;
+          help += `\n⬅️ Prev: ${prefix}help ${firstArg} ${currentPage - 1}`;
         }
       }
+      
+      help += `\n\n💡 Tip: ${prefix}help <command> for details`;
 
       await reply(help);
       return;

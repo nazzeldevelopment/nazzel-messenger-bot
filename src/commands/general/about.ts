@@ -1,5 +1,4 @@
 import type { Command } from '../../types/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
 
 export const command: Command = {
   name: 'about',
@@ -10,36 +9,40 @@ export const command: Command = {
   examples: ['about'],
   cooldown: 5000,
 
-  async execute({ config, reply }) {
-    await reply(`${decorations.crown} 『 ${config.bot.name.toUpperCase()} 』 ${decorations.crown}
-━━━━━━━━━━━━━━━━━━━━━━━━━
-${decorations.sparkle} ${config.bot.description}
+  async execute({ config, reply, prefix }) {
+    await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  👑 ${config.bot.name.toUpperCase()} 👑  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-◈ BOT DETAILS
-━━━━━━━━━━━━━━━━━━━━━━━━━
-📦 Version: ${config.bot.version}
-🔧 Prefix: ${config.bot.prefix}
-💻 Platform: Messenger
-🌐 API: @dongdev/fca-unofficial
+✨ ${config.bot.description}
 
-◈ FEATURES
-━━━━━━━━━━━━━━━━━━━━━━━━━
-🎮 100+ Commands
-📊 XP & Leveling System
-🎵 Music Player
-🛡️ Admin Controls
-⚡ Redis Caching
-🗄️ MongoDB Database
-🔐 Bad Words Filter
-🎉 Welcome Messages
+┌── 📦 𝗕𝗢𝗧 𝗗𝗘𝗧𝗔𝗜𝗟𝗦 ──┐
+│ 🏷️ Version: ${config.bot.version}
+│ 🔧 Prefix: ${prefix}
+│ 💻 Platform: Messenger
+│ 🌐 API: Nazzel Official Website
+│ 🗄️ Database: MongoDB
+└─────────────────────────────┘
 
-◈ CREDITS
-━━━━━━━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer: Nazzel
-📅 Created: 2025
-${decorations.heart} Made with love
+┌── 🎮 𝗙𝗘𝗔𝗧𝗨𝗥𝗘𝗦 ──┐
+│ 📊 129+ Commands
+│ 🏆 XP & Leveling System
+│ 💰 Economy System
+│ 🎵 Music Player
+│ 🛡️ Admin Controls
+│ ⚡ Redis Caching
+│ 🔐 Bad Words Filter
+│ 🎉 Welcome Messages
+└────────────────────┘
 
-━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 Type ${config.bot.prefix}help to explore!`);
+┌── 💝 𝗖𝗥𝗘𝗗𝗜𝗧𝗦 ──┐
+│ 👨‍💻 Developer: Nazzel
+│ 🌐 Website: nazzel.dev
+│ 📅 Created: 2025
+│ 💖 Made with love
+└────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 Type ${prefix}help to explore!`);
   },
 };

@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.0] - 2025-12-05
+
+### Added
+
+#### New Economy Commands (6 commands)
+- **work** - Work various jobs to earn 50-200 coins (1min cooldown)
+- **rob** - Attempt to steal coins from other users (2min cooldown, 55% success rate)
+- **transfer** - Send coins to other users (10s cooldown)
+- **beg** - Beg for 10-60 coins (30sec cooldown, 65% success rate)
+- **fish** - Go fishing with rarity-based rewards (45sec cooldown, up to 1000 coins)
+- **hunt** - Hunt animals with rarity-based rewards (1min cooldown, up to 800 coins)
+
+### Changed
+
+#### Professional Box Styling v3
+All commands redesigned with premium box styling:
+- New box characters: `┏━━┓ ┃ ┗━━┛`
+- Bold Unicode headers: `𝗧𝗜𝗧𝗟𝗘`
+- Section dividers with descriptive labels
+- Consistent spacing and alignment
+
+#### Improved Commands
+- **help** - Enhanced category display with command counts and examples
+- **ping** - Detailed system status with uptime, memory, and service status
+- **balance** - Shows rank tier, XP progress, streak bonuses, total messages
+- **claim** - Displays base reward + streak bonus breakdown with milestones
+- **slots** - Visual slot machine with animated-style results and profit display
+- **gamble** - Progress bar showing roll percentage with detailed results
+
+### Fixed
+
+#### Database Fixes
+- Removed sqlite3/better-sqlite3 dependencies completely
+- Fixed "Database is not a constructor" error
+- Bot now uses MongoDB exclusively for all data storage
+
+#### Admin Command Fixes
+- **removeall** - Fixed group chat detection, now properly removes all members with fallback participant detection
+- **moderation** - Removed duplicate status displays, consolidated help and status views
+
+#### About Command
+- Replaced FCA API reference with "Nazzel Official Website"
+- Updated feature count to 129+ commands
+
+#### Welcome/Goodbye Messages
+- Increased event debounce to 30 seconds to prevent duplicates
+- Improved group name and member count accuracy
+
+### Technical
+- **Total Commands**: 129 in 6 categories (17 economy commands)
+- Removed `better-sqlite3` and `@types/better-sqlite3` from dependencies
+- Updated package.json to remove sqlite3 override
+- All admin commands use MongoDB singleton instance
+
+---
+
 ## [2.1.0] - 2025-12-05
 
 ### Changed
