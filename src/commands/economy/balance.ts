@@ -34,12 +34,7 @@ export const command: Command = {
       const user = await database.getOrCreateUser(targetId, userName);
       
       if (!user) {
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗘𝗥𝗥𝗢𝗥 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ Could not fetch user data.
-Please try again later.`);
+        await reply(`❌ Could not fetch user data.`);
         return;
       }
 
@@ -48,79 +43,25 @@ Please try again later.`);
       const level = user.level ?? 0;
       const xp = user.xp ?? 0;
       const xpNeeded = (level + 1) * 100;
-      const xpProgress = Math.round((xp / xpNeeded) * 100);
-      const totalMsgs = user.totalMessages ?? 0;
 
       const rankEmoji = coins >= 100000 ? '👑' : 
                         coins >= 50000 ? '💎' :
                         coins >= 10000 ? '💰' : 
-                        coins >= 5000 ? '💵' : 
                         coins >= 1000 ? '🪙' : '💸';
-      
-      const rankTitle = coins >= 100000 ? 'Legendary' : 
-                        coins >= 50000 ? 'Diamond' :
-                        coins >= 10000 ? 'Gold' : 
-                        coins >= 5000 ? 'Silver' : 
-                        coins >= 1000 ? 'Bronze' : 'Starter';
 
-      const shortName = userName.length > 18 ? userName.substring(0, 15) + '...' : userName;
-      const levelStars = '⭐'.repeat(Math.min(level, 5)) || '✧';
-      const streakBonus = Math.min(streak * 10, 100);
+      const shortName = userName.length > 15 ? userName.substring(0, 12) + '...' : userName;
 
-      if (isSelf) {
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ${rankEmoji} 𝗠𝗬 𝗪𝗔𝗟𝗟𝗘𝗧 ${rankEmoji}     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+      await reply(`╭─────────────────╮
+│ ${rankEmoji} ${isSelf ? 'My Wallet' : shortName}
+╰─────────────────╯
 
-┌── 💰 𝗕𝗮𝗹𝗮𝗻𝗰𝗲 ──┐
-│ 🪙 ${coins.toLocaleString()} coins
-│ 🏅 Rank: ${rankTitle}
-└────────────────────┘
+🪙 ${coins.toLocaleString()} coins
+🏆 Level ${level} • XP ${xp}/${xpNeeded}
+🔥 Streak: ${streak}x
 
-┌── 📊 𝗦𝘁𝗮𝘁𝘀 ──┐
-│ 🏆 Level ${level} ${levelStars}
-│ ✨ XP: ${xp}/${xpNeeded} (${xpProgress}%)
-│ 🔥 Streak: ${streak}x (+${streakBonus} bonus)
-│ 💬 Messages: ${totalMsgs.toLocaleString()}
-└────────────────────┘
-
-┌── 💎 𝗘𝗮𝗿𝗻 𝗠𝗼𝗿𝗲 ──┐
-│ ${prefix}claim   ➜ Daily reward
-│ ${prefix}work    ➜ Earn coins
-│ ${prefix}slots   ➜ Try your luck
-│ ${prefix}gamble  ➜ Risk it all
-│ ${prefix}rob     ➜ Steal coins
-└─────────────────────┘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 ${prefix}richest ➜ View leaderboard`);
-      } else {
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ${rankEmoji} 𝗕𝗔𝗟𝗔𝗡𝗖𝗘 ${rankEmoji}     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-┌─────────────────────────────┐
-│ 👤 ${shortName}
-└─────────────────────────────┘
-
-┌── 💰 𝗪𝗮𝗹𝗹𝗲𝘁 ──┐
-│ 🪙 ${coins.toLocaleString()} coins
-│ 🏅 Rank: ${rankTitle}
-└────────────────────┘
-
-┌── 📊 𝗦𝘁𝗮𝘁𝘀 ──┐
-│ 🏆 Level ${level} ${levelStars}
-│ 🔥 Streak: ${streak}x
-│ 💬 Messages: ${totalMsgs.toLocaleString()}
-└────────────────────┘`);
-      }
+${isSelf ? `▸ ${prefix}claim - Daily\n▸ ${prefix}slots - Gamble` : ''}`);
     } catch (error) {
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗘𝗥𝗥𝗢𝗥 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ Failed to get balance.
-Please try again later.`);
+      await reply(`❌ Failed to get balance.`);
     }
   },
 };

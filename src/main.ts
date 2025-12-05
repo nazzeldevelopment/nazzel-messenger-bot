@@ -22,6 +22,8 @@ const EVENT_DEBOUNCE_MS = 30000;
 // Message deduplication to prevent duplicate processing (FCA may emit same message twice)
 const processedMessages = new Map<string, number>();
 const MESSAGE_DEBOUNCE_MS = 5000;
+let lastCleanup = Date.now();
+const CLEANUP_INTERVAL = 30000;
 
 function isMessageDuplicate(messageId: string): boolean {
   if (!messageId) return false;
@@ -35,16 +37,19 @@ function isMessageDuplicate(messageId: string): boolean {
   
   processedMessages.set(messageId, now);
   
-  // Cleanup old entries
-  for (const [key, time] of processedMessages.entries()) {
-    if (now - time > MESSAGE_DEBOUNCE_MS * 2) {
-      processedMessages.delete(key);
+  // Cleanup only every 30 seconds to avoid O(n) on every message
+  if (now - lastCleanup > CLEANUP_INTERVAL) {
+    lastCleanup = now;
+    for (const [key, time] of processedMessages.entries()) {
+      if (now - time > MESSAGE_DEBOUNCE_MS * 2) {
+        processedMessages.delete(key);
+      }
     }
-  }
-  
-  if (processedMessages.size > 500) {
-    const keysToDelete = Array.from(processedMessages.keys()).slice(0, 100);
-    keysToDelete.forEach(key => processedMessages.delete(key));
+    // Hard limit on size
+    if (processedMessages.size > 500) {
+      const keysToDelete = Array.from(processedMessages.keys()).slice(0, 200);
+      keysToDelete.forEach(key => processedMessages.delete(key));
+    }
   }
   
   return false;
@@ -434,33 +439,20 @@ async function handleMessage(api: any, event: any): Promise<void> {
           if (messageContent.body) messageContent.body = String(messageContent.body);
         }
         
-        const startTime = Date.now();
-        
-        const sendWithRetry = async (attempt: number = 1): Promise<{ success: boolean; error?: Error; messageInfo?: any }> => {
-          try {
-            const messageInfo = await api.sendMessage(messageContent, targetThread);
-            return { success: true, messageInfo };
-          } catch (e) {
-            return { success: false, error: e as Error };
+        try {
+          const messageInfo = await api.sendMessage(messageContent, targetThread);
+          
+          if (messageInfo?.messageID) {
+            const botMessagesKey = `bot_messages_${targetThread}`;
+            const storedMessages = await database.getSetting<string[]>(botMessagesKey) || [];
+            storedMessages.push(messageInfo.messageID);
+            if (storedMessages.length > 100) {
+              storedMessages.splice(0, storedMessages.length - 100);
+            }
+            await database.setSetting(botMessagesKey, storedMessages);
           }
-        };
-        
-        let result = await sendWithRetry(1);
-        
-        if (!result.success) {
-          await new Promise(r => setTimeout(r, 1000));
-          result = await sendWithRetry(2);
-        }
-        
-        if (!result.success) {
-          await new Promise(r => setTimeout(r, 2000));
-          result = await sendWithRetry(3);
-        }
-        
-        const elapsed = Date.now() - startTime;
-        
-        if (!result.success) {
-          BotLogger.error(`Failed to send message after 3 attempts (${elapsed}ms): ${result.error?.message}`);
+        } catch (e) {
+          BotLogger.error(`Failed to send message: ${(e as Error).message}`);
         }
       };
       

@@ -13,22 +13,15 @@ export const command: Command = {
 
   async execute({ api, event, args, reply, prefix }: CommandContext): Promise<void> {
     if (args.length === 0) {
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     🎵 𝗣𝗟𝗔𝗬 𝗠𝗨𝗦𝗜𝗖 🎵     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+      await reply(`╭─────────────────╮
+│ 🎵 Play Music
+╰─────────────────╯
 
-┌── 📖 𝗨𝘀𝗮𝗴𝗲 ──┐
-│ ${prefix}play <song/URL>
-└────────────────────┘
+Usage: ${prefix}play <song/URL>
 
-┌── 💡 𝗘𝘅𝗮𝗺𝗽𝗹𝗲𝘀 ──┐
-│ ${prefix}play Despacito
-│ ${prefix}play https://youtube.com/...
-│ ${prefix}play spotify:track:...
-└────────────────────────┘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎧 Supports YouTube & Spotify`);
+Examples:
+▸ ${prefix}play Despacito
+▸ ${prefix}play youtube.com/...`);
       return;
     }
 
@@ -40,13 +33,10 @@ export const command: Command = {
       let track: any = null;
 
       if (musicService.isYouTubeUrl(query)) {
-        await reply(`🔍 Fetching from YouTube...`);
         track = await musicService.getYouTubeInfo(query);
       } else if (musicService.isSpotifyUrl(query)) {
-        await reply(`🔍 Fetching from Spotify...`);
         track = await musicService.getSpotifyTrack(query);
       } else {
-        await reply(`🔍 Searching for "${query}"...`);
         const results = await musicService.searchYouTube(query, 1);
         if (results.length > 0) {
           track = results[0];
@@ -54,14 +44,7 @@ export const command: Command = {
       }
 
       if (!track) {
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗡𝗢𝗧 𝗙𝗢𝗨𝗡𝗗 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ Could not find any song matching:
-"${query}"
-
-💡 Try a different search term or URL`);
+        await reply(`❌ No results for "${query}"`);
         return;
       }
 
@@ -74,56 +57,30 @@ export const command: Command = {
       
       if (session.isPlaying && session.currentTrack) {
         const position = musicService.addToQueue(threadId, track);
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     📋 𝗔𝗗𝗗𝗘𝗗 𝗧𝗢 𝗤𝗨𝗘𝗨𝗘 📋     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        await reply(`╭─────────────────╮
+│ 📋 Added to Queue
+╰─────────────────╯
 
-┌── 🎵 𝗧𝗿𝗮𝗰𝗸 𝗜𝗻𝗳𝗼 ──┐
-│ 🎶 ${track.title}
-│ 👤 ${track.artist}
-│ ⏱️ ${musicService.formatDuration(track.duration)}
-└────────────────────────┘
-
-┌── 📊 𝗤𝘂𝗲𝘂𝗲 ──┐
-│ 📍 Position: #${position}
-│ 👤 Requested by: ${userName}
-└────────────────────┘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 ${prefix}queue to view full queue`);
+🎵 ${track.title}
+👤 ${track.artist}
+⏱️ ${musicService.formatDuration(track.duration)}
+📍 Position #${position}`);
       } else {
         musicService.playTrack(threadId, track);
-        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     🎵 𝗡𝗢𝗪 𝗣𝗟𝗔𝗬𝗜𝗡𝗚 🎵     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        await reply(`╭─────────────────╮
+│ 🎵 Now Playing
+╰─────────────────╯
 
-┌── 🎶 𝗧𝗿𝗮𝗰𝗸 ──┐
-│ 🎵 ${track.title}
-│ 👤 ${track.artist}
-│ ⏱️ ${musicService.formatDuration(track.duration)}
-│ 📺 ${track.source === 'youtube' ? 'YouTube' : 'Spotify'}
-└────────────────────────┘
-
-┌── 🎛️ 𝗖𝗼𝗻𝘁𝗿𝗼𝗹𝘀 ──┐
-│ ${prefix}pause  ➜ Pause
-│ ${prefix}skip   ➜ Next song
-│ ${prefix}stop   ➜ Stop playback
-│ ${prefix}queue  ➜ View queue
-└────────────────────┘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎧 Requested by: ${userName}`);
+🎵 ${track.title}
+👤 ${track.artist}
+⏱️ ${musicService.formatDuration(track.duration)}
+🎧 By: ${userName}`);
       }
 
       logger.info('Music play command executed', { threadId, track: track.title });
     } catch (error) {
       logger.error('Play command failed', { error });
-      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗘𝗥𝗥𝗢𝗥 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ Failed to play the song.
-Please try again later.`);
+      await reply(`❌ Failed to play. Try again.`);
     }
   }
 };

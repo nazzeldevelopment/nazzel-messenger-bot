@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.0] - 2025-12-05
+
+### Added
+- **clearbotmsg** - New admin command to delete all bot messages in a group
+- **Bot Message Tracking** - All bot messages are now tracked for deletion
+
+### Changed
+
+#### Ultra-Compact Command Design
+All commands redesigned to be minimal and non-obstructing:
+- **help** - Simplified category listing, cleaner layout
+- **ping** - Minimal status display (latency, uptime, memory)
+- **balance** - Compact wallet view with essential stats only
+- **play** - Streamlined music player display
+
+#### Message System Improvements
+- **Single Message Guarantee** - Fixed duplicate message sending completely
+- **Message Deduplication** - Prevents FCA from triggering commands twice
+- **Bot Message Storage** - Stores last 100 bot messages per group for cleanup
+
+### Fixed
+- **Duplicate Messages** - Commands now send only ONE message, never duplicated
+- **Chat Obstruction** - All command outputs are now compact and minimal
+- **Music Commands** - Streamlined YouTube and Spotify playback displays
+
+### Technical
+- Message deduplication using messageID within 5-second window
+- Bot messages tracked in MongoDB for cleanup feature
+- Simplified sendMessage function with message tracking
+
+---
+
 ## [2.5.0] - 2025-12-05
 
 ### Added

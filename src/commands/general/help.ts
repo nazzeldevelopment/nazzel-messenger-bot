@@ -16,63 +16,27 @@ const command: Command = {
     
     const categoryEmojis: Record<string, string> = {
       admin: '⚡', fun: '🎮', general: '📚', 
-      level: '🏆', utility: '🔧', economy: '💰'
-    };
-    
-    const popularCommands: Record<string, string[]> = {
-      admin: ['kick', 'ban', 'announce', 'broadcast', 'moderation'],
-      fun: ['joke', '8ball', 'meme', 'love', 'ship', 'rps', 'roast'],
-      general: ['ping', 'info', 'profile', 'about', 'changelog'],
-      level: ['level', 'leaderboard', 'rank', 'xp'],
-      utility: ['translate', 'weather', 'calc', 'avatar', 'poll'],
-      economy: ['balance', 'claim', 'slots', 'gamble', 'work', 'fish', 'hunt']
+      level: '🏆', utility: '🔧', economy: '💰', music: '🎵'
     };
     
     if (args.length === 0) {
       const categories = commandHandler.getCategories();
       const totalCommands = commandHandler.getAllCommands().size;
       
-      let help = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃   📖 ${config.bot.name.toUpperCase()} 📖   ┃
-┃        v${config.bot.version}              ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+      let help = `╭─────────────────╮
+│  📖 ${config.bot.name} v${config.bot.version}
+│  Prefix: ${prefix}
+│  ${totalCommands} Commands
+╰─────────────────╯\n\n`;
 
-┌─────────────────────────────┐
-│ 📌 Prefix: ${prefix}
-│ 📊 Total: ${totalCommands} commands
-│ 🎯 6 Categories Available
-└─────────────────────────────┘
-
-┌── 📂 𝗖𝗮𝘁𝗲𝗴𝗼𝗿𝗶𝗲𝘀 ──┐\n`;
-
+      help += `📂 Categories:\n`;
       for (const category of categories) {
         const count = commandHandler.getCommandsByCategory(category).length;
         const emoji = categoryEmojis[category] || '📁';
-        const popular = popularCommands[category]?.slice(0, 3).join(', ') || '';
-        help += `│ ${emoji} ${category.charAt(0).toUpperCase() + category.slice(1)} (${count})\n`;
-        if (popular) {
-          help += `│   └ ${popular}...\n`;
-        }
+        help += `${emoji} ${category} (${count})\n`;
       }
 
-      help += `└────────────────────┘
-
-┌── ⭐ 𝗣𝗼𝗽𝘂𝗹𝗮𝗿 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 ──┐
-│ 💰 ${prefix}claim - Daily coins
-│ 🎰 ${prefix}slots - Slot machine
-│ 🎣 ${prefix}fish - Go fishing
-│ 🔫 ${prefix}hunt - Hunt animals
-│ 💼 ${prefix}work - Earn coins
-│ 🎲 ${prefix}gamble - Risk it all
-└─────────────────────────────┘
-
-┌── 𝗛𝗼𝘄 𝘁𝗼 𝗨𝘀𝗲 ──┐
-│ ${prefix}help <category>
-│ ${prefix}help <command>
-└────────────────────┘
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 Example: ${prefix}help economy`;
+      help += `\n💡 ${prefix}help <category>`;
 
       await reply(help);
       return;
@@ -84,7 +48,7 @@ const command: Command = {
     if (categories.includes(firstArg)) {
       const page = parseInt(args[1]) || 1;
       const commands = commandHandler.getCommandsByCategory(firstArg);
-      const perPage = 10;
+      const perPage = 8;
       const totalPages = Math.ceil(commands.length / perPage);
       const currentPage = Math.min(Math.max(1, page), totalPages);
       
@@ -93,38 +57,19 @@ const command: Command = {
       
       const emoji = categoryEmojis[firstArg] || '📁';
       const categoryName = firstArg.charAt(0).toUpperCase() + firstArg.slice(1);
-      const popular = popularCommands[firstArg] || [];
       
-      let help = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃   ${emoji} ${categoryName.toUpperCase()} COMMANDS ${emoji}   ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-┌── 📋 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 (${commands.length}) ──┐\n`;
+      let help = `╭─────────────────╮
+│ ${emoji} ${categoryName} (${commands.length})
+│ Page ${currentPage}/${totalPages}
+╰─────────────────╯\n\n`;
 
       for (const cmd of pageCommands) {
-        const isPopular = popular.includes(cmd.name) ? '⭐' : '➤';
-        const cmdAliases = cmd.aliases?.length ? ` (${cmd.aliases[0]})` : '';
-        const desc = cmd.description.length > 25 ? cmd.description.substring(0, 22) + '...' : cmd.description;
-        help += `│ ${isPopular} ${prefix}${cmd.name}${cmdAliases}\n│   └ ${desc}\n`;
+        help += `▸ ${prefix}${cmd.name}\n`;
       }
 
-      help += `└─────────────────────────────┘
-
-┌─────────────────────────────┐
-│ 📄 Page ${currentPage}/${totalPages} │ Total: ${commands.length}
-└─────────────────────────────┘`;
-      
       if (totalPages > 1) {
-        help += `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
-        if (currentPage < totalPages) {
-          help += `\n➡️ Next: ${prefix}help ${firstArg} ${currentPage + 1}`;
-        }
-        if (currentPage > 1) {
-          help += `\n⬅️ Prev: ${prefix}help ${firstArg} ${currentPage - 1}`;
-        }
+        help += `\n📄 ${prefix}help ${firstArg} ${currentPage + 1}`;
       }
-      
-      help += `\n\n💡 Tip: ${prefix}help <command> for details`;
 
       await reply(help);
       return;
@@ -133,71 +78,32 @@ const command: Command = {
     const cmd = commandHandler.getCommand(firstArg);
     if (cmd) {
       const emoji = categoryEmojis[cmd.category] || '📋';
-      const cooldownSec = (cmd.cooldown || 5000) / 1000;
       
-      let help = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃   📖 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗜𝗡𝗙𝗢 📖   ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+      let help = `╭─────────────────╮
+│ 📖 ${cmd.name}
+│ ${emoji} ${cmd.category}
+╰─────────────────╯
 
-┌─────────────────────────────┐
-│ 📌 Name: ${cmd.name}
-│ ${emoji} Category: ${cmd.category}
-│ ⏱️ Cooldown: ${cooldownSec}s
-└─────────────────────────────┘
+${cmd.description}
 
-┌── 📝 𝗗𝗲𝘀𝗰𝗿𝗶𝗽𝘁𝗶𝗼𝗻 ──┐
-│ ${cmd.description}
-└─────────────────────────────┘`;
+Usage: ${prefix}${cmd.usage || cmd.name}`;
 
       if (cmd.aliases?.length) {
-        help += `
-
-┌── 🏷️ 𝗔𝗹𝗶𝗮𝘀𝗲𝘀 ──┐
-│ ${cmd.aliases.join(', ')}
-└─────────────────┘`;
+        help += `\nAliases: ${cmd.aliases.join(', ')}`;
       }
-
-      help += `
-
-┌── ✏️ 𝗨𝘀𝗮𝗴𝗲 ──┐
-│ ${prefix}${cmd.usage || cmd.name}
-└─────────────────┘`;
 
       if (cmd.examples?.length) {
-        help += `
-
-┌── 💡 𝗘𝘅𝗮𝗺𝗽𝗹𝗲𝘀 ──┐`;
-        for (const ex of cmd.examples.slice(0, 3)) {
-          help += `\n│ ${prefix}${ex}`;
+        help += `\n\nExamples:`;
+        for (const ex of cmd.examples.slice(0, 2)) {
+          help += `\n▸ ${prefix}${ex}`;
         }
-        help += `
-└─────────────────┘`;
-      }
-
-      if (cmd.adminOnly || cmd.ownerOnly) {
-        help += `
-
-┌── 🔒 𝗣𝗲𝗿𝗺𝗶𝘀𝘀𝗶𝗼𝗻𝘀 ──┐`;
-        if (cmd.adminOnly) help += `\n│ 🔐 Admin Only`;
-        if (cmd.ownerOnly) help += `\n│ 👑 Owner Only`;
-        help += `
-└─────────────────────┘`;
       }
 
       await reply(help);
       return;
     }
 
-    await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃     ❌ 𝗡𝗢𝗧 𝗙𝗢𝗨𝗡𝗗 ❌     ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-⚠️ Command or category "${firstArg}" not found.
-
-┌── 𝗧𝗿𝘆 ──┐
-│ ${prefix}help ➜ All categories
-│ ${prefix}help fun ➜ Fun commands
-└──────────────────────────┘`);
+    await reply(`❌ "${firstArg}" not found.\n\nTry: ${prefix}help`);
   }
 };
 
