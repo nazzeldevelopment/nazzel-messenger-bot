@@ -36,7 +36,7 @@ ${decorations.sparkle} ${config.bot.description}
 ◈ CREDITS
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 👨‍💻 Developer: Nazzel
-📅 Created: 2024
+📅 Created: 2025
 ${decorations.heart} Made with love
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
