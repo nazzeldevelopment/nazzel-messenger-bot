@@ -10,12 +10,16 @@
   },
   "database": {
     "enabled": false,
-    "path": null
+    "type": "none",
+    "path": null,
+    "backup": false
   },
   "backup": {
     "enabled": false,
     "autoSave": false
   },
   "selfListen": true,
-  "listenEvents": true
+  "listenEvents": true,
+  "sequelize": false,
+  "sqlite": false
 }

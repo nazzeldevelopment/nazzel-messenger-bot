@@ -12,27 +12,39 @@ const command: Command = {
   ownerOnly: true,
 
   async execute(context: CommandContext): Promise<void> {
-    const { api, event, reply, args } = context;
+    const { api, event, reply, args, prefix } = context;
     const threadId = String(event.threadID);
     const botId = String(api.getCurrentUserID());
+    const senderId = String(event.senderID);
     
     try {
       const threadInfo = await api.getThreadInfo(threadId);
       if (!threadInfo.isGroup) {
-        await reply(`❌ Groups only`);
+        await reply(`╭──────────────────╮
+│    ❌ ERROR      │
+╰──────────────────╯
+⚠️ This command only works in group chats!`);
         return;
       }
     } catch (e) {
-      await reply(`❌ Could not verify group`);
+      await reply(`╭──────────────────╮
+│    ❌ ERROR      │
+╰──────────────────╯
+⚠️ Could not verify group information`);
       return;
     }
     
     if (args[0] !== 'confirm') {
-      await reply(`⚠️ REMOVE ALL
-━━━━━━━━━━━━━━━
-🚨 This will remove ALL members!
-━━━━━━━━━━━━━━━
-Type: N!removeall confirm`);
+      await reply(`╭─────────────────────╮
+│  ⚠️ REMOVE ALL    │
+╰─────────────────────╯
+🚨 WARNING: This will remove ALL members from this group!
+
+This action cannot be undone.
+
+╭─ To confirm ─╮
+│ ${prefix}removeall confirm │
+╰──────────────╯`);
       return;
     }
     
@@ -41,17 +53,22 @@ Type: N!removeall confirm`);
       const participants = threadInfo.participantIDs || [];
       
       const toRemove = participants.filter((id: string) => 
-        String(id) !== botId && String(id) !== String(event.senderID)
+        String(id) !== botId && String(id) !== senderId
       );
       
       if (toRemove.length === 0) {
-        await reply(`ℹ️ No members to remove.`);
+        await reply(`╭──────────────────╮
+│    ℹ️ INFO       │
+╰──────────────────╯
+📋 No members to remove.
+👥 Only you and the bot remain.`);
         return;
       }
       
-      await reply(`🔄 REMOVING
-━━━━━━━━━━━━━━━
-📊 Members: ${toRemove.length}
+      await reply(`╭─────────────────────╮
+│   🔄 REMOVING...   │
+╰─────────────────────╯
+📊 Total: ${toRemove.length} members
 ⏳ Please wait...`);
       
       let removed = 0;
@@ -61,24 +78,31 @@ Type: N!removeall confirm`);
         try {
           await api.removeUserFromGroup(String(userId), threadId);
           removed++;
-          await new Promise(r => setTimeout(r, 1500));
+          await new Promise(r => setTimeout(r, 1200));
         } catch (e) {
           failed++;
           BotLogger.debug(`Failed to remove ${userId}`);
         }
       }
       
-      await reply(`✅ COMPLETED
-━━━━━━━━━━━━━━━
-✓ Removed: ${removed}
-✗ Failed: ${failed}
-━━━━━━━━━━━━━━━`);
+      await reply(`╭─────────────────────╮
+│   ✅ COMPLETED     │
+╰─────────────────────╯
+📊 Results:
+├─ ✓ Removed: ${removed}
+└─ ✗ Failed: ${failed}
+
+${removed > 0 ? '🎯 Operation successful!' : '⚠️ No members removed'}`);
       
       BotLogger.info(`RemoveAll: Removed ${removed}/${toRemove.length} from ${threadId}`);
       
     } catch (err) {
       BotLogger.error('RemoveAll failed', err);
-      await reply(`❌ Failed to remove members.`);
+      await reply(`╭──────────────────╮
+│    ❌ ERROR      │
+╰──────────────────╯
+⚠️ Failed to remove members.
+💡 Make sure bot has admin rights.`);
     }
   }
 };

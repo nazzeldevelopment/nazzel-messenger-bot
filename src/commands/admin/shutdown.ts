@@ -13,24 +13,37 @@ const command: Command = {
   ownerOnly: true,
 
   async execute(context: CommandContext): Promise<void> {
-    const { reply, api } = context;
+    const { reply, prefix } = context;
     
-    await reply(`🔴 SHUTDOWN
-━━━━━━━━━━━━━━━
-⚠️ Bot shutting down...
-💾 Saving data...
-🔌 Disconnecting...
-━━━━━━━━━━━━━━━
-👋 Goodbye!`);
+    await reply(`╭─────────────────╮
+│   🔴 SHUTDOWN   │
+╰─────────────────╯
+⚠️ Initiating shutdown...
+💾 Saving all data...
+🔌 Closing connections...
+
+👋 Bot going offline now!`);
     
     setTimeout(async () => {
       try {
+        console.log('═══════════════════════ SHUTDOWN INITIATED ═══════════════════════');
+        console.log('  [STATUS]          Shutdown command executed');
+        
         await redis.disconnect();
+        console.log('  [REDIS]           Disconnected');
+        
         await database.disconnect();
-      } catch (e) {}
-      
-      process.kill(process.pid, 'SIGTERM');
-    }, 2000);
+        console.log('  [MONGODB]         Disconnected');
+        
+        console.log('  [STATUS]          Cleanup complete. Goodbye!');
+        console.log('═════════════════════════════════════════════════════════════════');
+        
+        process.exit(0);
+      } catch (e) {
+        console.log('  [ERROR]           Shutdown error, forcing exit');
+        process.exit(1);
+      }
+    }, 1500);
   }
 };
 
