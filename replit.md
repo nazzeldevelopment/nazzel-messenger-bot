@@ -7,7 +7,7 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 - **@dongdev/fca-unofficial 3.0.8** - Latest Facebook Chat API (December 2025) with MQTT support, 58 API methods, full Group Chat and Private Message support
 - **MongoDB Database** - Persistent storage for users, XP/levels, logs, cooldowns, coins
 - **Redis Anti-Spam** - Fast in-memory cooldown tracking to prevent Facebook bans
-- **Modular Commands** - 129 commands organized by categories with compact premium design
+- **Modular Commands** - 164 commands organized by categories with compact premium design
 - **Economy System** - Coins, daily claims, gambling, slots, AI commands
 - **AI Integration** - OpenAI-powered commands (askv1-askv5) with tiered pricing
 - **XP & Leveling** - Automatic XP system with level-up notifications
@@ -22,13 +22,13 @@ An advanced Facebook Messenger User-Bot built with TypeScript, featuring:
 
 ```
 src/
-├── commands/           # Command modules by category (129 total)
-│   ├── admin/          # Admin commands (24 commands)
+├── commands/           # Command modules by category (164 total)
+│   ├── admin/          # Admin commands (54 commands)
 │   ├── economy/        # Economy commands (17 commands)
-│   ├── fun/            # Fun commands (48 commands)
+│   ├── fun/            # Fun commands (49 commands)
 │   ├── general/        # General commands (10 commands)
 │   ├── level/          # Level commands (5 commands)
-│   └── utility/        # Utility commands (25 commands)
+│   └── utility/        # Utility commands (29 commands)
 ├── database/           # MongoDB native driver and schema
 ├── lib/                # Core libraries (logger, redis, antiSpam, commandHandler, eventHandler)
 ├── services/           # Express server for status/logs API
@@ -38,7 +38,16 @@ src/
 
 ## Recent Changes
 
-- **2025-12-05**: v2.2.1 (Current)
+- **2025-03-05**: v2.3.0 (Current)
+  - **NEW COMMANDS**: Added 34 new commands across admin, utility categories
+  - **NEW MODERATION**: kickid, warn, mute/unmute, getadmins, adminonly, tagall, getgcinfo, renamegc, settheme, lockgc/unlockgc, slowmode, activitylog, toggle, setcooldown
+  - **NEW AUTOMATION**: antispam, antiflood, antilink, autowelcome, autogoodbye, autoreact, autoreply, autogreet
+  - **NEW AI TOOLS**: grammar, paraphrase, translatefix, detectspam
+  - **NEW DATABASE**: dbstats, finduser, userdata, resetuserdata
+  - **NEW SYSTEM**: version, reload
+  - **TOTAL**: 164 commands in 6 categories (54 admin, 17 economy, 49 fun, 10 general, 5 level, 29 utility)
+
+- **2025-12-05**: v2.2.1
   - **FIXED**: Updated all dependencies to latest stable versions
   - **FIXED**: pnpm lockfile configuration mismatch for deployments
   - **FIXED**: sqlite3 native bindings rebuilt for Node.js v20

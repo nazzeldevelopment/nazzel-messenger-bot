@@ -1,0 +1,101 @@
+import type { Command, CommandContext } from '../../types/index.js';
+import { BotLogger } from '../../lib/logger.js';
+import { decorations } from '../../lib/messageFormatter.js';
+
+const command: Command = {
+  name: 'tagall',
+  aliases: ['mentionall', 'all', '@all'],
+  description: 'Tag all members in the group',
+  category: 'admin',
+  usage: 'tagall [type] [message]',
+  examples: ['tagall', 'tagall text Hello everyone!', 'tagall emoji'],
+  adminOnly: true,
+  cooldown: 30000,
+
+  async execute(context: CommandContext): Promise<void> {
+    const { api, event, args, reply, prefix } = context;
+    
+    try {
+      const threadInfo = await api.getThreadInfo(String(event.threadID));
+      
+      if (!threadInfo.isGroup) {
+        await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ This command only works in groups`);
+        return;
+      }
+      
+      const participants = threadInfo.participantIDs || [];
+      
+      if (participants.length === 0) {
+        await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ No members found in this group`);
+        return;
+      }
+      
+      const type = args[0]?.toLowerCase();
+      let message = '';
+      let mentions: { tag: string; id: string }[] = [];
+      
+      const userInfos = await api.getUserInfo(participants);
+      
+      if (type === 'emoji') {
+        const emojis = ['👋', '🎉', '⭐', '🔥', '💫', '✨', '🌟', '💪', '🎊', '🎈'];
+        message = `${emojis[Math.floor(Math.random() * emojis.length)]} `;
+        
+        for (const uid of participants) {
+          const name = userInfos[uid]?.name || 'User';
+          message += `@${name} `;
+          mentions.push({ tag: `@${name}`, id: uid });
+        }
+      } else if (type === 'text' || type === 'photo') {
+        const customMessage = args.slice(1).join(' ') || 'Attention everyone!';
+        message = `📢 ${customMessage}\n\n`;
+        
+        for (const uid of participants) {
+          const name = userInfos[uid]?.name || 'User';
+          message += `@${name} `;
+          mentions.push({ tag: `@${name}`, id: uid });
+        }
+      } else {
+        message = `📢 『 ATTENTION 』 📢
+═══════════════════════════
+${decorations.fire} Tagging All Members
+═══════════════════════════
+
+`;
+        for (const uid of participants) {
+          const name = userInfos[uid]?.name || 'User';
+          message += `@${name}\n`;
+          mentions.push({ tag: `@${name}`, id: uid });
+        }
+        
+        message += `
+═══════════════════════════
+👥 Total: ${participants.length} members
+═══════════════════════════`;
+      }
+      
+      await api.sendMessage(
+        { body: message, mentions },
+        String(event.threadID)
+      );
+      
+      BotLogger.info(`Tagged all ${participants.length} members in group ${event.threadID}`);
+    } catch (err) {
+      BotLogger.error(`Failed to tag all in group ${event.threadID}`, err);
+      await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Failed to tag all members
+
+◈ USAGE
+═══════════════════════════
+➤ ${prefix}tagall
+➤ ${prefix}tagall text <message>
+➤ ${prefix}tagall emoji`);
+    }
+  }
+};
+
+export default command;

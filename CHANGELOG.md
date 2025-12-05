@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.0] - 2025-03-05
+
+### Added
+
+#### New Moderation Commands (16 commands)
+- **kickid** - Remove member by User ID without @mention
+- **warn** - Issue warnings to users (3 strikes system, stored in database)
+- **mute** - Temporarily mute users from using bot commands (supports s/m/h/d)
+- **unmute** - Remove mute from a user
+- **getadmins** - List all group admins with their IDs
+- **adminonly** - Toggle admin-only mode for bot commands
+- **tagall** - Tag all members in the group (text/emoji modes)
+- **getgcinfo** - Get detailed group chat information
+- **renamegc** - Rename the group chat
+- **settheme** - Change group chat theme/color (35+ themes)
+- **lockgc** - Lock group chat (admins only can send)
+- **unlockgc** - Unlock group chat
+- **slowmode** - Set message rate limit (1-3600 seconds)
+- **activitylog** - View recent activity in the group
+- **toggle** - Enable/disable specific commands per group
+- **setcooldown** - Set custom cooldown for commands (1-300 seconds)
+
+#### Automation Toggle Commands (8 commands)
+- **antispam** - Toggle anti-spam protection
+- **antiflood** - Toggle anti-flood protection
+- **antilink** - Toggle malicious link blocking
+- **autowelcome** - Toggle automatic welcome messages
+- **autogoodbye** - Toggle automatic goodbye messages
+- **autoreact** - Toggle automatic message reactions
+- **autoreply** - Toggle automatic keyword replies
+- **autogreet** - Toggle time-based greetings (morning/afternoon/night)
+
+#### AI Text Processing Commands (4 commands)
+- **grammar** - AI-powered grammar checking and correction
+- **paraphrase** - AI text paraphrasing with multiple alternatives
+- **translatefix** - Fix and improve machine-translated text
+- **detectspam** - AI detection for spam/scam messages
+
+#### Database Management Commands (4 commands)
+- **dbstats** - View database statistics and top commands
+- **finduser** - Search user in database by ID
+- **userdata** - View detailed user database record
+- **resetuserdata** - Delete user data from database
+
+#### System Commands (2 commands)
+- **version** - Show bot version and system information
+- **reload** - Reload commands (owner only)
+
+### Changed
+- All new commands use professional box styling (┏━┓┗━┛)
+- Database settings now use typed generics for safety
+- Improved error handling with descriptive messages
+- Commands import commandHandler directly for better modularity
+
+### Technical
+- **Total Commands**: 163 in 6 categories (+34 new commands)
+- Added 34 new TypeScript command files
+- Fixed LSP type errors in warn.ts and slowmode.ts
+- All automation toggles stored per-group in MongoDB settings collection
+
+---
+
 ## [2.2.0] - 2025-12-05
 
 ### Added
