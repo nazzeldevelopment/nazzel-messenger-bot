@@ -38,6 +38,20 @@ src/
 
 ## Recent Changes
 
+- **2025-12-05**: v2.2.0 (Current)
+  - **NEW ECONOMY COMMANDS**: Added 6 new economy commands with professional design
+    - `work` - Work jobs to earn 50-200 coins (1min cooldown)
+    - `rob` - Attempt to steal coins from other users (2min cooldown, 55% success rate)
+    - `transfer` - Send coins to other users
+    - `beg` - Beg for small amounts of coins (30sec cooldown)
+    - `fish` - Go fishing with rarity-based rewards (45sec cooldown)
+    - `hunt` - Hunt animals with rarity-based rewards (1min cooldown)
+  - **REDESIGN**: All commands now use professional box styling (┏━┓┗━┛)
+  - **IMPROVED**: Help, ping, balance, claim, slots, gamble commands beautified
+  - **IMPROVED**: Welcome/goodbye messages with accurate member counts and group names
+  - **IMPROVED**: Event debounce increased to 30 seconds to prevent duplicates
+  - **TOTAL**: 129 commands in 6 categories (17 economy commands)
+
 - **2025-12-05**: v2.1.0
   - **RENAMED**: AI commands now askv1-askv5 (was ask, askpro, askcode, askcreative, askmax)
   - **NEW**: askv5 now uses real payment methods (PayPal, GCash, PayMaya, Bank Transfer) instead of coins
@@ -96,16 +110,27 @@ The bot includes a comprehensive anti-spam system to prevent Facebook account ba
 - **Auto-Block**: Users exceeding limits are blocked for 30 seconds
 - **Per-Command Cooldowns**: Individual cooldowns ranging from 3s to 30s
 
-## Commands Quick Reference (123 Total)
+## Commands Quick Reference (129 Total)
 
 | Category | Count | Commands |
 |----------|-------|----------|
 | Admin | 24 | restart, logs, addmember, kick, announce, groups, stats, ban, unban, setname, setemoji, setnickname, adminlist, broadcast, antileave, maintenance, moderation, shutdown, eval, leave, removeall, addcoins, removecoins, deleteacc |
-| Economy | 11 | balance, claim, coinflip, gamble, slots, richest, askv1, askv2, askv3, askv4, askv5 |
+| Economy | 17 | balance, claim, coinflip, gamble, slots, richest, askv1, askv2, askv3, askv4, askv5, work, rob, transfer, beg, fish, hunt |
 | Fun | 48 | 8ball, coin, dice, choose, joke, quote, trivia, rps, fact, roast, compliment, horoscope, lucky, ship, rate, gayrate, meme, mood, love, hack, emojify, slap, hug, kiss, punch, poke, kill, waifu, husbando, simp, iq, age, uwu, binary, reverse, mock, fortune, dare, truth, wouldyourather, pickup, personality, confess, zodiac, nickname, compatibility, magic, affirmation |
 | General | 10 | help, ping, info, uptime, profile, say, about, changelog, rules, invite |
 | Level | 5 | level, xp, leaderboard, givexp, rank |
 | Utility | 25 | thread, id, clear, prefix, avatar, remind, poll, calc, time, translate, shorten, memberlist, weather, qr, define, flip, countdown, password, color, ascii, base64, botstats, userinfo, groupinfo, reminder |
+
+## New Economy Commands
+
+| Command | Cooldown | Description |
+|---------|----------|-------------|
+| work | 60s | Work various jobs to earn 50-200 coins |
+| rob @user | 120s | Attempt to rob coins (55% success, need 100+ coins) |
+| transfer @user amount | 10s | Send coins to another user |
+| beg | 30s | Beg for 10-60 coins (65% success rate) |
+| fish | 45s | Go fishing - catch fish worth 5-1000 coins |
+| hunt | 60s | Hunt animals - catch animals worth 12-800 coins |
 
 ## AI Commands Pricing
 
