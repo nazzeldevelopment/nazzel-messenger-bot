@@ -40,7 +40,7 @@ const changelog = [
     version: '1.3.6',
     date: '2025-12-04',
     changes: [
-      'Migrated to @dongdev/fca-unofficial v3.0.8',
+      'Migrated to bituin-fca',
       'Improved MQTT connection reliability',
       'Auto-cycle reconnection every hour',
       'Better group chat compatibility',

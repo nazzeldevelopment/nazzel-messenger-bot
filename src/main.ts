@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import login from '@dongdev/fca-unofficial';
+import { BituinFCA } from 'bituin-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
@@ -191,24 +191,32 @@ async function main(): Promise<void> {
   console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
   console.log('  [LOGIN]           Attempting Facebook login...');
   
-  login(credentials, loginOptions, async (err: any, api: any) => {
-    if (err) {
-      BotLogger.error('Login failed', err);
-      
-      if (err.error === 'login-approval') {
-        console.log('  [LOGIN]           Two-factor authentication required.');
-        console.log('                    Please approve the login from your phone.');
-      }
-      
+  const bot = new BituinFCA({
+    appStatePath: APPSTATE_FILE,
+    commandPrefix: prefix,
+    enableAntiBan: true,
+    enableCommands: false,
+    enablePlugins: false,
+  });
+  
+  try {
+    const loginSuccess = await bot.loginWithAppState();
+    
+    if (!loginSuccess) {
+      BotLogger.error('Login failed', 'Could not authenticate with Facebook');
+      console.log('  [LOGIN]           Login failed. Please check your appstate.');
       return;
     }
     
-    const currentUserId = api.getCurrentUserID();
+    const api = (bot as any).api || bot;
+    const currentUserId = api.getCurrentUserID ? api.getCurrentUserID() : 'unknown';
     
     let botName = 'Unknown';
     try {
-      const userInfo = await api.getUserInfo(currentUserId);
-      botName = userInfo[currentUserId]?.name || 'Unknown';
+      if (api.getUserInfo) {
+        const userInfo = await api.getUserInfo(currentUserId);
+        botName = userInfo[currentUserId]?.name || 'Unknown';
+      }
     } catch (error) {}
     
     console.log('═════════════════════ LOGIN SUCCESSFUL ═════════════════════════');
@@ -216,24 +224,21 @@ async function main(): Promise<void> {
     console.log(`  [USER ID]         ${currentUserId}`);
     
     try {
-      const newAppState = api.getAppState();
-      if (newAppState && newAppState.length > 0) {
-        fs.writeFileSync(APPSTATE_FILE, JSON.stringify(newAppState, null, 2));
-        
-        const dbSaved = await database.saveAppstate(newAppState);
-        console.log(`  [APPSTATE]        Saved to ${dbSaved ? 'file and database' : 'file only'}`);
+      if (api.getAppState) {
+        const newAppState = api.getAppState();
+        if (newAppState && newAppState.length > 0) {
+          fs.writeFileSync(APPSTATE_FILE, JSON.stringify(newAppState, null, 2));
+          
+          const dbSaved = await database.saveAppstate(newAppState);
+          console.log(`  [APPSTATE]        Saved to ${dbSaved ? 'file and database' : 'file only'}`);
+        }
+      } else {
+        await bot.saveAppState();
+        console.log('  [APPSTATE]        Saved via BituinFCA');
       }
     } catch (error) {
       console.log('  [APPSTATE]        Failed to save');
     }
-    
-    api.setOptions({
-      selfListen: config.bot.selfListen,
-      listenEvents: config.bot.listenEvents,
-      autoMarkRead: config.bot.autoMarkRead,
-      autoMarkDelivery: config.bot.autoMarkDelivery,
-      forceLogin: true,
-    });
     
     console.log('══════════════════════ BOT INFORMATION ═════════════════════════');
     console.log(`  [NAME]            ${config.bot.name}`);
@@ -249,15 +254,7 @@ async function main(): Promise<void> {
     console.log('  [FEATURES]        Maintenance mode available');
     console.log('═════════════════════════════════════════════════════════════════');
     
-    const stopListening = api.listenMqtt(async (err: any, event: any) => {
-      if (err) {
-        BotLogger.error('Listen error', err);
-        if (err && (err.type === 'stop_listening' || err.error === 'Connection closed')) {
-          BotLogger.warn('MQTT connection lost, attempting to reconnect...');
-        }
-        return;
-      }
-      
+    bot.on('message', async (event: any) => {
       if (!event) {
         return;
       }
@@ -275,10 +272,16 @@ async function main(): Promise<void> {
       }
     });
     
-    if (stopListening) {
-      BotLogger.info('MQTT listener started successfully');
+    BotLogger.info('BituinFCA message listener started successfully');
+    
+  } catch (err: any) {
+    BotLogger.error('Login failed', err);
+    
+    if (err?.error === 'login-approval') {
+      console.log('  [LOGIN]           Two-factor authentication required.');
+      console.log('                    Please approve the login from your phone.');
     }
-  });
+  }
 }
 
 function normalizeId(id: any): string {
