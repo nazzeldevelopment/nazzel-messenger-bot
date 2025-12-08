@@ -15,8 +15,8 @@ importers:
         specifier: ^4.16.12
         version: 4.16.12
       '@dongdev/fca-unofficial':
-        specifier: ^3.0.8
-        version: 3.0.8(tough-cookie@5.1.2)(undici@7.16.0)
+        specifier: ^3.0.12
+        version: 3.0.12(tough-cookie@5.1.2)(undici@7.16.0)
       '@ffmpeg-installer/ffmpeg':
         specifier: ^1.1.0
         version: 1.1.0
@@ -101,10 +101,9 @@ packages:
     resolution: {integrity: sha512-/NR8Jur1Q4E2oD+DJta7uwWu7SkqdEkhwERt7f4iune70zg7ZlLLTOHs1+jgg3uD2jQjpdk7RGC16FqstG4RsA==}
     engines: {node: '>=20.18.1'}
 
-  '@dongdev/fca-unofficial@3.0.8':
-    resolution: {integrity: sha512-XLJUr3xGTvicw1I73ywY3ME76SSMQPCNu5m7BXW6wq5LRQXMIy7drW0hek0Z+uIUWxfkuAIYZwD0xM65YkMytQ==}
+  '@dongdev/fca-unofficial@3.0.12':
+    resolution: {integrity: sha512-zFJxIrfMuzykHuMsZn1RyNd6w9D0sz1o9aeujlMBAizV3DxPgrSQvSUmLW9ux8uOE/1uxv/BuaaKvxIlFJowMQ==}
     engines: {node: '>=12.0.0'}
-    deprecated: Deprecated. Please use version 3.0.9.
 
   '@esbuild/aix-ppc64@0.27.1':
     resolution: {integrity: sha512-HHB50pdsBX6k47S4u5g/CaLjqS3qwaOVE5ILsq64jyzgMhLuCuZ8rGzM9yhsAjfjkbgUPMzZEPa7DAp7yz6vuA==}
@@ -2231,7 +2230,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@dongdev/fca-unofficial@3.0.8(tough-cookie@5.1.2)(undici@7.16.0)':
+  '@dongdev/fca-unofficial@3.0.12(tough-cookie@5.1.2)(undici@7.16.0)':
     dependencies:
       axios: 1.13.2
       axios-cookiejar-support: 5.0.5(axios@1.13.2)(tough-cookie@5.1.2)(undici@7.16.0)
