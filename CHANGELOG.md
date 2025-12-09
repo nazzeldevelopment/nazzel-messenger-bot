@@ -11,37 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### Owner & Admin List System
-- **ownerIds** - Array in config.json for multiple bot owners (can use owner-only commands like restart, shutdown, eval, removeall)
-- **adminIds** - Array in config.json for bot admins (can use admin commands like kick, ban, mute, announce, etc.)
-- Both lists work alongside the OWNER_ID environment variable
-- Bot admins in the list can use admin commands in ALL groups without being a Facebook group admin
+#### Owner & Admin List System with Dual Verification
+- **ownerIds** - Array in config.json for bot owner(s) - full access to all commands
+- **adminIds** - Array in config.json as whitelist for bot admins
+- **Dual Requirement for Admins** - Users must be BOTH in adminIds list AND a Facebook group admin to use admin commands (prevents abuse)
+- **Permission Utility Module** - New `src/lib/permissions.ts` with centralized permission checking functions
 
 ### Changed
-- **Permission System** - Completely redesigned permission checking:
-  - Owner commands: Check OWNER_ID env + config.bot.ownerIds array
-  - Admin commands: Check owners first, then config.bot.adminIds, then Facebook group admins
-- **Locked Group Access** - Bot admins from config can now access locked groups
-- **Maintenance Mode** - All configured owners can bypass maintenance mode
+- **Permission System** - Completely redesigned with tiered permissions:
+  - **Owner commands**: Only users in OWNER_ID env or config.bot.ownerIds can execute
+  - **Admin commands**: Must be owner OR (in adminIds list AND Facebook group admin)
+  - This prevents abuse - being in the config list alone is not enough
+- **Locked Group Access** - Only owners and verified group admins can access
+- **Maintenance Mode** - Only owners can bypass maintenance mode
+
+### Security Improvements
+- Admin commands now require dual verification (config whitelist + group admin status)
+- Prevents abuse from leaked config or rogue group admins
+- Centralized permission logic reduces code duplication and potential bugs
 
 ### Technical
-- Updated commandHandler.ts with new permission logic
-- Updated main.ts for consistent permission checking across all features
-- Owner/Admin IDs stored as arrays for multiple users support
-- Environment variable OWNER_ID still works and takes priority
+- New file: `src/lib/permissions.ts` with helper functions:
+  - `isOwner(userId)` - Check if user is bot owner
+  - `isInAdminList(userId)` - Check if user is in admin whitelist
+  - `isThreadAdmin(userId, threadAdminIds)` - Check if user is Facebook group admin
+  - `canExecuteAdminCommand(userId, api, threadId)` - Full admin permission check
+  - `canAccessLockedGroup(userId, api, threadId)` - Locked group access check
+- Refactored commandHandler.ts and main.ts to use permission utilities
+- Cleaner, more maintainable permission code
 
 ### How to Configure
-1. Add your Facebook User ID to `config.json` under `bot.ownerIds` array for owner access
-2. Add trusted user IDs to `bot.adminIds` array for admin command access
+1. Add your Facebook User ID to `config.json` under `bot.ownerIds` - you get full access
+2. Add trusted user IDs to `bot.adminIds` - they can use admin commands ONLY in groups where they are also Facebook group admins
 3. Example:
 ```json
 {
   "bot": {
-    "ownerIds": ["100000123456789"],
-    "adminIds": ["100000987654321", "100000111222333"]
+    "ownerIds": ["YOUR_FACEBOOK_ID"],
+    "adminIds": ["TRUSTED_USER_1", "TRUSTED_USER_2"]
   }
 }
 ```
+
+**Permission Flow:**
+- Owner-only commands (restart, shutdown, eval, etc.) → Only ownerIds
+- Admin commands (kick, ban, announce, etc.) → Owner bypasses, others need to be in adminIds AND group admin
 
 ---
 

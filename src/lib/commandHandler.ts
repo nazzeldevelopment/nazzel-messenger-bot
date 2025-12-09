@@ -5,6 +5,7 @@ import type { Command, CommandContext, BotConfig } from '../types/index.js';
 import { logger, BotLogger } from './logger.js';
 import { database } from '../database/index.js';
 import { antiSpam } from './antiSpam.js';
+import { isOwner, canExecuteAdminCommand } from './permissions.js';
 import config from '../../config.json' with { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -160,40 +161,17 @@ export class CommandHandler {
     }
 
     if (command.ownerOnly) {
-      const envOwnerId = process.env.OWNER_ID;
-      const configOwnerIds: string[] = (this.config.bot as any).ownerIds || [];
-      const allOwnerIds = envOwnerId ? [envOwnerId, ...configOwnerIds] : configOwnerIds;
-      const isOwner = allOwnerIds.includes(userId);
-      
-      if (!isOwner) {
+      if (!isOwner(userId)) {
         await context.reply(this.config.messages.noPermission);
         return;
       }
     }
 
     if (command.adminOnly) {
-      const envOwnerId = process.env.OWNER_ID;
-      const configOwnerIds: string[] = (this.config.bot as any).ownerIds || [];
-      const configAdminIds: string[] = (this.config.bot as any).adminIds || [];
-      const allOwnerIds = envOwnerId ? [envOwnerId, ...configOwnerIds] : configOwnerIds;
-      const isOwner = allOwnerIds.includes(userId);
-      const isBotAdmin = configAdminIds.includes(userId);
-      
-      if (!isOwner && !isBotAdmin) {
-        try {
-          const threadInfo = await context.api.getThreadInfo(threadId);
-          
-          const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
-          const isGroupAdmin = adminIDs.includes(userId);
-          
-          if (!isGroupAdmin) {
-            await context.reply(this.config.messages.noPermission);
-            return;
-          }
-        } catch (error) {
-          await context.reply(this.config.messages.noPermission);
-          return;
-        }
+      const adminCheck = await canExecuteAdminCommand(userId, context.api, threadId);
+      if (!adminCheck.allowed) {
+        await context.reply(this.config.messages.noPermission);
+        return;
       }
     }
 
