@@ -160,25 +160,33 @@ export class CommandHandler {
     }
 
     if (command.ownerOnly) {
-      const ownerId = process.env.OWNER_ID;
-      if (!ownerId || userId !== ownerId) {
+      const envOwnerId = process.env.OWNER_ID;
+      const configOwnerIds: string[] = (this.config.bot as any).ownerIds || [];
+      const allOwnerIds = envOwnerId ? [envOwnerId, ...configOwnerIds] : configOwnerIds;
+      const isOwner = allOwnerIds.includes(userId);
+      
+      if (!isOwner) {
         await context.reply(this.config.messages.noPermission);
         return;
       }
     }
 
     if (command.adminOnly) {
-      const ownerId = process.env.OWNER_ID;
-      const isOwner = ownerId && userId === ownerId;
+      const envOwnerId = process.env.OWNER_ID;
+      const configOwnerIds: string[] = (this.config.bot as any).ownerIds || [];
+      const configAdminIds: string[] = (this.config.bot as any).adminIds || [];
+      const allOwnerIds = envOwnerId ? [envOwnerId, ...configOwnerIds] : configOwnerIds;
+      const isOwner = allOwnerIds.includes(userId);
+      const isBotAdmin = configAdminIds.includes(userId);
       
-      if (!isOwner) {
+      if (!isOwner && !isBotAdmin) {
         try {
           const threadInfo = await context.api.getThreadInfo(threadId);
           
-          const adminIDs = (threadInfo.adminIDs || []).map((a: any) => a.id || a);
-          const isAdmin = adminIDs.includes(userId);
+          const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
+          const isGroupAdmin = adminIDs.includes(userId);
           
-          if (!isAdmin) {
+          if (!isGroupAdmin) {
             await context.reply(this.config.messages.noPermission);
             return;
           }

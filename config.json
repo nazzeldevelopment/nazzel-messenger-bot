@@ -1,13 +1,15 @@
 {
   "bot": {
     "name": "Wisdom Bot",
-    "version": "2.7.0",
+    "version": "2.8.0",
     "prefix": "W!",
     "description": "Advanced Facebook Messenger User-Bot",
     "selfListen": true,
     "listenEvents": true,
     "autoMarkRead": true,
-    "autoMarkDelivery": true
+    "autoMarkDelivery": true,
+    "ownerIds": [],
+    "adminIds": []
   },
   "features": {
     "xp": {

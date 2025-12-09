@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.8.0] - 2025-12-09
+
+### Added
+
+#### Owner & Admin List System
+- **ownerIds** - Array in config.json for multiple bot owners (can use owner-only commands like restart, shutdown, eval, removeall)
+- **adminIds** - Array in config.json for bot admins (can use admin commands like kick, ban, mute, announce, etc.)
+- Both lists work alongside the OWNER_ID environment variable
+- Bot admins in the list can use admin commands in ALL groups without being a Facebook group admin
+
+### Changed
+- **Permission System** - Completely redesigned permission checking:
+  - Owner commands: Check OWNER_ID env + config.bot.ownerIds array
+  - Admin commands: Check owners first, then config.bot.adminIds, then Facebook group admins
+- **Locked Group Access** - Bot admins from config can now access locked groups
+- **Maintenance Mode** - All configured owners can bypass maintenance mode
+
+### Technical
+- Updated commandHandler.ts with new permission logic
+- Updated main.ts for consistent permission checking across all features
+- Owner/Admin IDs stored as arrays for multiple users support
+- Environment variable OWNER_ID still works and takes priority
+
+### How to Configure
+1. Add your Facebook User ID to `config.json` under `bot.ownerIds` array for owner access
+2. Add trusted user IDs to `bot.adminIds` array for admin command access
+3. Example:
+```json
+{
+  "bot": {
+    "ownerIds": ["100000123456789"],
+    "adminIds": ["100000987654321", "100000111222333"]
+  }
+}
+```
+
+---
+
 ## [2.6.0] - 2025-12-05
 
 ### Added

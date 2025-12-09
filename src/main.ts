@@ -346,22 +346,24 @@ async function handleMessage(api: any, event: any): Promise<void> {
     const isLocked = await database.getSetting(lockKey);
     
     if (isLocked === 'true') {
-      const ownerId = process.env.OWNER_ID;
-      const isOwner = ownerId && senderId === ownerId;
+      const envOwnerId = process.env.OWNER_ID;
+      const configOwnerIds: string[] = (config.bot as any).ownerIds || [];
+      const configAdminIds: string[] = (config.bot as any).adminIds || [];
+      const allOwnerIds = envOwnerId ? [envOwnerId, ...configOwnerIds] : configOwnerIds;
+      const isOwner = allOwnerIds.includes(senderId);
+      const isBotAdmin = configAdminIds.includes(senderId);
       
-      if (!isOwner) {
+      if (!isOwner && !isBotAdmin) {
         try {
           const threadInfo = await api.getThreadInfo(threadId);
           const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
-          const isAdmin = adminIDs.includes(senderId);
+          const isGroupAdmin = adminIDs.includes(senderId);
           
-          if (!isAdmin) {
-            // Non-admin in locked group - ignore completely (no logging, no moderation)
+          if (!isGroupAdmin) {
             return;
           }
         } catch (error) {
           BotLogger.debug(`Could not check admin status for locked group: ${error}`);
-          // If we can't verify, still allow the message to go through for safety
         }
       }
     }
@@ -409,10 +411,12 @@ async function handleMessage(api: any, event: any): Promise<void> {
   
   if (body.startsWith(customPrefix)) {
     const maintenanceData = await maintenance.getMaintenanceData();
-    const ownerId = process.env.OWNER_ID;
-    const isOwner = ownerId && senderId === ownerId;
+    const envOwnerId = process.env.OWNER_ID;
+    const mainConfigOwnerIds: string[] = (config.bot as any).ownerIds || [];
+    const mainAllOwnerIds = envOwnerId ? [envOwnerId, ...mainConfigOwnerIds] : mainConfigOwnerIds;
+    const isMainOwner = mainAllOwnerIds.includes(senderId);
     
-    if (maintenanceData?.enabled && !isOwner) {
+    if (maintenanceData?.enabled && !isMainOwner) {
       const hasNotified = maintenanceData.notifiedGroups.includes(threadId);
       if (!hasNotified) {
         try {
