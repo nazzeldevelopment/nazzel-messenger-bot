@@ -124,29 +124,45 @@ export async function generateProfessionalWelcome(
   const customPrefix = await database.getSetting<string>(`prefix_${threadId}`) || defaultPrefix;
   
   const displayGroupName = groupName || 'this group';
-  const shortGroupName = displayGroupName.length > 18 ? displayGroupName.substring(0, 15) + '...' : displayGroupName;
-  const shortUserProfile = userProfile.length > 18 ? userProfile.substring(0, 15) + '...' : userProfile;
-  const memberText = memberCount > 0 ? `${memberCount}` : '?';
+  const shortGroupName = displayGroupName.length > 20 ? displayGroupName.substring(0, 17) + '...' : displayGroupName;
+  const shortUserProfile = userProfile.length > 20 ? userProfile.substring(0, 17) + '...' : userProfile;
+  
+  // Get actual member count from database - track total who ever joined
+  let actualMemberNumber = 1;
+  try {
+    const storedCount = await database.getSetting<number>(`total_joined_${threadId}`);
+    if (storedCount !== null && storedCount !== undefined) {
+      actualMemberNumber = storedCount + 1;
+    } else {
+      // Initialize with current member count if first time
+      actualMemberNumber = memberCount > 0 ? memberCount : 1;
+    }
+    // Save the new total joined count
+    await database.setSetting(`total_joined_${threadId}`, actualMemberNumber);
+  } catch (error) {
+    BotLogger.debug(`Could not update member count: ${error}`);
+    actualMemberNumber = memberCount > 0 ? memberCount : 1;
+  }
+  
+  const memberText = actualMemberNumber;
+  const totalMembers = memberCount > 0 ? memberCount : '?';
 
-  return `╭─────────────────╮
-│ ✨ WELCOME ✨
-╰─────────────────╯
+  return `━━━━━━━━━━━━━━━━━━━━
+  💖 𝗪𝗘𝗟𝗖𝗢𝗠𝗘 💖
+━━━━━━━━━━━━━━━━━━━━
 
 ${greeting}! ${greetingEmoji}
 
 👤 ${shortUserProfile}
 🏠 ${shortGroupName}
-👥 ${memberText} members
-📅 ${shortTime}
+🎯 Member #${memberText} of ${totalMembers}
+⏰ ${shortTime}
 
-💡 ${customPrefix}help - Commands
-💡 ${customPrefix}rules - Rules
+━━━━━━━━━━━━━━━━━━━━
+  ${customPrefix}help | ${customPrefix}rules
+━━━━━━━━━━━━━━━━━━━━
 
-💫 ${quote}
-
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`;
+✨ ${quote}`;
 }
 
 export async function generateProfessionalLeave(
@@ -198,34 +214,39 @@ export async function generateProfessionalLeave(
   const shortTime = formatShortTime();
   const quote = getRandomGoodbyeQuote();
   const displayGroupName = groupName || 'this group';
-  const shortGroupName = displayGroupName.length > 18 ? displayGroupName.substring(0, 15) + '...' : displayGroupName;
-  const shortUserProfile = userProfile.length > 18 ? userProfile.substring(0, 15) + '...' : userProfile;
+  const shortGroupName = displayGroupName.length > 20 ? displayGroupName.substring(0, 17) + '...' : displayGroupName;
+  const shortUserProfile = userProfile.length > 20 ? userProfile.substring(0, 17) + '...' : userProfile;
+  
+  // Member count doesn't change on leave - it tracks total who joined
+  // Just show current active members
   const memberText = memberCount > 0 ? `${memberCount}` : '?';
 
   const xpNeeded = (userLevel + 1) * 100;
   const xpProgress = Math.round((userXP / xpNeeded) * 100);
 
-  return `╭─────────────────╮
-│ 👋 GOODBYE 👋
-╰─────────────────╯
+  return `━━━━━━━━━━━━━━━━━━━━
+   👋 𝗚𝗢𝗢𝗗𝗕𝗬𝗘 👋
+━━━━━━━━━━━━━━━━━━━━
+
+Paalam! 💫
 
 👤 ${shortUserProfile}
 🏠 ${shortGroupName}
-👥 ${memberText} remaining
-📅 ${shortTime}
+👥 ${memberText} members left
+⏰ ${shortTime}
+
+━━━━━━━━━━━━━━━━━━━━
+  📊 𝗨𝗦𝗘𝗥 𝗦𝗧𝗔𝗧𝗦
+━━━━━━━━━━━━━━━━━━━━
 
 🏆 Level ${userLevel} ⭐
 ✨ ${userXP}/${xpNeeded} XP (${xpProgress}%)
-💬 ${userMessages} msgs
-💰 ${userCoins} coins
+💬 ${userMessages} msgs | 💰 ${userCoins} coins
 
-💫 ${quote}
+━━━━━━━━━━━━━━━━━━━━
 
-🌸 Take care! See you! 🌸
-
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`;
+🌟 ${quote}
+🌸 Salamat sa lahat! 🌸`;
 }
 
 export function getAccurateTime(): string {
