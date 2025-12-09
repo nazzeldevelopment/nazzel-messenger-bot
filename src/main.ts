@@ -107,6 +107,42 @@ async function main(): Promise<void> {
     BotLogger.info('Set MONGODB_URI environment variable to enable database.');
   } else {
     console.log('  [DATABASE]        MongoDB connected successfully');
+    
+    // Check for shutdown flag - prevents auto-restart after shutdown command
+    // Only runs if FORCE_START env is not set (for redeployment)
+    if (process.env.FORCE_START !== 'true') {
+      try {
+        const isShutdown = await database.getSetting<boolean>('bot_shutdown');
+        if (isShutdown === true) {
+          const shutdownTime = await database.getSetting<string>('bot_shutdown_time') || 'Unknown';
+          console.log('');
+          console.log('═══════════════════════ SHUTDOWN FLAG DETECTED ═══════════════════');
+          console.log('  [STATUS]          Bot was shutdown via command');
+          console.log(`  [TIME]            ${shutdownTime}`);
+          console.log('  [ACTION]          Refusing to start');
+          console.log('');
+          console.log('  To restart the bot:');
+          console.log('    1. Redeploy on your hosting platform (Koyeb, Railway, etc.)');
+          console.log('    2. Or set FORCE_START=true in environment variables');
+          console.log('═════════════════════════════════════════════════════════════════');
+          console.log('');
+          
+          // Keep process alive but do nothing - prevents restart loops
+          // Hosting will see process is running but bot is not active
+          await new Promise(() => {});
+        }
+      } catch (e) {
+        // No shutdown flag set, continue normally
+      }
+    } else {
+      // FORCE_START is set, clear the shutdown flag
+      console.log('  [FORCE_START]     Clearing shutdown flag (FORCE_START=true)');
+      try {
+        await database.setSetting('bot_shutdown', false);
+      } catch (e) {
+        // Ignore
+      }
+    }
   }
   
   await redis.connect();

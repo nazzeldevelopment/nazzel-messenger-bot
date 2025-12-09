@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.8.1] - 2025-12-09
+
+### Changed
+
+#### Hosting Platform Support (restart & shutdown)
+Commands now work properly on all hosting platforms: Koyeb, Railway, Heroku, Replit, VPS, Local, etc.
+
+**restart command:**
+- Clean exit with `process.exit(0)` - hosting platforms auto-restart
+- Clears any shutdown flag before exiting
+- Works on: Koyeb, Railway, Heroku, Replit, any hosting with auto-restart
+- Properly disconnects Redis and MongoDB before exit
+
+**shutdown command:**
+- Sets `bot_shutdown` flag in MongoDB before exiting
+- Bot checks this flag on startup and refuses to start
+- Stays OFFLINE until redeployed or FORCE_START=true env is set
+- Perfect for maintenance or taking bot offline
+- Requires confirmation: `shutdown confirm`
+
+#### Shutdown Flag System
+- Bot startup checks for `bot_shutdown` flag in database
+- If flag is true, bot stays in idle state (process alive but bot inactive)
+- To restart after shutdown:
+  1. Redeploy on hosting platform (clears the flag automatically)
+  2. Or set `FORCE_START=true` environment variable
+- Prevents unwanted auto-restarts after intentional shutdown
+
+### Fixed
+- **kick.ts** - Removed 'remove' alias (conflicted with removeall), only 'kick' and 'boot' now
+- **removeall.ts** - Protects ALL admins (group admins will NOT be kicked)
+- **restart.ts** - Now properly restarts on any hosting platform
+- **shutdown.ts** - Now stays offline until manual redeploy
+
+### Technical
+- New database settings: `bot_shutdown` (boolean), `bot_shutdown_time` (ISO string)
+- Startup check in main.ts for shutdown flag
+- FORCE_START environment variable support to override shutdown flag
+
+---
+
 ## [2.8.0] - 2025-12-09
 
 ### Added
