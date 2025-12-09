@@ -14,7 +14,7 @@ import { isOwner, canAccessLockedGroup } from './lib/permissions.js';
 import config from '../config.json' with { type: 'json' };
 import type { CommandContext, MessageOptions } from './types/index.js';
 
-const APPSTATE_FILE = './appstate.json';
+const APPSTATE_FILE = './account.json';
 const prefix = config.bot.prefix;
 
 const recentEvents = new Map<string, number>();
@@ -219,7 +219,7 @@ async function main(): Promise<void> {
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
     console.log('═══════════════════════ WARNING ════════════════════════════════');
     console.log('  No valid appstate found.');
-    console.log('  Please provide a valid appstate.json file with Facebook cookies.');
+    console.log('  Please provide a valid account.json file with Facebook cookies.');
     console.log('  The Express server is running. Bot will not connect to Messenger.');
     console.log('═════════════════════════════════════════════════════════════════');
     return;
