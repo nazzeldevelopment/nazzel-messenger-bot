@@ -4,7 +4,7 @@ import { BotLogger } from '../../lib/logger.js';
 const command: Command = {
   name: 'removeall',
   aliases: ['kickall', 'cleargroup'],
-  description: 'Remove all non-admin members from the group (Owner only)',
+  description: 'Kick all non-admin members from the group (Owner only)',
   category: 'admin',
   usage: 'removeall [confirm]',
   examples: ['removeall', 'removeall confirm'],
@@ -17,26 +17,53 @@ const command: Command = {
     const botId = String(api.getCurrentUserID());
     const senderId = String(event.senderID);
     
-    let threadInfo: any = null;
-    let groupName = 'Unknown Group';
-    let adminIDs: string[] = [];
-    
-    try {
-      threadInfo = await api.getThreadInfo(threadId);
-      groupName = threadInfo.threadName || threadInfo.name || 'Unknown Group';
-      adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
-      
-      const isGroup = threadInfo.isGroup || 
-                      threadInfo.threadType === 2 || 
-                      (threadInfo.participantIDs && threadInfo.participantIDs.length > 2) ||
-                      (threadInfo.participants && threadInfo.participants.length > 2);
-      
-      if (!isGroup) {
-        await reply(`╭─────────────────╮
+    if (!event.isGroup && !event.threadID) {
+      await reply(`╭─────────────────╮
 │ ❌ ERROR
 ╰─────────────────╯
 This command only works
 in group chats!`);
+      return;
+    }
+    
+    let threadInfo: any = null;
+    let groupName = 'Unknown Group';
+    let adminIDs: string[] = [];
+    let allParticipants: string[] = [];
+    
+    try {
+      threadInfo = await api.getThreadInfo(threadId);
+      
+      if (!threadInfo) {
+        await reply(`╭─────────────────╮
+│ ❌ ERROR
+╰─────────────────╯
+Could not fetch group info.
+Please try again.`);
+        return;
+      }
+      
+      groupName = threadInfo.threadName || threadInfo.name || 'Unknown Group';
+      
+      adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a).trim());
+      
+      if (threadInfo.participantIDs && Array.isArray(threadInfo.participantIDs)) {
+        allParticipants = threadInfo.participantIDs.map((id: any) => String(id).trim());
+      } else if (threadInfo.participants && Array.isArray(threadInfo.participants)) {
+        allParticipants = threadInfo.participants.map((p: any) => String(p.userID || p.id || p).trim());
+      } else if (threadInfo.userInfo && Array.isArray(threadInfo.userInfo)) {
+        allParticipants = threadInfo.userInfo.map((u: any) => String(u.id).trim());
+      }
+      
+      BotLogger.debug(`RemoveAll: Found ${allParticipants.length} participants, ${adminIDs.length} admins`);
+      
+      if (allParticipants.length === 0) {
+        await reply(`╭─────────────────╮
+│ ❌ ERROR
+╰─────────────────╯
+Could not fetch member list.
+Group may be too large or
+API limitation.`);
         return;
       }
       
@@ -45,47 +72,49 @@ in group chats!`);
 │ ❌ NO PERMISSION
 ╰─────────────────╯
 Bot must be admin to
-remove members!
+kick members!
 
 💡 Make bot admin first.`);
         return;
       }
-    } catch (e) {
+    } catch (e: any) {
       BotLogger.error('RemoveAll: Failed to get thread info', e);
       await reply(`╭─────────────────╮
 │ ❌ ERROR
 ╰─────────────────╯
 Could not get group info.
+Error: ${e.message || 'Unknown'}
+
 Please try again later.`);
       return;
     }
     
-    const participants = threadInfo.participantIDs || 
-                        (threadInfo.participants?.map((p: any) => p.userID || p.id)) || 
-                        [];
+    const protectedIds = [...adminIDs, botId, senderId];
+    const uniqueProtected = [...new Set(protectedIds)];
     
-    const toRemove = participants.filter((id: string) => {
-      const idStr = String(id);
-      return idStr !== botId && idStr !== senderId && !adminIDs.includes(idStr);
+    const toKick = allParticipants.filter((id: string) => {
+      return !uniqueProtected.includes(id);
     });
     
-    const memberCount = participants.length;
+    const memberCount = allParticipants.length;
     const shortGroupName = groupName.length > 15 ? groupName.substring(0, 12) + '...' : groupName;
     
     if (args[0]?.toLowerCase() !== 'confirm') {
       await reply(`╭─────────────────╮
-│ ⚠️ REMOVE ALL
+│ ⚠️ KICK ALL
 ╰─────────────────╯
 
 📛 ${shortGroupName}
-👥 Total: ${memberCount}
-🎯 To Remove: ${toRemove.length}
-🛡️ Protected: ${adminIDs.length}
+👥 Total Members: ${memberCount}
+🎯 To Kick: ${toKick.length}
+🛡️ Protected (Admins): ${uniqueProtected.length}
 
-⚠️ This will kick all
+⚠️ This will KICK all
 non-admin members!
 
-💡 Type:
+Admins will NOT be removed.
+
+💡 Type to confirm:
 ${prefix}removeall confirm
 
 ╭─────────────────╮
@@ -94,33 +123,33 @@ ${prefix}removeall confirm
       return;
     }
     
-    if (toRemove.length === 0) {
+    if (toKick.length === 0) {
       await reply(`╭─────────────────╮
 │ ℹ️ INFO
 ╰─────────────────╯
-No members to remove!
-Only admins remain.`);
+No members to kick!
+Only admins remain in group.`);
       return;
     }
     
     await reply(`╭─────────────────╮
-│ 🔄 REMOVING...
+│ 🔄 KICKING...
 ╰─────────────────╯
 
 📛 ${shortGroupName}
-👥 Removing: ${toRemove.length}
-⏳ Est: ~${Math.ceil(toRemove.length * 1.5)}s
+👥 Kicking: ${toKick.length} members
+🛡️ Admins Safe: ${uniqueProtected.length}
+⏳ Est: ~${Math.ceil(toKick.length * 1.5)}s
 
 Please wait...`);
     
-    let removed = 0;
+    let kicked = 0;
     let failed = 0;
     
-    for (const userId of toRemove) {
-      const userIdStr = String(userId);
+    for (const userId of toKick) {
       try {
         await new Promise<void>((resolve, reject) => {
-          api.removeUserFromGroup(userIdStr, threadId, (err: any) => {
+          api.removeUserFromGroup(userId, threadId, (err: any) => {
             if (err) {
               reject(err);
             } else {
@@ -128,16 +157,17 @@ Please wait...`);
             }
           });
         });
-        removed++;
-        BotLogger.debug(`Successfully removed ${userIdStr} from ${threadId}`);
+        kicked++;
+        BotLogger.debug(`RemoveAll: Kicked ${userId} from ${threadId}`);
       } catch (e: any) {
         failed++;
-        BotLogger.debug(`Failed to remove ${userIdStr}: ${e.message || e}`);
+        BotLogger.debug(`RemoveAll: Failed to kick ${userId}: ${e.message || e}`);
       }
+      
       await new Promise(r => setTimeout(r, 1200));
     }
     
-    const successRate = toRemove.length > 0 ? Math.round((removed / toRemove.length) * 100) : 0;
+    const successRate = toKick.length > 0 ? Math.round((kicked / toKick.length) * 100) : 0;
     const statusEmoji = successRate >= 80 ? '✅' : successRate >= 50 ? '⚠️' : '❌';
     
     const timestamp = new Date().toLocaleString('en-PH', {
@@ -153,19 +183,20 @@ Please wait...`);
 │ ${statusEmoji} COMPLETED
 ╰─────────────────╯
 
-✓ Removed: ${removed}
+✓ Kicked: ${kicked}
 ✗ Failed: ${failed}
 📈 Success: ${successRate}%
+🛡️ Admins Safe: ${uniqueProtected.length}
 
 ⏰ ${timestamp}
-${removed > 0 ? '🎯 Operation completed!' : '⚠️ No members removed!'}
-${failed > 0 ? `💡 ${failed} may be admins/left` : ''}
+${kicked > 0 ? '🎯 Operation completed!' : '⚠️ No members kicked!'}
+${failed > 0 ? `💡 ${failed} may have already left` : ''}
 
 ╭─────────────────╮
 │ 💗 Wisdom Bot
 ╰─────────────────╯`);
     
-    BotLogger.info(`RemoveAll: Removed ${removed}/${toRemove.length} from ${threadId} (${groupName})`);
+    BotLogger.info(`RemoveAll: Kicked ${kicked}/${toKick.length} from ${threadId} (${groupName}), Protected: ${uniqueProtected.length}`);
   }
 };
 

@@ -1,19 +1,40 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
 import { redis } from '../../lib/redis.js';
+import { BotLogger } from '../../lib/logger.js';
 
 const command: Command = {
   name: 'shutdown',
-  aliases: ['die', 'stop', 'off'],
-  description: 'Shutdown the bot gracefully (Owner only)',
+  aliases: ['die', 'off'],
+  description: 'Shutdown the bot completely (Owner only)',
   category: 'admin',
-  usage: 'shutdown',
-  examples: ['shutdown'],
+  usage: 'shutdown [confirm]',
+  examples: ['shutdown', 'shutdown confirm'],
   cooldown: 30000,
   ownerOnly: true,
 
   async execute(context: CommandContext): Promise<void> {
-    const { reply, prefix } = context;
+    const { reply, args, prefix } = context;
+    
+    if (args[0]?.toLowerCase() !== 'confirm') {
+      await reply(`╭─────────────────╮
+│   ⚠️ SHUTDOWN   │
+╰─────────────────╯
+
+This will completely shut
+down the bot!
+
+The bot will go offline and
+will NOT restart automatically.
+
+💡 Type to confirm:
+${prefix}shutdown confirm
+
+╭─────────────────╮
+│ 💗 Wisdom Bot
+╰─────────────────╯`);
+      return;
+    }
     
     await reply(`╭─────────────────╮
 │   🔴 SHUTDOWN   │
@@ -23,6 +44,8 @@ const command: Command = {
 🔌 Closing connections...
 
 👋 Bot going offline now!`);
+    
+    BotLogger.info('Bot shutdown initiated by owner');
     
     setTimeout(async () => {
       try {
@@ -38,12 +61,16 @@ const command: Command = {
         console.log('  [STATUS]          Cleanup complete. Goodbye!');
         console.log('═════════════════════════════════════════════════════════════════');
         
-        process.exit(0);
+        process.kill(process.pid, 'SIGTERM');
+        
+        setTimeout(() => {
+          process.exit(0);
+        }, 1000);
       } catch (e) {
         console.log('  [ERROR]           Shutdown error, forcing exit');
         process.exit(1);
       }
-    }, 1500);
+    }, 2000);
   }
 };
 

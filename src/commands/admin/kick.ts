@@ -3,8 +3,8 @@ import { BotLogger } from '../../lib/logger.js';
 
 const command: Command = {
   name: 'kick',
-  aliases: ['remove', 'boot'],
-  description: 'Remove a member from the group',
+  aliases: ['boot'],
+  description: 'Kick a member from the group chat',
   category: 'admin',
   usage: 'kick <@mention|userID>',
   examples: ['kick @user', 'kick 123456789'],
