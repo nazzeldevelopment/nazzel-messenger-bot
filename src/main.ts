@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import { BituinFCA } from 'bituin-fca';
+import { BituinFCA } from '@nazzelofficial/bituin-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';

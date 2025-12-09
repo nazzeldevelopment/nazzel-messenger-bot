@@ -37,7 +37,7 @@
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "archiver": "^7.0.1",
-    "bituin-fca": "^1.7.0",
+    "@nazzelofficial/bituin-fca": "^1.12.7",
     "chalk": "^5.6.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
