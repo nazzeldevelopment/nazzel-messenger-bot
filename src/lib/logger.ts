@@ -318,7 +318,7 @@ export class BotLogger {
     const statusMessages: Record<string, string> = {
       loaded: 'Appstate loaded from file',
       saved: 'Appstate saved successfully',
-      missing: 'No account.json found',
+      missing: 'No appstate.json found',
       error: 'Appstate error',
     };
     console.log(`${timestamp}    ${chalk.cyan('APPSTATE:')} ${statusColors[status](statusMessages[status])} ${details ? chalk.gray(`- ${details}`) : ''}`);

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import { BituinFCA } from '@nazzelofficial/bituin-fca';
+import { LiwanagFCA } from 'liwanag-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
@@ -14,7 +14,7 @@ import { isOwner, canAccessLockedGroup } from './lib/permissions.js';
 import config from '../config.json' with { type: 'json' };
 import type { CommandContext, MessageOptions } from './types/index.js';
 
-const APPSTATE_FILE = './account.json';
+const APPSTATE_FILE = './appstate.json';
 const prefix = config.bot.prefix;
 
 const recentEvents = new Map<string, number>();
@@ -219,7 +219,7 @@ async function main(): Promise<void> {
   if (!appState || (Array.isArray(appState) && appState.length === 0)) {
     console.log('═══════════════════════ WARNING ════════════════════════════════');
     console.log('  No valid appstate found.');
-    console.log('  Please provide a valid account.json file with Facebook cookies.');
+    console.log('  Please provide a valid appstate.json file with Facebook cookies.');
     console.log('  The Express server is running. Bot will not connect to Messenger.');
     console.log('═════════════════════════════════════════════════════════════════');
     return;
@@ -228,7 +228,7 @@ async function main(): Promise<void> {
   console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
   console.log('  [LOGIN]           Attempting Facebook login...');
   
-  const bot = new BituinFCA({
+  const bot = new LiwanagFCA({
     appStatePath: APPSTATE_FILE,
     commandPrefix: prefix,
     enableAntiBan: true,
@@ -271,7 +271,7 @@ async function main(): Promise<void> {
         }
       } else {
         await bot.saveAppState();
-        console.log('  [APPSTATE]        Saved via BituinFCA');
+        console.log('  [APPSTATE]        Saved via LiwanagFCA');
       }
     } catch (error) {
       console.log('  [APPSTATE]        Failed to save');
@@ -309,7 +309,7 @@ async function main(): Promise<void> {
       }
     });
     
-    BotLogger.info('BituinFCA message listener started successfully');
+    BotLogger.info('LiwanagFCA message listener started successfully');
     
   } catch (err: any) {
     BotLogger.error('Login failed', err);
