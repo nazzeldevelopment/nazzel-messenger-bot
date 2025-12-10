@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import { LiwanagFCA } from 'liwanag-fca';
+import liwanag from 'liwanag-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
@@ -176,22 +176,22 @@ async function main(): Promise<void> {
   let appState: any = null;
   let appStateSource = '';
   
-  const dbAppstate = await database.getAppstate();
-  if (dbAppstate && Array.isArray(dbAppstate) && dbAppstate.length > 0) {
-    appState = dbAppstate;
-    appStateSource = 'database';
-    console.log('  [APPSTATE]        Loaded from database (persistent)');
-  }
-  
-  if (!appState && fs.existsSync(APPSTATE_FILE)) {
+  if (fs.existsSync(APPSTATE_FILE)) {
     try {
       const fileContent = fs.readFileSync(APPSTATE_FILE, 'utf8');
       if (fileContent && fileContent.trim().length > 2) {
-        appState = JSON.parse(fileContent);
+        const parsed = JSON.parse(fileContent);
+        if (Array.isArray(parsed)) {
+          appState = { cookies: parsed };
+        } else if (parsed.cookies && Array.isArray(parsed.cookies)) {
+          appState = parsed;
+        } else {
+          appState = { cookies: parsed };
+        }
         appStateSource = 'file';
         console.log('  [APPSTATE]        Loaded from file');
         
-        await database.saveAppstate(appState);
+        await database.saveAppstate(appState.cookies);
         console.log('  [APPSTATE]        Synced to database');
       } else {
         console.log('  [APPSTATE]        File exists but is empty');
@@ -202,8 +202,6 @@ async function main(): Promise<void> {
   } else if (!appState) {
     console.log('  [APPSTATE]        Not found in database or file');
   }
-  
-  const credentials = { appState };
   
   const loginOptions = {
     selfListen: config.bot.selfListen,
@@ -216,7 +214,7 @@ async function main(): Promise<void> {
     autoReconnect: true,
   };
   
-  if (!appState || (Array.isArray(appState) && appState.length === 0)) {
+  if (!appState || !appState.cookies || appState.cookies.length === 0) {
     console.log('═══════════════════════ WARNING ════════════════════════════════');
     console.log('  No valid appstate found.');
     console.log('  Please provide a valid appstate.json file with Facebook cookies.');
@@ -228,30 +226,29 @@ async function main(): Promise<void> {
   console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
   console.log('  [LOGIN]           Attempting Facebook login...');
   
-  const bot = new LiwanagFCA({
-    appStatePath: APPSTATE_FILE,
-    commandPrefix: prefix,
-    enableAntiBan: true,
-    enableCommands: false,
-    enablePlugins: false,
-  });
-  
-  try {
-    const loginSuccess = await bot.loginWithAppState();
-    
-    if (!loginSuccess) {
-      BotLogger.error('Login failed', 'Could not authenticate with Facebook');
+  liwanag.login({ appState }, loginOptions, async (err: any, api: any) => {
+    if (err) {
+      BotLogger.error('Login failed', err);
       console.log('  [LOGIN]           Login failed. Please check your appstate.');
+      
+      if (err?.error === 'login-approval') {
+        console.log('  [LOGIN]           Two-factor authentication required.');
+        console.log('                    Please approve the login from your phone.');
+      }
       return;
     }
     
-    const api = (bot as any).api || bot;
     const currentUserId = api.getCurrentUserID ? api.getCurrentUserID() : 'unknown';
     
     let botName = 'Unknown';
     try {
       if (api.getUserInfo) {
-        const userInfo = await api.getUserInfo(currentUserId);
+        const userInfo = await new Promise<any>((resolve, reject) => {
+          api.getUserInfo([currentUserId], (err: any, info: any) => {
+            if (err) reject(err);
+            else resolve(info);
+          });
+        });
         botName = userInfo[currentUserId]?.name || 'Unknown';
       }
     } catch (error) {}
@@ -269,9 +266,6 @@ async function main(): Promise<void> {
           const dbSaved = await database.saveAppstate(newAppState);
           console.log(`  [APPSTATE]        Saved to ${dbSaved ? 'file and database' : 'file only'}`);
         }
-      } else {
-        await bot.saveAppState();
-        console.log('  [APPSTATE]        Saved via LiwanagFCA');
       }
     } catch (error) {
       console.log('  [APPSTATE]        Failed to save');
@@ -291,7 +285,12 @@ async function main(): Promise<void> {
     console.log('  [FEATURES]        Maintenance mode available');
     console.log('═════════════════════════════════════════════════════════════════');
     
-    bot.on('message', async (event: any) => {
+    api.listenMqtt(async (err: any, event: any) => {
+      if (err) {
+        BotLogger.error('Listen error', err);
+        return;
+      }
+      
       if (!event) {
         return;
       }
@@ -310,15 +309,7 @@ async function main(): Promise<void> {
     });
     
     BotLogger.info('LiwanagFCA message listener started successfully');
-    
-  } catch (err: any) {
-    BotLogger.error('Login failed', err);
-    
-    if (err?.error === 'login-approval') {
-      console.log('  [LOGIN]           Two-factor authentication required.');
-      console.log('                    Please approve the login from your phone.');
-    }
-  }
+  });
 }
 
 function normalizeId(id: any): string {
