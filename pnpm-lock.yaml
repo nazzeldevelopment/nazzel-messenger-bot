@@ -42,8 +42,8 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       liwanag-fca:
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.6.0
+        version: 0.6.0
       mongodb:
         specifier: ^7.0.0
         version: 7.0.0(socks@2.8.7)
@@ -995,8 +995,8 @@ packages:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
 
-  liwanag-fca@0.5.0:
-    resolution: {integrity: sha512-QwDMbEhpeorl3RgW59PznYqq9mD5tvZKH/QuOY5Miba9kFWL34ejJJ68OwptxZGTp1DXprl9cvDCcMG/YFkwTA==}
+  liwanag-fca@0.6.0:
+    resolution: {integrity: sha512-XhrRtaUzkR+87bAZoMz7s+vACVBg1gDs6wv2pFPmnM4A5sS3nOzumtZiK2k/3gbUdFgAiLGs28V7PzTKlashtQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
   lodash.defaults@4.2.0:
@@ -2502,7 +2502,7 @@ snapshots:
     dependencies:
       readable-stream: 2.3.8
 
-  liwanag-fca@0.5.0:
+  liwanag-fca@0.6.0:
     dependencies:
       axios: 1.13.2
       chalk: 5.6.2
