@@ -42,8 +42,8 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       liwanag-fca:
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: 0.6.1
+        version: 0.6.1
       mongodb:
         specifier: ^7.0.0
         version: 7.0.0(socks@2.8.7)
@@ -367,8 +367,8 @@ packages:
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
 
-  '@types/readable-stream@4.0.22':
-    resolution: {integrity: sha512-/FFhJpfCLAPwAcN3mFycNUa77ddnr8jTgF5VmSNetaemWB2cIlfCA9t0YTM3JAT0wOcv8D4tjPo7pkDhK3EJIg==}
+  '@types/readable-stream@4.0.23':
+    resolution: {integrity: sha512-wwXrtQvbMHxCbBgjHaMGEmImFTQxxpfMOR/ZoQnXxB1woqkUbdLGFDgauo00Py9IudiaqSeiBiulSV9i6XIPig==}
 
   '@types/send@1.2.1':
     resolution: {integrity: sha512-arsCikDvlU99zl1g69TcAB3mzZPpxgw0UQnaHeC1Nwb015xp8bknZv5rIfri9xTOcMuaVgvabfIRA7PSZVuZIQ==}
@@ -995,8 +995,8 @@ packages:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
 
-  liwanag-fca@0.6.0:
-    resolution: {integrity: sha512-XhrRtaUzkR+87bAZoMz7s+vACVBg1gDs6wv2pFPmnM4A5sS3nOzumtZiK2k/3gbUdFgAiLGs28V7PzTKlashtQ==}
+  liwanag-fca@0.6.1:
+    resolution: {integrity: sha512-il77PNMTtKxYU3aFb9qE8OsATLyksgAyFNkmZyIs5nlLikaRbto81CGnkToRQUEhONsosw42BpL2XIFLSLlwag==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
   lodash.defaults@4.2.0:
@@ -1792,7 +1792,7 @@ snapshots:
 
   '@types/range-parser@1.2.7': {}
 
-  '@types/readable-stream@4.0.22':
+  '@types/readable-stream@4.0.23':
     dependencies:
       '@types/node': 22.19.2
 
@@ -1930,7 +1930,7 @@ snapshots:
 
   bl@6.1.6:
     dependencies:
-      '@types/readable-stream': 4.0.22
+      '@types/readable-stream': 4.0.23
       buffer: 6.0.3
       inherits: 2.0.4
       readable-stream: 4.7.0
@@ -2502,7 +2502,7 @@ snapshots:
     dependencies:
       readable-stream: 2.3.8
 
-  liwanag-fca@0.6.0:
+  liwanag-fca@0.6.1:
     dependencies:
       axios: 1.13.2
       chalk: 5.6.2
@@ -2600,7 +2600,7 @@ snapshots:
 
   mqtt@5.14.1:
     dependencies:
-      '@types/readable-stream': 4.0.22
+      '@types/readable-stream': 4.0.23
       '@types/ws': 8.18.1
       commist: 3.2.0
       concat-stream: 2.0.0
