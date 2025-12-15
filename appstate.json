@@ -9,12 +9,12 @@
   },
   {
     "key": "sb",
-    "value": "YotAaSBVmnl1yDk_8Rus5kwU",
+    "value": "RpRAab7_jHPpUXeThzi_hqLB",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2027-01-19T22:27:46.000Z"
+    "expires": "2027-01-19T23:05:42.000Z"
   },
   {
     "key": "vpd",
@@ -53,9 +53,8 @@
     "value": "61559381730491",
     "domain": "facebook.com",
     "path": "/",
-    "secure": true,
-    "httpOnly": false,
-    "expires": "2026-12-15T22:27:54.000Z"
+    "secure": false,
+    "httpOnly": false
   },
   {
     "key": "wd",
@@ -70,18 +69,17 @@
     "value": "6%3AXFImpVvwpRvYQg%3A2%3A1765827790%3A-1%3A-1%3A%3AAcyybSyc7MAxhng1C5GgOZolyrcVp1wu4jUlhU8nKw",
     "domain": "facebook.com",
     "path": "/",
-    "secure": true,
-    "httpOnly": true,
-    "expires": "2026-12-15T22:27:54.000Z"
+    "secure": false,
+    "httpOnly": false
   },
   {
     "key": "fr",
-    "value": "1QVFdM5vAxkrNFyQ4.AWdW3W74cg9Rhat1mnc6MNReBYxDM-tPqkG09U-0C3fr2pMt_Wo.BpQItq..AAA.0.0.BpQItq.AWcrAzTAAyaE0cmJxZe1eS8ciwk",
+    "value": "0nR7soVC2NcdMUZW1..BpQJRG..AAA.0.0.BpQJRG.AWc7AYIHCjwFlGBR3lWS2SLtjdw",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-03-15T22:27:54.000Z"
+    "expires": "2026-03-15T23:05:42.000Z"
   },
   {
     "key": "fbl_st",
@@ -109,12 +107,12 @@
   },
   {
     "key": "sb",
-    "value": "YotAaSBVmnl1yDk_8Rus5kwU",
+    "value": "RpRAab7_jHPpUXeThzi_hqLB",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2027-01-19T22:27:46.000Z"
+    "expires": "2027-01-19T23:05:42.000Z"
   },
   {
     "key": "vpd",
@@ -153,9 +151,8 @@
     "value": "61559381730491",
     "domain": "facebook.com",
     "path": "/",
-    "secure": true,
-    "httpOnly": false,
-    "expires": "2026-12-15T22:27:54.000Z"
+    "secure": false,
+    "httpOnly": false
   },
   {
     "key": "wd",
@@ -170,18 +167,17 @@
     "value": "6%3AXFImpVvwpRvYQg%3A2%3A1765827790%3A-1%3A-1%3A%3AAcyybSyc7MAxhng1C5GgOZolyrcVp1wu4jUlhU8nKw",
     "domain": "facebook.com",
     "path": "/",
-    "secure": true,
-    "httpOnly": true,
-    "expires": "2026-12-15T22:27:54.000Z"
+    "secure": false,
+    "httpOnly": false
   },
   {
     "key": "fr",
-    "value": "1QVFdM5vAxkrNFyQ4.AWdW3W74cg9Rhat1mnc6MNReBYxDM-tPqkG09U-0C3fr2pMt_Wo.BpQItq..AAA.0.0.BpQItq.AWcrAzTAAyaE0cmJxZe1eS8ciwk",
+    "value": "0nR7soVC2NcdMUZW1..BpQJRG..AAA.0.0.BpQJRG.AWc7AYIHCjwFlGBR3lWS2SLtjdw",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-03-15T22:27:54.000Z"
+    "expires": "2026-03-15T23:05:42.000Z"
   },
   {
     "key": "fbl_st",
@@ -209,12 +205,12 @@
   },
   {
     "key": "sb",
-    "value": "YotAaSBVmnl1yDk_8Rus5kwU",
+    "value": "RpRAab7_jHPpUXeThzi_hqLB",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2027-01-19T22:27:46.000Z"
+    "expires": "2027-01-19T23:05:42.000Z"
   },
   {
     "key": "vpd",
@@ -253,9 +249,8 @@
     "value": "61559381730491",
     "domain": "facebook.com",
     "path": "/",
-    "secure": true,
-    "httpOnly": false,
-    "expires": "2026-12-15T22:27:54.000Z"
+    "secure": false,
+    "httpOnly": false
   },
   {
     "key": "wd",
@@ -270,18 +265,17 @@
     "value": "6%3AXFImpVvwpRvYQg%3A2%3A1765827790%3A-1%3A-1%3A%3AAcyybSyc7MAxhng1C5GgOZolyrcVp1wu4jUlhU8nKw",
     "domain": "facebook.com",
     "path": "/",
-    "secure": true,
-    "httpOnly": true,
-    "expires": "2026-12-15T22:27:54.000Z"
+    "secure": false,
+    "httpOnly": false
   },
   {
     "key": "fr",
-    "value": "1QVFdM5vAxkrNFyQ4.AWdW3W74cg9Rhat1mnc6MNReBYxDM-tPqkG09U-0C3fr2pMt_Wo.BpQItq..AAA.0.0.BpQItq.AWcrAzTAAyaE0cmJxZe1eS8ciwk",
+    "value": "0nR7soVC2NcdMUZW1..BpQJRG..AAA.0.0.BpQJRG.AWc7AYIHCjwFlGBR3lWS2SLtjdw",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-03-15T22:27:54.000Z"
+    "expires": "2026-03-15T23:05:42.000Z"
   },
   {
     "key": "fbl_st",
