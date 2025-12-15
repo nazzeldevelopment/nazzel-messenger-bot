@@ -24,12 +24,11 @@ name = "Start Bot"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "webview"
+outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pnpm start"
-waitForPort = 5000
 
 [[ports]]
 localPort = 5000
@@ -42,3 +41,4 @@ DATABASE_URL_OVERRIDE = "true"
 MONGODB_URI = "mongodb+srv://NazzelWebsite:Website716291@cluster0.chtay4c.mongodb.net/webdb?retryWrites=true&w=majority"
 OWNER_ID = "100055456757551"
 REDIS_URL = "rediss://default:ASVgAAImcDIzNDI5ZGMzNTU1ODg0MjE5Yjc1ZmFkYzgzZDQwMjUzMHAyOTU2OA@meet-doe-9568.upstash.io:6379"
+FORCE_START = "true"
