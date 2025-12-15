@@ -51,8 +51,8 @@ importers:
         specifier: ^6.10.0
         version: 6.10.0(ws@8.18.3)
       sulyap-fca:
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: 1.1.1
+        version: 1.1.1
       unzipper:
         specifier: ^0.12.3
         version: 0.12.3
@@ -1386,8 +1386,8 @@ packages:
     resolution: {integrity: sha512-KIy5nylvC5le1OdaaoCJ07L+8iQzJHGH6pWDuzS+d07Cu7n1MZ2x26P8ZKIWfbK02+XIL8Mp4RkWeqdUCrDMfg==}
     engines: {node: '>=18'}
 
-  sulyap-fca@1.1.0:
-    resolution: {integrity: sha512-uMHI8p0HqQ/2kd1nHBGgU8h67MIyVJIdG/hcicNIT+/UKKJ3sXskiZ1nVsv8pkrps7dZ33n7m7fWuFtMweswWw==}
+  sulyap-fca@1.1.1:
+    resolution: {integrity: sha512-CmEK9g+HdLtJB9S/eoUMyp/DuQDs9PKjtRqAcT4hBXztJs/F1D+cX11AgYQP+bRJAyi7KiLmVB+Rmi9ZZp8YdA==}
     engines: {node: '>=20.0.0'}
 
   tar-stream@3.1.7:
@@ -1542,14 +1542,14 @@ packages:
   worker-factory@7.0.46:
     resolution: {integrity: sha512-Sr1hq2FMgNa04UVhYQacsw+i58BtMimzDb4+CqYphZ97OfefRpURu0UZ+JxMr/H36VVJBfuVkxTK7MytsanC3w==}
 
-  worker-timers-broker@8.0.11:
-    resolution: {integrity: sha512-uwhxKru8BI9m2tsogxr2fB6POZ8LB2xH+Pu3R0mvQnAZLPgLD6K3IX4LNKPTEgTJ/j5VsuQPB+gLI1NBNKkPlg==}
+  worker-timers-broker@8.0.12:
+    resolution: {integrity: sha512-Udml0yZv59tj/5Y2eCW2bYmrBgFSYmg0MXSzlDUdmsjcmf272hJaY8R3TWteetfL6tmL2+yJwRmcJgDtwCcOZg==}
 
   worker-timers-worker@9.0.11:
     resolution: {integrity: sha512-pArb5xtgHWImYpXhjg1OFv7JFG0ubmccb73TFoXHXjG830fFj+16N57q9YeBnZX52dn+itRrMoJZ9HaZBVzDaA==}
 
-  worker-timers@8.0.25:
-    resolution: {integrity: sha512-X7Z5dmM6PlrEnaadtFQOyXHGD/IysPA3HZzaC2koqsU1VI+RvyGmjiiLiUBQixK8PH5R7ilkOzZupWskNRaXmA==}
+  worker-timers@8.0.26:
+    resolution: {integrity: sha512-Yfr8t1SfvA5Qwr5JlvTHVd0aI1r1kQ+dtJQ5aHjNleK/GRIOrwtoEUnGhwumLR9qH6YghFZsqD9w8IzsP7RHwg==}
 
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
@@ -2604,7 +2604,7 @@ snapshots:
       rfdc: 1.4.1
       socks: 2.8.7
       split2: 4.2.0
-      worker-timers: 8.0.25
+      worker-timers: 8.0.26
       ws: 8.18.3
     transitivePeerDependencies:
       - bufferutil
@@ -2943,7 +2943,7 @@ snapshots:
     dependencies:
       '@tokenizer/token': 0.3.0
 
-  sulyap-fca@1.1.0:
+  sulyap-fca@1.1.1:
     dependencies:
       bluebird: 3.7.2
       cheerio: 1.1.2
@@ -3119,7 +3119,7 @@ snapshots:
       fast-unique-numbers: 9.0.24
       tslib: 2.8.1
 
-  worker-timers-broker@8.0.11:
+  worker-timers-broker@8.0.12:
     dependencies:
       '@babel/runtime': 7.28.4
       broker-factory: 3.1.10
@@ -3133,11 +3133,11 @@ snapshots:
       tslib: 2.8.1
       worker-factory: 7.0.46
 
-  worker-timers@8.0.25:
+  worker-timers@8.0.26:
     dependencies:
       '@babel/runtime': 7.28.4
       tslib: 2.8.1
-      worker-timers-broker: 8.0.11
+      worker-timers-broker: 8.0.12
       worker-timers-worker: 9.0.11
 
   wrap-ansi@7.0.0:
