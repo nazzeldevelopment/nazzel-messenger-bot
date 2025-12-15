@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import sulyap from 'biar-fca';
+import sulyap from 'sulyap-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
