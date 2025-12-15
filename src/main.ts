@@ -226,7 +226,7 @@ async function main(): Promise<void> {
   console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
   console.log('  [LOGIN]           Attempting Facebook login...');
   
-  sulyap.login({ appState: appState.cookies }, loginOptions, async (err: any, api: any) => {
+  sulyap.login({ appState: appState.cookies, ...loginOptions }, async (err: any, api: any) => {
     if (err) {
       BotLogger.error('Login failed', err);
       console.log('  [LOGIN]           Login failed. Please check your appstate.');
