@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import liwanag from 'liwanag-fca';
+import sulyap from 'sulyap-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
@@ -226,7 +226,7 @@ async function main(): Promise<void> {
   console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
   console.log('  [LOGIN]           Attempting Facebook login...');
   
-  liwanag.login({ appState }, loginOptions, async (err: any, api: any) => {
+  sulyap.login({ appState: appState.cookies }, loginOptions, async (err: any, api: any) => {
     if (err) {
       BotLogger.error('Login failed', err);
       console.log('  [LOGIN]           Login failed. Please check your appstate.');
