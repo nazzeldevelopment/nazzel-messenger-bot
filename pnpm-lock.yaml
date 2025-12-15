@@ -51,8 +51,8 @@ importers:
         specifier: ^6.10.0
         version: 6.10.0(ws@8.18.3)
       sulyap-fca:
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.2.3
+        version: 1.2.3
       unzipper:
         specifier: ^0.12.3
         version: 0.12.3
@@ -1484,8 +1484,8 @@ packages:
     resolution: {integrity: sha512-KIy5nylvC5le1OdaaoCJ07L+8iQzJHGH6pWDuzS+d07Cu7n1MZ2x26P8ZKIWfbK02+XIL8Mp4RkWeqdUCrDMfg==}
     engines: {node: '>=18'}
 
-  sulyap-fca@1.2.1:
-    resolution: {integrity: sha512-s8TS0h/hP4auzFk59ptouL+gIU03JmRvKxYdc4H7TwjwP3ybhT33hyH3K6f5rEP295QeGV11JOCJmkLm7wsgWw==}
+  sulyap-fca@1.2.3:
+    resolution: {integrity: sha512-zufdDnst8HpfaHNwtK8wFawItM2y/L1H6durTDBMjtgnF9oPzxmcYLnXnZHxeYUPMrTTk0s20JBYU0v86YfpwQ==}
     engines: {node: '>=20.0.0'}
 
   tar-stream@3.1.7:
@@ -3189,7 +3189,7 @@ snapshots:
     dependencies:
       '@tokenizer/token': 0.3.0
 
-  sulyap-fca@1.2.1:
+  sulyap-fca@1.2.3:
     dependencies:
       bluebird: 3.7.2
       cheerio: 1.1.2
