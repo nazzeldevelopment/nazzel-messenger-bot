@@ -17,7 +17,23 @@ export const command: Command = {
 
     try {
       const threadId = ('' + event.threadID).trim();
-      const threadInfo = await api.getThreadInfo(threadId);
+      
+      let threadInfo;
+      try {
+        threadInfo = await api.getThreadInfo(threadId);
+      } catch (apiError: any) {
+        const errorMsg = apiError?.message || String(apiError);
+        if (errorMsg.includes('Not Found') || errorMsg.includes('not valid JSON')) {
+          await reply('❌ Unable to fetch group info. The group may not be accessible or the API is temporarily unavailable.');
+          return;
+        }
+        throw apiError;
+      }
+
+      if (!threadInfo) {
+        await reply('❌ Could not retrieve group information.');
+        return;
+      }
 
       const adminIDs = threadInfo.adminIDs || [];
       
@@ -27,7 +43,13 @@ export const command: Command = {
       }
 
       const adminIds = adminIDs.map((admin: any) => ('' + (admin.id || admin)).trim());
-      const userInfo = await api.getUserInfo(adminIds);
+      
+      let userInfo: any = {};
+      try {
+        userInfo = await api.getUserInfo(adminIds);
+      } catch {
+        // Continue even if user info fails
+      }
 
       let message = `👑 *Group Administrators*\n\n`;
       message += `📊 Total: ${adminIds.length} admin(s)\n\n`;
@@ -39,8 +61,9 @@ export const command: Command = {
       });
 
       await reply(message);
-    } catch (error) {
-      await reply('❌ Failed to get admin list.');
+    } catch (error: any) {
+      console.error('Adminlist error:', error);
+      await reply('❌ Failed to get admin list. Please try again later.');
     }
   },
 };
