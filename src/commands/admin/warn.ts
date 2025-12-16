@@ -2,6 +2,7 @@ import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { database } from '../../database/index.js';
 import { decorations } from '../../lib/messageFormatter.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'warn',
@@ -47,7 +48,7 @@ ${decorations.fire} Issue a warning
       .trim() || 'No reason provided';
     
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
       
       const warningsKey = `warnings_${event.threadID}_${targetId}`;

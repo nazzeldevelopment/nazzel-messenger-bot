@@ -1,6 +1,7 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
 import { decorations } from '../../lib/messageFormatter.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 export const command: Command = {
   name: 'ban',
@@ -55,7 +56,7 @@ ${decorations.fire} Ban a user from the bot
     });
 
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
 
       await database.setSetting(`banned_${targetId}`, JSON.stringify({

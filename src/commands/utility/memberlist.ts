@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { safeGetThreadInfo, safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 export const command: Command = {
   name: 'memberlist',
@@ -17,7 +18,12 @@ export const command: Command = {
 
     try {
       const threadId = ('' + event.threadID).trim();
-      const threadInfo = await api.getThreadInfo(threadId);
+      const threadInfo = await safeGetThreadInfo(api, threadId);
+
+      if (!threadInfo) {
+        await reply('❌ Unable to fetch group info. Please try again later.');
+        return;
+      }
 
       const participantIDs = threadInfo.participantIDs || [];
       
@@ -26,7 +32,7 @@ export const command: Command = {
         return;
       }
 
-      const userInfo = await api.getUserInfo(participantIDs);
+      const userInfo = await safeGetUserInfo(api, participantIDs);
 
       const adminIDs = (threadInfo.adminIDs || []).map((a: any) => a.id || a);
 

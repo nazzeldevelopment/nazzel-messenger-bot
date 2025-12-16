@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetThreadList } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'groups',
@@ -16,7 +17,12 @@ const command: Command = {
     const perPage = 10;
     
     try {
-      const threads = await api.getThreadList(100, null, []);
+      const threads = await safeGetThreadList(api, 100, null, []);
+      
+      if (!threads || threads.length === 0) {
+        await reply('❌ Unable to fetch groups list. Please try again later.');
+        return;
+      }
       
       const groups = threads.filter((t: any) => t.isGroup);
       const totalPages = Math.ceil(groups.length / perPage);

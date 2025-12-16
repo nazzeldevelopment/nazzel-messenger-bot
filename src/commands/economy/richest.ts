@@ -1,5 +1,6 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 export const command: Command = {
   name: 'richest',
@@ -28,15 +29,9 @@ export const command: Command = {
       const userIds = leaderboard.map(u => u.id);
       let userNames: Record<string, string> = {};
       
-      try {
-        const userInfo = await api.getUserInfo(userIds);
-        for (const id of userIds) {
-          userNames[id] = userInfo[id]?.name || 'Unknown';
-        }
-      } catch {
-        for (const id of userIds) {
-          userNames[id] = 'Unknown';
-        }
+      const userInfo = await safeGetUserInfo(api, userIds);
+      for (const id of userIds) {
+        userNames[id] = userInfo[id]?.name || 'Unknown';
       }
 
       let list = '';

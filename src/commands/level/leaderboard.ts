@@ -1,5 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'leaderboard',
@@ -26,7 +27,7 @@ const command: Command = {
       }
       
       const userIds = leaderboard.map(u => ('' + u.id).trim());
-      const userInfos = await api.getUserInfo(userIds);
+      const userInfos = await safeGetUserInfo(api, userIds);
       
       const medals = ['🥇', '🥈', '🥉'];
       

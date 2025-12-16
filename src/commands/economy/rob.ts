@@ -1,5 +1,6 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 export const command: Command = {
   name: 'rob',
@@ -56,8 +57,8 @@ export const command: Command = {
 
     try {
       const [robberInfo, targetInfo] = await Promise.all([
-        api.getUserInfo(senderId),
-        api.getUserInfo(targetId)
+        safeGetUserInfo(api, senderId),
+        safeGetUserInfo(api, targetId)
       ]);
 
       const robberName = robberInfo[senderId]?.name || 'Robber';

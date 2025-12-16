@@ -1,5 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
+import { safeGetThreadInfo, safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'kick',
@@ -58,7 +59,17 @@ Use ${prefix}leave instead.`);
     }
     
     try {
-      const threadInfo = await api.getThreadInfo(threadId);
+      const threadInfo = await safeGetThreadInfo(api, threadId);
+      
+      if (!threadInfo) {
+        await reply(`╭─────────────────╮
+│ ❌ ERROR
+╰─────────────────╯
+Unable to fetch group info.
+Please try again later.`);
+        return;
+      }
+      
       const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
       
       if (!adminIDs.includes(botId)) {
@@ -70,7 +81,7 @@ Please make bot admin first.`);
         return;
       }
 
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
       
       await new Promise<void>((resolve, reject) => {

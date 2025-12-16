@@ -1,6 +1,7 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { decorations } from '../../lib/messageFormatter.js';
+import { safeGetThreadInfo, safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'getadmins',
@@ -16,7 +17,14 @@ const command: Command = {
     const { api, event, reply } = context;
     
     try {
-      const threadInfo = await api.getThreadInfo(String(event.threadID));
+      const threadInfo = await safeGetThreadInfo(api, event.threadID);
+      
+      if (!threadInfo) {
+        await reply(`${decorations.fire} 『 ERROR 』
+═══════════════════════════
+❌ Unable to fetch group info. Please try again later.`);
+        return;
+      }
       
       if (!threadInfo.isGroup) {
         await reply(`${decorations.fire} 『 ERROR 』
@@ -34,7 +42,7 @@ const command: Command = {
         return;
       }
       
-      const userInfos = await api.getUserInfo(adminIDs);
+      const userInfos = await safeGetUserInfo(api, adminIDs);
       
       let adminList = '';
       let index = 1;

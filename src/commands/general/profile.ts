@@ -1,5 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'profile',
@@ -22,7 +23,7 @@ const command: Command = {
     }
     
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const info = userInfo[targetId];
       
       if (!info) {

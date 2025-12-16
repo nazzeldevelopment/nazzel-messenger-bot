@@ -2,6 +2,7 @@ import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { database } from '../../database/index.js';
 import { decorations } from '../../lib/messageFormatter.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'unmute',
@@ -42,7 +43,7 @@ ${decorations.fire} Unmute a user
     }
     
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
       
       const muteKey = `muted_${event.threadID}_${targetId}`;

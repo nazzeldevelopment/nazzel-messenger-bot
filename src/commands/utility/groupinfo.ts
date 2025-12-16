@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetThreadInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'groupinfo',
@@ -13,7 +14,12 @@ const command: Command = {
     const threadId = event.threadID;
     
     try {
-      const threadInfo = await api.getThreadInfo(threadId);
+      const threadInfo = await safeGetThreadInfo(api, threadId);
+      
+      if (!threadInfo) {
+        await reply('❌ Unable to fetch group info. Please try again later.');
+        return;
+      }
       
       if (!threadInfo.isGroup) {
         await reply('❌ Groups only');

@@ -1,5 +1,6 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 export const command: Command = {
   name: 'unban',
@@ -32,7 +33,7 @@ export const command: Command = {
         return;
       }
 
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
 
       await database.deleteSetting(`banned_${targetId}`);
