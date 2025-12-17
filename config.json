@@ -97,6 +97,36 @@
         "name": "Economy",
         "description": "Coins, rewards, and economy commands",
         "emoji": "💰"
+      },
+      "games": {
+        "name": "Games",
+        "description": "Fun games to play",
+        "emoji": "🎲"
+      },
+      "social": {
+        "name": "Social",
+        "description": "Social interaction commands",
+        "emoji": "💬"
+      },
+      "ai": {
+        "name": "AI",
+        "description": "AI-powered commands",
+        "emoji": "🤖"
+      },
+      "tools": {
+        "name": "Tools",
+        "description": "Useful tools and utilities",
+        "emoji": "🛠️"
+      },
+      "image": {
+        "name": "Image",
+        "description": "Image manipulation commands",
+        "emoji": "🖼️"
+      },
+      "roleplay": {
+        "name": "Roleplay",
+        "description": "Roleplay and interaction commands",
+        "emoji": "🎭"
       }
     },
     "helpPerPage": 5,

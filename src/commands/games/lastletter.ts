@@ -1,0 +1,5 @@
+import type { Command } from '../../types/index.js';
+const games = new Map<string, { last: string, words: string[] }>();
+export const command: Command = { name: 'lastletter', aliases: ['ll'], description: 'Last letter word game', category: 'games', usage: 'lastletter <word>', examples: ['lastletter apple'], cooldown: 3000,
+  async execute({ reply, args, event }) { const tid = event.threadID; if (!args.length) { games.delete(tid); return reply('🔤 LAST LETTER\n\nSay any word to start!'); } const word = args[0].toLowerCase(); const game = games.get(tid); if (!game) { games.set(tid, { last: word.slice(-1), words: [word] }); return reply(`✅ "${word}" → Next word starts with "${word.slice(-1).toUpperCase()}"`); } if (word[0] !== game.last) return reply(`❌ Word must start with "${game.last.toUpperCase()}"`); if (game.words.includes(word)) return reply('❌ Word already used!'); game.words.push(word); game.last = word.slice(-1); await reply(`✅ "${word}" → Next: "${word.slice(-1).toUpperCase()}" (${game.words.length} words)`); },
+};

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import fs from 'fs';
-import sulyap from 'sulyap-fca';
+import { login } from 'sulyap-fca';
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
@@ -226,8 +226,7 @@ async function main(): Promise<void> {
   console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
   console.log('  [LOGIN]           Attempting Facebook login...');
   
-  // Fix: Call sulyap directly as a function with callback
-  sulyap({ appState: appState.cookies, ...loginOptions }, async (err: any, api: any) => {
+  login({ appState: appState.cookies, ...loginOptions }, async (err: any, api: any) => {
     if (err) {
       BotLogger.error('Login failed', err);
       console.log('  [LOGIN]           Login failed. Please check your appstate.');
