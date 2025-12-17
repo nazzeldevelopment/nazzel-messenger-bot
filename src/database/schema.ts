@@ -15,7 +15,7 @@ export interface User {
 export interface Transaction {
   id?: string;
   userId: string;
-  type: 'claim' | 'game_win' | 'game_loss' | 'admin_add' | 'admin_remove' | 'ai_usage' | 'transfer';
+  type: 'claim' | 'game_win' | 'game_loss' | 'admin_add' | 'admin_remove' | 'ai_usage' | 'transfer' | 'work' | 'gambling' | 'heist' | 'explore' | 'loot';
   amount: number;
   balance: number;
   description: string;
