@@ -3,12 +3,12 @@ import { BotLogger } from '../../lib/logger.js';
 import { safeGetThreadInfo, safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
-  name: 'kick',
-  aliases: ['boot'],
-  description: 'Kick a member from the group chat',
+  name: 'promote',
+  aliases: ['makeadmin', 'addadmin'],
+  description: 'Promote a user to group admin',
   category: 'admin',
-  usage: 'kick <@mention|userID>',
-  examples: ['kick @user', 'kick 123456789'],
+  usage: 'promote <@mention|userID>',
+  examples: ['promote @user', 'promote 123456789'],
   adminOnly: true,
   cooldown: 5000,
 
@@ -16,44 +16,27 @@ const command: Command = {
     const { api, event, args, reply, prefix } = context;
     const threadId = String(event.threadID);
     const botId = String(api.getCurrentUserID());
-    
+
     let targetId: string | null = null;
-    
+
     if (event.mentions && Object.keys(event.mentions).length > 0) {
       targetId = String(Object.keys(event.mentions)[0]).trim();
     } else if (args[0] && /^\d+$/.test(args[0])) {
       targetId = String(args[0]).trim();
     }
-    
+
     if (!targetId) {
       await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
-┃  🔨 KICK USER
+┃  👑 PROMOTE USER
 ┗━━━━━━━━━━━━━━━━━━━━━┛
 
-Kick a member from the group.
+Make a user group admin.
 
-📝 Usage: ${prefix}kick @user
-📝 Usage: ${prefix}kick <userID>`);
-      return;
-    }
-    
-    if (targetId === String(event.senderID)) {
-      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
-┃  ❌ DENIED
-┗━━━━━━━━━━━━━━━━━━━┛
-You cannot kick yourself!`);
+📝 Usage: ${prefix}promote @user
+📝 Usage: ${prefix}promote <userID>`);
       return;
     }
 
-    if (targetId === botId) {
-      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
-┃  ❌ DENIED
-┗━━━━━━━━━━━━━━━━━━━┛
-Cannot kick the bot itself!
-Use ${prefix}leave instead.`);
-      return;
-    }
-    
     try {
       const threadInfo = await safeGetThreadInfo(api, threadId);
       
@@ -61,26 +44,42 @@ Use ${prefix}leave instead.`);
         await reply(`┏━━━━━━━━━━━━━━━━━━━┓
 ┃  ❌ ERROR
 ┗━━━━━━━━━━━━━━━━━━━┛
-Unable to fetch group info. Please try again.`);
+Could not fetch group info. Please try again.`);
         return;
       }
       
       const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
-      
+      const participantIDs = (threadInfo.participantIDs || []).map((id: any) => String(id));
+
       if (!adminIDs.includes(botId)) {
         await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
 ┃  ❌ NO PERMISSION
 ┗━━━━━━━━━━━━━━━━━━━━━┛
-Bot must be admin to kick members.
-Please make bot admin first.`);
+Bot must be admin to promote users.`);
+        return;
+      }
+
+      if (!participantIDs.includes(targetId)) {
+        await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+User is not in this group.`);
+        return;
+      }
+
+      if (adminIDs.includes(targetId)) {
+        await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ℹ️ INFO
+┗━━━━━━━━━━━━━━━━━━━┛
+This user is already an admin.`);
         return;
       }
 
       const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
-      
-      await api.removeUserFromGroup(targetId, threadId);
-      
+
+      await api.changeAdminStatus(threadId, targetId, true);
+
       const timestamp = new Date().toLocaleString('en-PH', {
         timeZone: 'Asia/Manila',
         month: 'short',
@@ -89,38 +88,38 @@ Please make bot admin first.`);
         minute: '2-digit',
         hour12: true
       });
-      
-      BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
-      
+
+      BotLogger.info(`Promoted ${targetId} (${userName}) to admin in ${threadId}`);
+
       await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
-┃  ✅ USER KICKED
+┃  👑 USER PROMOTED
 ┗━━━━━━━━━━━━━━━━━━━━━┛
 
 👤 Name: ${userName}
 🆔 ID: ${targetId}
 ⏰ Time: ${timestamp}
 
-Successfully removed from group!`);
+User is now a group admin!`);
     } catch (err: any) {
-      BotLogger.error(`Failed to kick user ${targetId}`, err);
+      BotLogger.error(`Failed to promote user ${targetId}`, err);
       
-      let errorMsg = 'Failed to remove user.';
-      if (err?.message?.includes('admin')) {
-        errorMsg = 'Cannot kick group admin.';
-      } else if (err?.message?.includes('permission')) {
-        errorMsg = 'Bot lacks admin permission.';
+      let errorMsg = 'Failed to promote user.';
+      if (err?.message?.includes('permission')) {
+        errorMsg = 'Bot lacks permission to promote users.';
+      } else if (err?.message?.includes('not found')) {
+        errorMsg = 'User not found in group.';
       }
       
       await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
-┃  ❌ KICK FAILED
+┃  ❌ PROMOTE FAILED
 ┗━━━━━━━━━━━━━━━━━━━━━┛
 
 ${errorMsg}
 
 Possible reasons:
-• User is a group admin
-• User already left
-• Bot is not admin`);
+• User is not in the group
+• Bot is not admin
+• Facebook API error`);
     }
   }
 };

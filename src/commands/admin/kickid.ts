@@ -4,7 +4,7 @@ import { safeGetThreadInfo, safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'kickid',
-  aliases: ['removeid', 'bootid'],
+  aliases: ['removeid', 'bootid', 'kickbyid'],
   description: 'Remove a member from the group using their User ID',
   category: 'admin',
   usage: 'kickid <userID>',
@@ -18,35 +18,31 @@ const command: Command = {
     const botId = String(api.getCurrentUserID());
     
     if (!args[0] || !/^\d+$/.test(args[0])) {
-      await reply(`╭─────────────────╮
-│ 🔨 KICK BY ID
-╰─────────────────╯
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  🔨 KICK BY ID
+┗━━━━━━━━━━━━━━━━━━━━━┛
 
-Remove user by Facebook ID.
+Remove user by their Facebook User ID.
 
 📝 Usage: ${prefix}kickid <userID>
-📝 Example: ${prefix}kickid 12345
-
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`);
+📝 Example: ${prefix}kickid 100012345678901`);
       return;
     }
     
     const targetId = String(args[0]).trim();
     
     if (targetId === String(event.senderID)) {
-      await reply(`╭─────────────────╮
-│ ❌ DENIED
-╰─────────────────╯
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ DENIED
+┗━━━━━━━━━━━━━━━━━━━┛
 You cannot kick yourself!`);
       return;
     }
 
     if (targetId === botId) {
-      await reply(`╭─────────────────╮
-│ ❌ DENIED
-╰─────────────────╯
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ DENIED
+┗━━━━━━━━━━━━━━━━━━━┛
 Cannot kick the bot itself!
 Use ${prefix}leave instead.`);
       return;
@@ -57,10 +53,10 @@ Use ${prefix}leave instead.`);
       const adminIDs = (threadInfo?.adminIDs || []).map((a: any) => String(a.id || a));
       
       if (!adminIDs.includes(botId)) {
-        await reply(`╭─────────────────╮
-│ ❌ NO PERMISSION
-╰─────────────────╯
-Bot must be admin to kick.
+        await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ NO PERMISSION
+┗━━━━━━━━━━━━━━━━━━━━━┛
+Bot must be admin to kick members.
 Please make bot admin first.`);
         return;
       }
@@ -81,18 +77,15 @@ Please make bot admin first.`);
       
       BotLogger.info(`Kicked user ${targetId} (${userName}) from group ${threadId}`);
       
-      await reply(`╭─────────────────╮
-│ ✅ USER KICKED
-╰─────────────────╯
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  ✅ USER KICKED
+┗━━━━━━━━━━━━━━━━━━━━━┛
 
-👤 ${userName}
-🆔 ${targetId}
-⏰ ${timestamp}
+👤 Name: ${userName}
+🆔 ID: ${targetId}
+⏰ Time: ${timestamp}
 
-Successfully removed!
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`);
+Successfully removed from group!`);
     } catch (err: any) {
       BotLogger.error(`Failed to kick user ${targetId}`, err);
       
@@ -103,17 +96,17 @@ Successfully removed!
         errorMsg = 'Bot lacks admin permission.';
       }
       
-      await reply(`╭─────────────────╮
-│ ❌ KICK FAILED
-╰─────────────────╯
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ KICK FAILED
+┗━━━━━━━━━━━━━━━━━━━━━┛
 
 ${errorMsg}
 
 Possible reasons:
-• User is an admin
+• User is a group admin
 • User already left
 • Invalid user ID
-• Bot not admin`);
+• Bot is not admin`);
     }
   }
 };

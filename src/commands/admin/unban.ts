@@ -1,27 +1,38 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
 import { safeGetUserInfo } from '../../lib/apiHelpers.js';
+import { BotLogger } from '../../lib/logger.js';
 
 export const command: Command = {
   name: 'unban',
-  aliases: ['unblock', 'whitelist'],
+  aliases: ['unblock', 'whitelist', 'pardon'],
   description: 'Unban a user from bot commands',
   category: 'admin',
   usage: 'unban <user ID>',
   examples: ['unban 123456789'],
-  cooldown: 5,
+  cooldown: 5000,
   adminOnly: true,
 
-  async execute({ api, args, reply }) {
+  async execute({ api, event, args, reply, prefix }): Promise<void> {
     if (!args[0]) {
-      await reply('❌ Please provide a user ID.\n\nUsage: unban <user ID>');
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  🔓 UNBAN USER
+┗━━━━━━━━━━━━━━━━━━━━━┛
+
+Remove a ban from a user.
+
+📝 Usage: ${prefix}unban <userID>
+📝 Example: ${prefix}unban 100012345678901`);
       return;
     }
 
     const targetId = String(args[0].replace(/[^0-9]/g, ''));
 
-    if (!targetId) {
-      await reply('❌ Invalid user ID.');
+    if (!targetId || targetId.length < 5) {
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+Invalid user ID. Please provide a valid Facebook user ID.`);
       return;
     }
 
@@ -29,7 +40,10 @@ export const command: Command = {
       const banData = await database.getSetting(`banned_${targetId}`);
       
       if (!banData) {
-        await reply('ℹ️ This user is not banned.');
+        await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ℹ️ INFO
+┗━━━━━━━━━━━━━━━━━━━┛
+This user is not banned.`);
         return;
       }
 
@@ -38,9 +52,35 @@ export const command: Command = {
 
       await database.deleteSetting(`banned_${targetId}`);
 
-      await reply(`✅ *User Unbanned*\n\n👤 User: ${userName}\n🆔 ID: ${targetId}\n\nThis user can now use bot commands again.`);
+      const timestamp = new Date().toLocaleString('en-PH', {
+        timeZone: 'Asia/Manila',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      BotLogger.info(`Unbanned user ${targetId} (${userName}) by ${event.senderID}`);
+
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  ✅ USER UNBANNED
+┗━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 Name: ${userName}
+🆔 ID: ${targetId}
+⏰ Time: ${timestamp}
+✅ Status: UNBANNED
+
+User can now use bot commands again.`);
     } catch (error) {
-      await reply('❌ Failed to unban user.');
+      BotLogger.error('Failed to unban user', error);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+Failed to unban user. Please try again.`);
     }
   },
 };
+
+export default command;

@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.9.0] - 2025-12-17
+
+### Changed
+
+#### Updated sulyap-fca to v1.3.2 (Latest)
+- Updated from v1.3.1 to v1.3.2
+- Full compatibility with Messenger Group Chat and Private Messages (PM)
+- Verified async/await support for all API functions
+- Improved stability and anti-detection features
+
+#### Command Styling Overhaul (Professional Box Design)
+All admin commands now use the new professional box styling:
+- New box characters: `┏━━┓ ┃ ┗━━┛`
+- Cleaner, more compact output
+- Consistent timestamp formatting (Philippine Time)
+- Better error messages with actionable suggestions
+
+### Added
+
+#### New Admin Commands
+- **banlist** - Check if a user is banned (aliases: banned, listbans, bans)
+- **promote** - Promote a user to group admin (aliases: makeadmin, addadmin)
+- **demote** - Remove admin status from a user (aliases: removeadmin, unadmin)
+- **gcname** - Change the group chat name (aliases: groupname, setgcname, rename)
+
+### Fixed
+
+#### Admin Command Improvements
+- **removeall** - Now properly protects ALL admins, bot, and sender from removal
+  - Added clearer confirmation message with member counts
+  - Faster removal with 1s delay (was 1.2s)
+  - Added 'clearmembers' alias
+- **removemember** - Added 'remove' alias, better error handling with specific failure reasons
+  - Shows user ID in success message
+  - Improved multi-user removal feedback
+- **kickid** - Added 'kickbyid' alias, improved error messages
+- **ban** - Added self-ban prevention, improved logging, cleaner output
+  - Added 'botban' alias
+- **unban** - Complete redesign with new box styling
+  - Added 'pardon' alias
+  - Shows timestamp and proper logging
+- **kick** - Improved styling and error messages
+
+### Technical
+- All admin commands now use async/await properly for sulyap-fca v1.3.2 compatibility
+- Added BotLogger calls to all admin commands for better tracking
+- Consistent timestamp formatting across all commands
+- **Total Commands**: 210+ in 7 categories
+
+---
+
 ## [2.8.1] - 2025-12-09
 
 ### Changed

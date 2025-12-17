@@ -4,7 +4,7 @@ import { BotLogger } from '../../lib/logger.js';
 
 const command: Command = {
   name: 'removeall',
-  aliases: ['kickall', 'cleargroup'],
+  aliases: ['kickall', 'cleargroup', 'clearmembers'],
   description: 'Kick all non-admin members from the group (Owner only)',
   category: 'admin',
   usage: 'removeall [confirm]',
@@ -19,11 +19,10 @@ const command: Command = {
     const senderId = String(event.senderID);
     
     if (!event.isGroup && !event.threadID) {
-      await reply(`╭─────────────────╮
-│ ❌ ERROR
-╰─────────────────╯
-This command only works
-in group chats!`);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+This command only works in group chats!`);
       return;
     }
     
@@ -36,11 +35,10 @@ in group chats!`);
       threadInfo = await safeGetThreadInfo(api, threadId);
       
       if (!threadInfo) {
-        await reply(`╭─────────────────╮
-│ ❌ ERROR
-╰─────────────────╯
-Could not fetch group info.
-Please try again.`);
+        await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+Could not fetch group info. Please try again.`);
         return;
       }
       
@@ -59,34 +57,27 @@ Please try again.`);
       BotLogger.debug(`RemoveAll: Found ${allParticipants.length} participants, ${adminIDs.length} admins`);
       
       if (allParticipants.length === 0) {
-        await reply(`╭─────────────────╮
-│ ❌ ERROR
-╰─────────────────╯
-Could not fetch member list.
-Group may be too large or
-API limitation.`);
+        await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+Could not fetch member list. Group may be too large.`);
         return;
       }
       
       if (!adminIDs.includes(botId)) {
-        await reply(`╭─────────────────╮
-│ ❌ NO PERMISSION
-╰─────────────────╯
-Bot must be admin to
-kick members!
-
+        await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ NO PERMISSION
+┗━━━━━━━━━━━━━━━━━━━┛
+Bot must be admin to kick members!
 💡 Make bot admin first.`);
         return;
       }
     } catch (e: any) {
       BotLogger.error('RemoveAll: Failed to get thread info', e);
-      await reply(`╭─────────────────╮
-│ ❌ ERROR
-╰─────────────────╯
-Could not get group info.
-Error: ${e.message || 'Unknown'}
-
-Please try again later.`);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+Could not get group info: ${e.message || 'Unknown'}`);
       return;
     }
     
@@ -98,49 +89,48 @@ Please try again later.`);
     });
     
     const memberCount = allParticipants.length;
-    const shortGroupName = groupName.length > 15 ? groupName.substring(0, 12) + '...' : groupName;
+    const shortGroupName = groupName.length > 20 ? groupName.substring(0, 17) + '...' : groupName;
     
     if (args[0]?.toLowerCase() !== 'confirm') {
-      await reply(`╭─────────────────╮
-│ ⚠️ KICK ALL
-╰─────────────────╯
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  ⚠️ REMOVE ALL MEMBERS
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-📛 ${shortGroupName}
+📛 Group: ${shortGroupName}
 👥 Total Members: ${memberCount}
-🎯 To Kick: ${toKick.length}
+🎯 To Remove: ${toKick.length}
 🛡️ Protected (Admins): ${uniqueProtected.length}
 
-⚠️ This will KICK all
-non-admin members!
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ WARNING: This will REMOVE all
+non-admin members from the group!
 
-Admins will NOT be removed.
+✅ Admins will NOT be removed.
+✅ Bot will NOT be removed.
+✅ You will NOT be removed.
 
-💡 Type to confirm:
+💡 To confirm, type:
 ${prefix}removeall confirm
-
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`);
+━━━━━━━━━━━━━━━━━━━━━━━━━━`);
       return;
     }
     
     if (toKick.length === 0) {
-      await reply(`╭─────────────────╮
-│ ℹ️ INFO
-╰─────────────────╯
-No members to kick!
-Only admins remain in group.`);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ℹ️ INFO
+┗━━━━━━━━━━━━━━━━━━━┛
+No members to remove! Only admins remain.`);
       return;
     }
     
-    await reply(`╭─────────────────╮
-│ 🔄 KICKING...
-╰─────────────────╯
+    await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  🔄 REMOVING MEMBERS...
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 📛 ${shortGroupName}
-👥 Kicking: ${toKick.length} members
-🛡️ Admins Safe: ${uniqueProtected.length}
-⏳ Est: ~${Math.ceil(toKick.length * 1.5)}s
+👥 Removing: ${toKick.length} members
+🛡️ Admins Protected: ${uniqueProtected.length}
+⏳ Estimated: ~${Math.ceil(toKick.length * 1.5)}s
 
 Please wait...`);
     
@@ -151,13 +141,13 @@ Please wait...`);
       try {
         await api.removeUserFromGroup(userId, threadId);
         kicked++;
-        BotLogger.debug(`RemoveAll: Kicked ${userId} from ${threadId}`);
+        BotLogger.debug(`RemoveAll: Removed ${userId} from ${threadId}`);
       } catch (e: any) {
         failed++;
-        BotLogger.debug(`RemoveAll: Failed to kick ${userId}: ${e.message || e}`);
+        BotLogger.debug(`RemoveAll: Failed to remove ${userId}: ${e.message || e}`);
       }
       
-      await new Promise(r => setTimeout(r, 1200));
+      await new Promise(r => setTimeout(r, 1000));
     }
     
     const successRate = toKick.length > 0 ? Math.round((kicked / toKick.length) * 100) : 0;
@@ -172,24 +162,20 @@ Please wait...`);
       hour12: true
     });
     
-    await reply(`╭─────────────────╮
-│ ${statusEmoji} COMPLETED
-╰─────────────────╯
+    await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  ${statusEmoji} OPERATION COMPLETE
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-✓ Kicked: ${kicked}
-✗ Failed: ${failed}
-📈 Success: ${successRate}%
+✅ Removed: ${kicked} members
+❌ Failed: ${failed}
+📈 Success Rate: ${successRate}%
 🛡️ Admins Safe: ${uniqueProtected.length}
 
 ⏰ ${timestamp}
-${kicked > 0 ? '🎯 Operation completed!' : '⚠️ No members kicked!'}
-${failed > 0 ? `💡 ${failed} may have already left` : ''}
-
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`);
+${kicked > 0 ? '🎯 All non-admin members removed!' : '⚠️ No members were removed!'}
+${failed > 0 ? `💡 ${failed} may have already left the group` : ''}`);
     
-    BotLogger.info(`RemoveAll: Kicked ${kicked}/${toKick.length} from ${threadId} (${groupName}), Protected: ${uniqueProtected.length}`);
+    BotLogger.info(`RemoveAll: Removed ${kicked}/${toKick.length} from ${threadId} (${groupName}), Protected: ${uniqueProtected.length}`);
   }
 };
 

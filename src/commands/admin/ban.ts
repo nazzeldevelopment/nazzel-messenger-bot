@@ -1,11 +1,11 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
-import { decorations } from '../../lib/messageFormatter.js';
 import { safeGetUserInfo } from '../../lib/apiHelpers.js';
+import { BotLogger } from '../../lib/logger.js';
 
 export const command: Command = {
   name: 'ban',
-  aliases: ['block', 'blacklist'],
+  aliases: ['block', 'blacklist', 'botban'],
   description: 'Ban a user from using bot commands',
   category: 'admin',
   usage: 'ban <@mention or user ID> [reason]',
@@ -13,21 +13,20 @@ export const command: Command = {
   cooldown: 5000,
   adminOnly: true,
 
-  async execute({ api, event, args, reply, prefix }) {
+  async execute({ api, event, args, reply, prefix }): Promise<void> {
     if (!args[0]) {
-      await reply(`🔨 『 BAN USER 』 🔨
-═══════════════════════════
-${decorations.fire} Ban a user from the bot
-═══════════════════════════
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  🔨 BAN USER
+┗━━━━━━━━━━━━━━━━━━━━━┛
 
-◈ USAGE
-═══════════════════════════
-➤ ${prefix}ban @user [reason]
-➤ ${prefix}ban <ID> [reason]
+Ban a user from using bot commands.
 
-◈ EXAMPLE
-═══════════════════════════
-➤ ${prefix}ban @user Spamming`);
+📝 Usage:
+• ${prefix}ban @user [reason]
+• ${prefix}ban <userID> [reason]
+
+📝 Example:
+• ${prefix}ban @user Spamming commands`);
       return;
     }
 
@@ -39,20 +38,33 @@ ${decorations.fire} Ban a user from the bot
       targetId = String(Object.keys(event.mentions)[0]);
     }
 
-    if (!targetId) {
-      await reply(`${decorations.fire} 『 ERROR 』
-═══════════════════════════
-❌ Could not find user to ban`);
+    if (!targetId || targetId.length < 5) {
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+Could not find user to ban. Please mention or provide valid ID.`);
+      return;
+    }
+
+    const senderId = String(event.senderID);
+    
+    if (targetId === senderId) {
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ DENIED
+┗━━━━━━━━━━━━━━━━━━━┛
+You cannot ban yourself!`);
       return;
     }
 
     const reason = args.slice(1).join(' ') || 'No reason provided';
-    const senderId = String(event.senderID);
     
-    const timestamp = new Date().toLocaleString('en-US', {
+    const timestamp = new Date().toLocaleString('en-PH', {
       timeZone: 'Asia/Manila',
-      dateStyle: 'medium',
-      timeStyle: 'short'
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
     });
 
     try {
@@ -65,28 +77,27 @@ ${decorations.fire} Ban a user from the bot
         timestamp: new Date().toISOString(),
       }));
 
-      await reply(`🔨 『 USER BANNED 』 🔨
-═══════════════════════════
-${decorations.fire} Ban Executed
-═══════════════════════════
+      BotLogger.info(`Banned user ${targetId} (${userName}) by ${senderId} - Reason: ${reason}`);
 
-◈ BANNED USER
-═══════════════════════════
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  🔨 USER BANNED
+┗━━━━━━━━━━━━━━━━━━━━━┛
+
 👤 Name: ${userName}
 🆔 ID: ${targetId}
 📝 Reason: ${reason}
-⏰ Banned: ${timestamp}
+⏰ Time: ${timestamp}
 🚫 Status: BANNED
 
-═══════════════════════════
-💡 Use ${prefix}unban <ID> to remove
-═══════════════════════════
-${decorations.sparkle} User can no longer use bot`);
+━━━━━━━━━━━━━━━━━━━━━
+User can no longer use bot commands.
+💡 Use ${prefix}unban ${targetId} to remove ban.`);
     } catch (error) {
-      await reply(`${decorations.fire} 『 BAN FAILED 』
-═══════════════════════════
-❌ Failed to ban user
-💡 Please try again later`);
+      BotLogger.error('Failed to ban user', error);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ BAN FAILED
+┗━━━━━━━━━━━━━━━━━━━┛
+Failed to ban user. Please try again.`);
     }
   },
 };

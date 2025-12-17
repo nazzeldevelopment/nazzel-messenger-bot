@@ -4,7 +4,7 @@ import { safeGetThreadInfo, safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'removemember',
-  aliases: ['rmember', 'rmmember'],
+  aliases: ['rmember', 'rmmember', 'remove'],
   description: 'Remove one or multiple members from the group',
   category: 'admin',
   usage: 'removemember <@mention|userID> [more users...]',
@@ -33,20 +33,16 @@ const command: Command = {
     }
     
     if (targetIds.length === 0) {
-      await reply(`╭─────────────────╮
-│ 👥 REMOVE MEMBER
-╰─────────────────╯
+      await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  👥 REMOVE MEMBER
+┗━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Mention or provide user IDs.
+Mention or provide user IDs to remove.
 
 📝 Usage:
-${prefix}removemember @user
-${prefix}removemember @user1 @user2
-${prefix}removemember 123456
-
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`);
+• ${prefix}removemember @user
+• ${prefix}removemember @user1 @user2
+• ${prefix}removemember 123456789`);
       return;
     }
     
@@ -55,10 +51,10 @@ ${prefix}removemember 123456
     );
     
     if (validTargets.length === 0) {
-      await reply(`╭─────────────────╮
-│ ❌ DENIED
-╰─────────────────╯
-Cannot remove yourself or bot!`);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ DENIED
+┗━━━━━━━━━━━━━━━━━━━┛
+Cannot remove yourself or the bot!`);
       return;
     }
     
@@ -67,24 +63,24 @@ Cannot remove yourself or bot!`);
       const adminIDs = (threadInfo?.adminIDs || []).map((a: any) => String(a.id || a));
       
       if (!adminIDs.includes(botId)) {
-        await reply(`╭─────────────────╮
-│ ❌ NO PERMISSION
-╰─────────────────╯
-Bot must be admin to remove.
+        await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ NO PERMISSION
+┗━━━━━━━━━━━━━━━━━━━━━┛
+Bot must be admin to remove members.
 Please make bot admin first.`);
         return;
       }
       
       if (validTargets.length > 1) {
-        await reply(`╭─────────────────╮
-│ 🔄 REMOVING...
-╰─────────────────╯
+        await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  🔄 REMOVING...
+┗━━━━━━━━━━━━━━━━━━━━━┛
 Processing ${validTargets.length} users...`);
       }
       
       let removed = 0;
       let failed = 0;
-      const results: { name: string; success: boolean }[] = [];
+      const results: { name: string; id: string; success: boolean }[] = [];
       
       for (const targetId of validTargets) {
         try {
@@ -94,20 +90,20 @@ Processing ${validTargets.length} users...`);
           await api.removeUserFromGroup(targetId, threadId);
           
           removed++;
-          results.push({ name: userName, success: true });
+          results.push({ name: userName, id: targetId, success: true });
           BotLogger.info(`Removed ${targetId} (${userName}) from ${threadId}`);
           
           if (validTargets.length > 1) {
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, 800));
           }
         } catch (err: any) {
           failed++;
           try {
             const userInfo = await safeGetUserInfo(api, targetId);
             const userName = userInfo[targetId]?.name || targetId;
-            results.push({ name: userName, success: false });
+            results.push({ name: userName, id: targetId, success: false });
           } catch {
-            results.push({ name: targetId, success: false });
+            results.push({ name: targetId, id: targetId, success: false });
           }
           BotLogger.error(`Failed to remove ${targetId}`, err);
         }
@@ -125,36 +121,34 @@ Processing ${validTargets.length} users...`);
       if (validTargets.length === 1) {
         const result = results[0];
         if (result.success) {
-          await reply(`╭─────────────────╮
-│ ✅ MEMBER REMOVED
-╰─────────────────╯
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  ✅ MEMBER REMOVED
+┗━━━━━━━━━━━━━━━━━━━━━━━┛
 
-👤 ${result.name}
-⏰ ${timestamp}
+👤 Name: ${result.name}
+🆔 ID: ${result.id}
+⏰ Time: ${timestamp}
 
-Successfully removed!
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`);
+Successfully removed from group!`);
         } else {
-          await reply(`╭─────────────────╮
-│ ❌ REMOVE FAILED
-╰─────────────────╯
+          await reply(`┏━━━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ REMOVE FAILED
+┗━━━━━━━━━━━━━━━━━━━━━┛
 
 👤 ${result.name}
 
 Possible reasons:
-• User is an admin
-• User already left
+• User is a group admin
+• User already left the group
 • Invalid user ID`);
         }
       } else {
         const successList = results.filter(r => r.success).map(r => `✅ ${r.name}`);
         const failList = results.filter(r => !r.success).map(r => `❌ ${r.name}`);
         
-        await reply(`╭─────────────────╮
-│ 📊 REMOVE RESULTS
-╰─────────────────╯
+        await reply(`┏━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  📊 REMOVE RESULTS
+┗━━━━━━━━━━━━━━━━━━━━━━━┛
 
 ✅ Removed: ${removed}
 ❌ Failed: ${failed}
@@ -163,18 +157,14 @@ ${successList.length > 0 ? successList.slice(0, 5).join('\n') : ''}
 ${successList.length > 5 ? `...and ${successList.length - 5} more` : ''}
 ${failList.length > 0 ? '\n' + failList.slice(0, 3).join('\n') : ''}
 
-⏰ ${timestamp}
-╭─────────────────╮
-│ 💗 Wisdom Bot
-╰─────────────────╯`);
+⏰ ${timestamp}`);
       }
     } catch (err: any) {
       BotLogger.error('Failed to remove members', err);
-      await reply(`╭─────────────────╮
-│ ❌ ERROR
-╰─────────────────╯
-Failed to process removal.
-Please try again.`);
+      await reply(`┏━━━━━━━━━━━━━━━━━━━┓
+┃  ❌ ERROR
+┗━━━━━━━━━━━━━━━━━━━┛
+Failed to process removal. Please try again.`);
     }
   }
 };
