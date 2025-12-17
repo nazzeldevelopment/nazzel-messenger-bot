@@ -226,7 +226,8 @@ async function main(): Promise<void> {
   console.log('════════════════════ CONNECTING TO FACEBOOK ═════════════════════');
   console.log('  [LOGIN]           Attempting Facebook login...');
   
-  sulyap.login({ appState: appState.cookies, ...loginOptions }, async (err: any, api: any) => {
+  // Fix: Call sulyap directly as a function with callback
+  sulyap({ appState: appState.cookies, ...loginOptions }, async (err: any, api: any) => {
     if (err) {
       BotLogger.error('Login failed', err);
       console.log('  [LOGIN]           Login failed. Please check your appstate.');
@@ -303,7 +304,7 @@ async function main(): Promise<void> {
       }
     });
     
-    BotLogger.info('LiwanagFCA message listener started successfully');
+    BotLogger.info('Message listener started successfully');
   });
 }
 
