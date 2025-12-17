@@ -91,15 +91,7 @@ Processing ${validTargets.length} users...`);
           const userInfo = await safeGetUserInfo(api, targetId);
           const userName = userInfo[targetId]?.name || 'Unknown';
           
-          await new Promise<void>((resolve, reject) => {
-            api.removeUserFromGroup(targetId, threadId, (err: any) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
+          await api.removeUserFromGroup(targetId, threadId);
           
           removed++;
           results.push({ name: userName, success: true });

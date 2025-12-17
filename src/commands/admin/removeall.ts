@@ -149,15 +149,7 @@ Please wait...`);
     
     for (const userId of toKick) {
       try {
-        await new Promise<void>((resolve, reject) => {
-          api.removeUserFromGroup(userId, threadId, (err: any) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve();
-            }
-          });
-        });
+        await api.removeUserFromGroup(userId, threadId);
         kicked++;
         BotLogger.debug(`RemoveAll: Kicked ${userId} from ${threadId}`);
       } catch (e: any) {

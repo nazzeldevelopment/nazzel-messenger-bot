@@ -1,11 +1,6 @@
 export async function safeGetThreadInfo(api: any, threadId: string | number): Promise<any | null> {
   try {
-    const result = await new Promise<any>((resolve, reject) => {
-      api.getThreadInfo(String(threadId).trim(), (err: any, info: any) => {
-        if (err) reject(err);
-        else resolve(info);
-      });
-    });
+    const result = await api.getThreadInfo(String(threadId).trim());
     return result;
   } catch (error: any) {
     const errorMsg = error?.message || String(error);
@@ -20,12 +15,7 @@ export async function safeGetUserInfo(api: any, userIds: string | string[]): Pro
   try {
     const ids = Array.isArray(userIds) ? userIds : [userIds];
     const cleanIds = ids.map(id => String(id).trim());
-    const result = await new Promise<any>((resolve, reject) => {
-      api.getUserInfo(cleanIds, (err: any, info: any) => {
-        if (err) reject(err);
-        else resolve(info);
-      });
-    });
+    const result = await api.getUserInfo(cleanIds);
     return result || {};
   } catch (error: any) {
     const errorMsg = error?.message || String(error);
@@ -38,12 +28,7 @@ export async function safeGetUserInfo(api: any, userIds: string | string[]): Pro
 
 export async function safeGetThreadList(api: any, limit: number, timestamp: any, tags: string[]): Promise<any[]> {
   try {
-    const result = await new Promise<any>((resolve, reject) => {
-      api.getThreadList(limit, timestamp, tags, (err: any, list: any) => {
-        if (err) reject(err);
-        else resolve(list);
-      });
-    });
+    const result = await api.getThreadList(limit, timestamp, tags);
     return result || [];
   } catch (error: any) {
     const errorMsg = error?.message || String(error);

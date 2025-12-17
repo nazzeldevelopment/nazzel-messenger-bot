@@ -6,7 +6,7 @@
     "path": "/",
     "secure": true,
     "httpOnly": false,
-    "expires": "2026-12-17T05:10:23.000Z"
+    "expires": "2026-12-17T06:12:06.000Z"
   },
   {
     "key": "datr",
@@ -26,12 +26,12 @@
   },
   {
     "key": "fr",
-    "value": "1wpSPwYnmHvL7TtZP.AWecmknurOxxVFzxvOTzvsV6cjKVS_pvU0hK0d5ytY3Ex_s43cQ.BpQjs_..AAA.0.0.BpQjs_.AWe-MKX9RZmQoMwvQH1vV9K1y-w",
+    "value": "1fDgym2YKS881FvVK.AWfGiEKwjcyF4GTgz4c2LXs45BzELEJy5ykVPJBF2a8refA6VRM.BpQkm2..AAA.0.0.BpQkm2.AWfKs4SX7kxzcf69IhLYaAXIV9U",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-03-17T05:10:23.000Z"
+    "expires": "2026-03-17T06:12:06.000Z"
   },
   {
     "key": "locale",
@@ -75,12 +75,12 @@
   },
   {
     "key": "sb",
-    "value": "OTtCaSaKbJTJjT1xfKbpeIef",
+    "value": "rElCaU1nawc__TCplBu9mVkL",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2027-01-21T05:10:17.000Z"
+    "expires": "2027-01-21T06:11:56.000Z"
   },
   {
     "key": "vpd",
@@ -116,12 +116,12 @@
   },
   {
     "key": "xs",
-    "value": "42%3A4XCxX9k5_YLXmQ%3A2%3A1765947344%3A-1%3A-1%3A%3AAcySyI8IqHkxHnY0-2qxNz1gHaE7O9gz99YRHkAdag",
+    "value": "42%3A4XCxX9k5_YLXmQ%3A2%3A1765947344%3A-1%3A-1%3A%3AAcyeNMs4FH02PaGc2XRuGkdWdyH2GOxy86S1YpWNGA",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-12-17T05:10:23.000Z"
+    "expires": "2026-12-17T06:12:06.000Z"
   },
   {
     "key": "c_user",
@@ -130,7 +130,7 @@
     "path": "/",
     "secure": true,
     "httpOnly": false,
-    "expires": "2026-12-17T05:10:23.000Z"
+    "expires": "2026-12-17T06:12:06.000Z"
   },
   {
     "key": "datr",
@@ -150,12 +150,12 @@
   },
   {
     "key": "fr",
-    "value": "1wpSPwYnmHvL7TtZP.AWecmknurOxxVFzxvOTzvsV6cjKVS_pvU0hK0d5ytY3Ex_s43cQ.BpQjs_..AAA.0.0.BpQjs_.AWe-MKX9RZmQoMwvQH1vV9K1y-w",
+    "value": "1fDgym2YKS881FvVK.AWfGiEKwjcyF4GTgz4c2LXs45BzELEJy5ykVPJBF2a8refA6VRM.BpQkm2..AAA.0.0.BpQkm2.AWfKs4SX7kxzcf69IhLYaAXIV9U",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-03-17T05:10:23.000Z"
+    "expires": "2026-03-17T06:12:06.000Z"
   },
   {
     "key": "locale",
@@ -199,12 +199,12 @@
   },
   {
     "key": "sb",
-    "value": "OTtCaSaKbJTJjT1xfKbpeIef",
+    "value": "rElCaU1nawc__TCplBu9mVkL",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2027-01-21T05:10:17.000Z"
+    "expires": "2027-01-21T06:11:56.000Z"
   },
   {
     "key": "vpd",
@@ -240,12 +240,12 @@
   },
   {
     "key": "xs",
-    "value": "42%3A4XCxX9k5_YLXmQ%3A2%3A1765947344%3A-1%3A-1%3A%3AAcySyI8IqHkxHnY0-2qxNz1gHaE7O9gz99YRHkAdag",
+    "value": "42%3A4XCxX9k5_YLXmQ%3A2%3A1765947344%3A-1%3A-1%3A%3AAcyeNMs4FH02PaGc2XRuGkdWdyH2GOxy86S1YpWNGA",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-12-17T05:10:23.000Z"
+    "expires": "2026-12-17T06:12:06.000Z"
   },
   {
     "key": "c_user",
@@ -254,7 +254,7 @@
     "path": "/",
     "secure": true,
     "httpOnly": false,
-    "expires": "2026-12-17T05:10:23.000Z"
+    "expires": "2026-12-17T06:12:06.000Z"
   },
   {
     "key": "datr",
@@ -274,12 +274,12 @@
   },
   {
     "key": "fr",
-    "value": "1wpSPwYnmHvL7TtZP.AWecmknurOxxVFzxvOTzvsV6cjKVS_pvU0hK0d5ytY3Ex_s43cQ.BpQjs_..AAA.0.0.BpQjs_.AWe-MKX9RZmQoMwvQH1vV9K1y-w",
+    "value": "1fDgym2YKS881FvVK.AWfGiEKwjcyF4GTgz4c2LXs45BzELEJy5ykVPJBF2a8refA6VRM.BpQkm2..AAA.0.0.BpQkm2.AWfKs4SX7kxzcf69IhLYaAXIV9U",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-03-17T05:10:23.000Z"
+    "expires": "2026-03-17T06:12:06.000Z"
   },
   {
     "key": "locale",
@@ -323,12 +323,12 @@
   },
   {
     "key": "sb",
-    "value": "OTtCaSaKbJTJjT1xfKbpeIef",
+    "value": "rElCaU1nawc__TCplBu9mVkL",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2027-01-21T05:10:17.000Z"
+    "expires": "2027-01-21T06:11:56.000Z"
   },
   {
     "key": "vpd",
@@ -364,11 +364,11 @@
   },
   {
     "key": "xs",
-    "value": "42%3A4XCxX9k5_YLXmQ%3A2%3A1765947344%3A-1%3A-1%3A%3AAcySyI8IqHkxHnY0-2qxNz1gHaE7O9gz99YRHkAdag",
+    "value": "42%3A4XCxX9k5_YLXmQ%3A2%3A1765947344%3A-1%3A-1%3A%3AAcyeNMs4FH02PaGc2XRuGkdWdyH2GOxy86S1YpWNGA",
     "domain": "facebook.com",
     "path": "/",
     "secure": true,
     "httpOnly": true,
-    "expires": "2026-12-17T05:10:23.000Z"
+    "expires": "2026-12-17T06:12:06.000Z"
   }
 ]

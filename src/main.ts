@@ -243,12 +243,7 @@ async function main(): Promise<void> {
     let botName = 'Unknown';
     try {
       if (api.getUserInfo) {
-        const userInfo = await new Promise<any>((resolve, reject) => {
-          api.getUserInfo([currentUserId], (err: any, info: any) => {
-            if (err) reject(err);
-            else resolve(info);
-          });
-        });
+        const userInfo = await api.getUserInfo([currentUserId]);
         botName = userInfo[currentUserId]?.name || 'Unknown';
       }
     } catch (error) {}

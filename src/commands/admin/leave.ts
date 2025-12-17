@@ -51,15 +51,7 @@ Goodbye everyone! 💫
       
       await new Promise(r => setTimeout(r, 1000));
       
-      await new Promise<void>((resolve, reject) => {
-        api.removeUserFromGroup(botId, targetThread, (err: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
+      await api.removeUserFromGroup(botId, targetThread);
       
       BotLogger.info(`Bot left group: ${targetThread} (${groupName})`);
       

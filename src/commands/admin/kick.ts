@@ -84,15 +84,7 @@ Please make bot admin first.`);
       const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
       
-      await new Promise<void>((resolve, reject) => {
-        api.removeUserFromGroup(targetId, threadId, (err: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
+      await api.removeUserFromGroup(targetId, threadId);
       
       const timestamp = new Date().toLocaleString('en-PH', {
         timeZone: 'Asia/Manila',
