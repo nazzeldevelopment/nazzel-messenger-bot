@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import fs from 'fs';
-import { login } from 'sulyap-fca';
+import sulyapFca from 'sulyap-fca';
+const login = sulyapFca.default || sulyapFca;
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
