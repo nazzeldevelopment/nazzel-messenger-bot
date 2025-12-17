@@ -34,7 +34,7 @@ const command: Command = {
     }
 
     const coins = Math.floor(Math.random() * (box.maxCoins - box.minCoins + 1)) + box.minCoins;
-    await database.addCoins(userId, coins, 'work', `${box.type} loot box`);
+    await database.addCoins(userId, coins, 'loot', `${box.type} loot box`);
     const balance = await database.getUserCoins(userId);
 
     await reply(`╭─────────────────╮

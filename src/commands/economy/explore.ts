@@ -27,7 +27,7 @@ const command: Command = {
     const reward = location.rewards[Math.floor(Math.random() * location.rewards.length)];
     const coins = Math.floor(Math.random() * (location.coins[1] - location.coins[0] + 1)) + location.coins[0];
 
-    await database.addCoins(userId, coins, 'work', `Explore - ${location.name}`);
+    await database.addCoins(userId, coins, 'explore', `Explore - ${location.name}`);
     const balance = await database.getUserCoins(userId);
 
     await reply(`╭─────────────────╮

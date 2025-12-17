@@ -28,7 +28,7 @@ const command: Command = {
 
     if (success) {
       const reward = Math.floor(Math.random() * (target.maxReward - target.minReward + 1)) + target.minReward;
-      await database.addCoins(userId, reward, 'work', 'Heist reward');
+      await database.addCoins(userId, reward, 'heist', 'Heist reward');
       const balance = await database.getUserCoins(userId);
 
       await reply(`╭─────────────────╮
@@ -42,7 +42,7 @@ Result: ✅ SUCCESS!
 💳 Balance: ${balance.toLocaleString()}`);
     } else {
       const fine = Math.floor(Math.random() * 200) + 50;
-      await database.removeCoins(userId, fine, 'gambling', 'Heist failed - fine');
+      await database.removeCoins(userId, fine, 'heist', 'Heist failed - fine');
       const balance = await database.getUserCoins(userId);
 
       await reply(`╭─────────────────╮
