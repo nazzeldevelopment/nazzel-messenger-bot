@@ -2,6 +2,7 @@ import 'dotenv/config';
 import fs from 'fs';
 import sulyapFca from 'sulyap-fca';
 const login = sulyapFca.default || sulyapFca;
+const { isGroupThread } = sulyapFca;
 import { BotLogger, logger } from './lib/logger.js';
 import { commandHandler } from './lib/commandHandler.js';
 import { database, initDatabase } from './database/index.js';
@@ -322,6 +323,11 @@ async function handleEvent(api: any, event: any): Promise<void> {
   if (event.messageReply?.messageID) event.messageReply.messageID = normalizeId(event.messageReply.messageID);
   if (event.participantIDs && Array.isArray(event.participantIDs)) {
     event.participantIDs = event.participantIDs.map((id: any) => normalizeId(id));
+  }
+  
+  // Set isGroup property using sulyap-fca utility
+  if (event.threadID) {
+    event.isGroup = isGroupThread ? isGroupThread(event.threadID) : (event.isGroup ?? event.threadID !== event.senderID);
   }
   
   switch (event.type) {
