@@ -7,6 +7,95 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.10.0] - 2025-12-17
+
+### Added
+
+#### 50+ New Commands Across Multiple Categories
+
+**General Commands (1 new):**
+- **botstats** - View detailed bot statistics with category breakdown (aliases: bs, statistics)
+
+**Fun Commands (13 new):**
+- **wouldyou** - Would you rather questions (aliases: wy, wyr2)
+- **unpopularopinion** - Random unpopular opinions (aliases: uo, hotttake, unpopular)
+- **showerthought** - Mind-blowing shower thoughts (aliases: st, thought, mindblow)
+- **challenge** - Daily challenges to complete (aliases: dailychallenge, task, mission)
+- **roastme** - Get roasted by the bot (aliases: rm, burnme, flame)
+- **rizz** - Get pickup lines with rizz level rating (aliases: pickupline, flirt, smoothline)
+- **cursedtext** - Convert text to creepy glitchy text (aliases: cursed, creepy, glitch)
+- **aesthetic** - Convert text to aesthetic/vaporwave style (aliases: vaporwave, wide, fullwidth)
+- **owoify** - Convert text to owo/uwu speak (aliases: owo2, uwuify, cute)
+- **countletters** - Count letters and characters in text (aliases: lettercount, charcount, length)
+- **secretcrush** - Get a secret crush message (aliases: crush, admirer, secret)
+- **finishlyric** - Finish the song lyrics game (aliases: lyricgame, singalong, finishthesong)
+
+**Games Commands (7 new):**
+- **guesscountry** - Guess the country from the flag (aliases: countryquiz, flaggame, whatcountry)
+- **guessemoji** - Guess what emojis represent (aliases: emojipuzzle, emojiriddle, whatisit)
+- **typefast** - Typing speed test game (aliases: typing, speedtype, typingtest)
+- **quickmath** - Quick math challenge with difficulty levels (aliases: qm, mathquiz, calculate)
+- **unscramble** - Unscramble the word game (aliases: scramble, wordscramble, jumble)
+- **findword** - Name words from a category (aliases: categoryword, nameword, thinkword)
+- **fillblank** - Fill in the blank word game (aliases: blank, fillintheblanks, missingword)
+
+**Economy Commands (7 new):**
+- **heist** - Attempt a heist for big rewards (aliases: robbery, steal2, bigheist)
+- **explore** - Explore locations for rewards (aliases: adventure2, journey, wander)
+- **flip** - Double or nothing coin flip (aliases: doubleornothing, don, 2x)
+- **spinwheel** - Spin the wheel for prizes (aliases: wheel, spin2, luckywheel)
+- **loot** - Open random loot boxes (aliases: lootbox, openbox, box)
+- **dicegame** - Roll dice and bet on outcome (aliases: rolldice, dg, dicebet)
+- **scratchcard** - Play scratch card lottery (aliases: sc, scratch2, luckyscratch)
+
+**Social Commands (3 new):**
+- **thankful** - Express gratitude to someone (aliases: grateful, appreciate, blessed)
+- **encourage** - Send encouragement to someone (aliases: motivate, inspire, cheerup)
+- **sendlove** - Send love to someone (aliases: sl, loveya, spreadlove)
+
+**Utility Commands (6 new):**
+- **timestamp** - Get current or convert timestamps (aliases: ts, unix, epoch)
+- **upcase** - Convert text to uppercase (aliases: upper, caps, allcaps)
+- **downcase** - Convert text to lowercase (aliases: lower, lowcase, nocaps)
+- **titlecase** - Convert text to title case (aliases: title, capitalize, proper)
+- **sentencecase** - Convert text to sentence case (aliases: sentence, firstcap)
+- **alternatecase** - Convert text to aLtErNaTiNg CaSe (aliases: altcase, mocktext, spongebob)
+
+**Tools Commands (4 new):**
+- **agecalc** - Calculate age from birthdate (aliases: myage, howold, birthdaycalc)
+- **daysbetween** - Calculate days between two dates (aliases: datediff, daysdiff, between)
+- **discount** - Calculate discount price (aliases: discountcalc, sale, percentoff)
+- **tipcalc** - Calculate tip amount (aliases: tip, tipscalc, gratuity)
+
+**Roleplay Commands (5 new):**
+- **whisper** - Whisper something to someone (aliases: psst, secret, hush)
+- **yell** - Yell something loudly (aliases: shout, scream, holler)
+- **sing** - Sing something (aliases: singing, song, melody)
+- **faint** - Faint dramatically (aliases: passout, collapse, swoon)
+- **celebrate** - Celebrate something (aliases: party, cheer, woohoo)
+
+**AI Commands (5 new):**
+- **haiku** - Generate random haiku poems (aliases: poem2, japanesepoem, 575)
+- **affirmations** - Get positive daily affirmations (aliases: affirm, dailyaffirm, positivity)
+- **inspirequote** - Get inspirational quotes (aliases: inspire, iq, wisdom)
+- **lifehack** - Get random life hack tips (aliases: hack, tip, protip)
+- **codingfact** - Get random coding/tech facts (aliases: techfact, devfact, programmingfact)
+
+### Changed
+
+#### Database Schema Update
+- Extended Transaction type to support new economy transaction types: 'work', 'gambling', 'heist', 'explore', 'loot'
+- All economy commands now properly log transactions with descriptions
+
+### Technical
+- **Total New Commands**: 50+ new commands added
+- **Total Commands**: 260+ in 9 categories
+- All commands fully implemented with proper error handling
+- Commands use consistent box styling design
+- Proper TypeScript typing for all command contexts
+
+---
+
 ## [2.9.0] - 2025-12-17
 
 ### Changed
