@@ -46,15 +46,7 @@ sent after this feature was enabled.`);
 
       for (const messageId of messagesToDelete) {
         try {
-          await new Promise<void>((resolve, reject) => {
-            api.unsendMessage(messageId, (err: any) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
+          await api.unsendMessage(messageId);
           deletedCount++;
           await new Promise(r => setTimeout(r, 150));
         } catch (e) {
