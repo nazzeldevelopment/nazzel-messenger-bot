@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import musicService from '../../services/musicService.js';
 import { logger } from '../../lib/logger.js';
 
@@ -80,7 +81,7 @@ It might be empty or private.
         return;
       }
 
-      const userInfo = await api.getUserInfo(userId);
+      const userInfo = await safeGetUserInfo(api, userId);
       const userName = userInfo[userId]?.name || 'Unknown';
 
       let addedCount = 0;

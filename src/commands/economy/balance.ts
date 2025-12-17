@@ -29,7 +29,12 @@ export const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await new Promise<any>((resolve, reject) => {
+        api.getUserInfo(targetId, (err: any, info: any) => {
+          if (err) reject(err);
+          else resolve(info || {});
+        });
+      });
       const userName = userInfo[targetId]?.name || 'Unknown';
       const user = await database.getOrCreateUser(targetId, userName);
       

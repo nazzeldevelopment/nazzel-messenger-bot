@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import { decorations } from '../../lib/messageFormatter.js';
 
 const kissMessages = [
@@ -40,7 +41,7 @@ const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo([kisserId, targetId]);
+      const userInfo = await safeGetUserInfo(api, [kisserId, targetId]);
       kisserName = userInfo[kisserId]?.name || 'Someone';
       targetName = targetId === kisserId ? 'themselves' : (userInfo[targetId]?.name || 'someone');
     } catch {}

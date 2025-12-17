@@ -1,6 +1,7 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { database } from '../../database/index.js';
 import fmt, { levelMessage, error, createProgressBar, formatNumber } from '../../lib/messageFormatter.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'level',
@@ -23,7 +24,7 @@ const command: Command = {
     }
     
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown';
       const userData = await database.getOrCreateUser(targetId, userName);
       

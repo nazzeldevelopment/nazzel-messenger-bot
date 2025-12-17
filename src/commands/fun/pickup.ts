@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const pickupLines = [
   "Are you a magician? Because whenever I look at you, everyone else disappears.",
@@ -50,7 +51,7 @@ const command: Command = {
     if (event.mentions && Object.keys(event.mentions).length > 0) {
       const mentionId = Object.keys(event.mentions)[0];
       try {
-        const userInfo = await api.getUserInfo(mentionId);
+        const userInfo = await safeGetUserInfo(api, mentionId);
         targetName = userInfo[mentionId]?.name?.split(' ')[0] || '';
       } catch (e) {}
     }

@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const killMessages = [
   '{user1} eliminates {user2} with a banana 🍌',
@@ -35,7 +36,7 @@ const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo([killerId, targetId]);
+      const userInfo = await safeGetUserInfo(api, [killerId, targetId]);
       killerName = userInfo[killerId]?.name || 'Someone';
       targetName = targetId === killerId ? 'themselves (???)' : (userInfo[targetId]?.name || 'someone');
     } catch {}

@@ -1,5 +1,6 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const donors = [
   { name: 'A kind stranger', emoji: '😊' },
@@ -47,7 +48,7 @@ export const command: Command = {
     const senderId = ('' + event.senderID).trim();
 
     try {
-      const userInfo = await api.getUserInfo(senderId);
+      const userInfo = await safeGetUserInfo(api, senderId);
       const userName = userInfo[senderId]?.name || 'Beggar';
       await database.getOrCreateUser(senderId, userName);
 

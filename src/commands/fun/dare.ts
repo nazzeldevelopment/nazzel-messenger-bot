@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const dares = [
   "Send a voice message singing your favorite song!",
@@ -47,7 +48,7 @@ const command: Command = {
     
     let userName = 'Brave Soul';
     try {
-      const userInfo = await api.getUserInfo(senderId);
+      const userInfo = await safeGetUserInfo(api, senderId);
       userName = userInfo[senderId]?.name?.split(' ')[0] || 'Brave Soul';
     } catch (e) {}
     

@@ -1,5 +1,6 @@
 import type { Command } from '../../types/index.js';
 import { database } from '../../database/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 export const command: Command = {
   name: 'addcoins',
@@ -63,7 +64,7 @@ Example: N!addcoins @user 1000`);
     }
 
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown';
 
       const result = await database.addCoins(targetId, amount, 'admin_add', `Added by owner`);

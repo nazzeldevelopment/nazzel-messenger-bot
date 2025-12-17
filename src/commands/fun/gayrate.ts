@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import { decorations } from '../../lib/messageFormatter.js';
 
 export const command: Command = {
@@ -20,7 +21,7 @@ export const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'User';
       
       const today = new Date().toDateString();

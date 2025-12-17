@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import { BotLogger } from '../../lib/logger.js';
 import { database } from '../../database/index.js';
 import { decorations } from '../../lib/messageFormatter.js';
@@ -47,7 +48,7 @@ ${decorations.fire} Delete User Database Record
     if (!confirmArg) {
       let userName = 'Unknown';
       try {
-        const userInfo = await api.getUserInfo(targetId);
+        const userInfo = await safeGetUserInfo(api, targetId);
         userName = userInfo[targetId]?.name || 'Unknown';
       } catch (e) {}
       

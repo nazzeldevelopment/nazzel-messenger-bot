@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const slapMessages = [
   '{user1} slaps {user2} with a wet fish 🐟',
@@ -34,7 +35,7 @@ const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo([slapperId, targetId]);
+      const userInfo = await safeGetUserInfo(api, [slapperId, targetId]);
       slapperName = userInfo[slapperId]?.name || 'Someone';
       targetName = targetId === slapperId ? 'themselves' : (userInfo[targetId]?.name || 'someone');
     } catch {}

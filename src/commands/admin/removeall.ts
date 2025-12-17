@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetThreadInfo } from '../../lib/apiHelpers.js';
 import { BotLogger } from '../../lib/logger.js';
 
 const command: Command = {
@@ -32,7 +33,7 @@ in group chats!`);
     let allParticipants: string[] = [];
     
     try {
-      threadInfo = await api.getThreadInfo(threadId);
+      threadInfo = await safeGetThreadInfo(api, threadId);
       
       if (!threadInfo) {
         await reply(`╭─────────────────╮

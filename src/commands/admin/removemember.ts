@@ -1,5 +1,6 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
+import { safeGetThreadInfo, safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'removemember',
@@ -62,8 +63,8 @@ Cannot remove yourself or bot!`);
     }
     
     try {
-      const threadInfo = await api.getThreadInfo(threadId);
-      const adminIDs = (threadInfo.adminIDs || []).map((a: any) => String(a.id || a));
+      const threadInfo = await safeGetThreadInfo(api, threadId);
+      const adminIDs = (threadInfo?.adminIDs || []).map((a: any) => String(a.id || a));
       
       if (!adminIDs.includes(botId)) {
         await reply(`╭─────────────────╮
@@ -87,7 +88,7 @@ Processing ${validTargets.length} users...`);
       
       for (const targetId of validTargets) {
         try {
-          const userInfo = await api.getUserInfo(targetId);
+          const userInfo = await safeGetUserInfo(api, targetId);
           const userName = userInfo[targetId]?.name || 'Unknown';
           
           await new Promise<void>((resolve, reject) => {
@@ -110,7 +111,7 @@ Processing ${validTargets.length} users...`);
         } catch (err: any) {
           failed++;
           try {
-            const userInfo = await api.getUserInfo(targetId);
+            const userInfo = await safeGetUserInfo(api, targetId);
             const userName = userInfo[targetId]?.name || targetId;
             results.push({ name: userName, success: false });
           } catch {

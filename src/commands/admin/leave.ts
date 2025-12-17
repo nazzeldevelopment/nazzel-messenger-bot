@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetThreadInfo } from '../../lib/apiHelpers.js';
 import { BotLogger } from '../../lib/logger.js';
 
 const command: Command = {
@@ -21,7 +22,7 @@ const command: Command = {
       let groupName = 'this group';
       
       try {
-        const threadInfo = await api.getThreadInfo(targetThread);
+        const threadInfo = await safeGetThreadInfo(api, targetThread);
         groupName = threadInfo.name || 'Group Chat';
       } catch (e) {}
       

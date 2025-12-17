@@ -1,6 +1,7 @@
 import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { decorations } from '../../lib/messageFormatter.js';
+import { safeGetThreadInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'renamegc',
@@ -42,8 +43,8 @@ ${decorations.fire} Change group name
     }
     
     try {
-      const threadInfo = await api.getThreadInfo(String(event.threadID));
-      const oldName = threadInfo.threadName || 'Unnamed Group';
+      const threadInfo = await safeGetThreadInfo(api, event.threadID);
+      const oldName = threadInfo?.threadName || 'Unnamed Group';
       
       await api.setTitle(newName, String(event.threadID));
       

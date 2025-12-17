@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetThreadInfo } from '../../lib/apiHelpers.js';
 import { BotLogger } from '../../lib/logger.js';
 import { decorations } from '../../lib/messageFormatter.js';
 
@@ -40,7 +41,7 @@ ${decorations.sparkle} Send group announcements
     
     let groupName = 'This Group';
     try {
-      const threadInfo = await api.getThreadInfo(String(event.threadID));
+      const threadInfo = await safeGetThreadInfo(api, String(event.threadID));
       groupName = threadInfo.threadName || 'This Group';
     } catch (e) {}
     

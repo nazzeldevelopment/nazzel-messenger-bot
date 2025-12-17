@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const prefixes = [
   'Sir', 'Lord', 'Lady', 'Master', 'Captain', 'Dr.', 'Professor', 'King', 'Queen',
@@ -40,7 +41,7 @@ const command: Command = {
     }
     
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       targetName = userInfo[targetId]?.name?.split(' ')[0] || 'Friend';
     } catch (e) {}
     

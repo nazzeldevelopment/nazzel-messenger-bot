@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const compatibilityMessages: Record<string, string[]> = {
   high: [
@@ -49,7 +50,7 @@ const command: Command = {
     let person2Name = 'Person 2';
     
     try {
-      const userInfo = await api.getUserInfo([person1Id, person2Id]);
+      const userInfo = await safeGetUserInfo(api, [person1Id, person2Id]);
       person1Name = userInfo[person1Id]?.name?.split(' ')[0] || 'Person 1';
       person2Name = userInfo[person2Id]?.name?.split(' ')[0] || 'Person 2';
     } catch (e) {}

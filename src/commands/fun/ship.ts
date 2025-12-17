@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import { decorations } from '../../lib/messageFormatter.js';
 
 export const command: Command = {
@@ -49,7 +50,7 @@ Self-love is the best love!
     }
 
     try {
-      const userInfo = await api.getUserInfo([user1Id, user2Id]);
+      const userInfo = await safeGetUserInfo(api, [user1Id, user2Id]);
       const name1 = userInfo[user1Id]?.name || 'User 1';
       const name2 = userInfo[user2Id]?.name || 'User 2';
 

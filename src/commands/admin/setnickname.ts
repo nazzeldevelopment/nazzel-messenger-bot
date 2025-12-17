@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 export const command: Command = {
   name: 'setnickname',
@@ -42,7 +43,7 @@ export const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown User';
 
       const threadId = ('' + event.threadID).trim();

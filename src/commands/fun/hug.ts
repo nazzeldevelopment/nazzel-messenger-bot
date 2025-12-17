@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import { decorations } from '../../lib/messageFormatter.js';
 
 const hugMessages = [
@@ -40,7 +41,7 @@ const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo([huggerId, targetId]);
+      const userInfo = await safeGetUserInfo(api, [huggerId, targetId]);
       huggerName = userInfo[huggerId]?.name || 'Someone';
       targetName = targetId === huggerId ? 'themselves' : (userInfo[targetId]?.name || 'someone');
     } catch {}

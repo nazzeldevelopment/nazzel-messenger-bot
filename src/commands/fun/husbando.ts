@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const husbandoNames = [
   'Levi', 'Gojo', 'Itachi', 'Kakashi', 'Naruto', 'Sasuke',
@@ -33,7 +34,7 @@ const command: Command = {
 
     let userName = 'You';
     try {
-      const userInfo = await api.getUserInfo(senderId);
+      const userInfo = await safeGetUserInfo(api, senderId);
       userName = userInfo[senderId]?.name || 'You';
     } catch {}
 

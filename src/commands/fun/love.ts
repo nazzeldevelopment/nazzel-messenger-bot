@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import { decorations } from '../../lib/messageFormatter.js';
 
 const command: Command = {
@@ -20,7 +21,7 @@ const command: Command = {
 
     if (mentions.length >= 2) {
       try {
-        const userInfo = await api.getUserInfo(mentions);
+        const userInfo = await safeGetUserInfo(api, mentions);
         name1 = userInfo[mentions[0]]?.name || 'Person 1';
         name2 = userInfo[mentions[1]]?.name || 'Person 2';
       } catch {

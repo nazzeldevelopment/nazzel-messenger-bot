@@ -2,6 +2,7 @@ import type { Command, CommandContext } from '../../types/index.js';
 import { BotLogger } from '../../lib/logger.js';
 import { database } from '../../database/index.js';
 import { decorations } from '../../lib/messageFormatter.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'userdata',
@@ -54,7 +55,7 @@ ${decorations.fire} View User Database Record
       
       let fbName = 'Unknown';
       try {
-        const userInfo = await api.getUserInfo(targetId);
+        const userInfo = await safeGetUserInfo(api, targetId);
         fbName = userInfo[targetId]?.name || 'Unknown';
       } catch (e) {}
       

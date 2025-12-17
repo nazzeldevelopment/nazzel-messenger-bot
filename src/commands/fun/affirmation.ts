@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import fmt, { decorations } from '../../lib/messageFormatter.js';
 
 const affirmations = [
@@ -39,7 +40,7 @@ const command: Command = {
     
     let userName = 'Friend';
     try {
-      const userInfo = await api.getUserInfo(event.senderID);
+      const userInfo = await safeGetUserInfo(api, event.senderID);
       userName = userInfo[event.senderID]?.name?.split(' ')[0] || 'Friend';
     } catch (e) {}
     

@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 
 const moods = [
   { emoji: '😊', mood: 'Happy', message: 'You seem to be in a great mood today!' },
@@ -28,7 +29,7 @@ const command: Command = {
     const senderId = ('' + event.senderID).trim();
 
     try {
-      const userInfo = await api.getUserInfo(senderId);
+      const userInfo = await safeGetUserInfo(api, senderId);
       const userName = userInfo[senderId]?.name || 'Friend';
       const randomMood = moods[Math.floor(Math.random() * moods.length)];
 

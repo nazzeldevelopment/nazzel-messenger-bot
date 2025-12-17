@@ -20,7 +20,12 @@ export const command: Command = {
       
       let threadInfo;
       try {
-        threadInfo = await api.getThreadInfo(threadId);
+        threadInfo = await new Promise<any>((resolve, reject) => {
+          api.getThreadInfo(threadId, (err: any, info: any) => {
+            if (err) reject(err);
+            else resolve(info);
+          });
+        });
       } catch (apiError: any) {
         const errorMsg = apiError?.message || String(apiError);
         if (errorMsg.includes('Not Found') || errorMsg.includes('not valid JSON')) {
@@ -46,7 +51,12 @@ export const command: Command = {
       
       let userInfo: any = {};
       try {
-        userInfo = await api.getUserInfo(adminIds);
+        userInfo = await new Promise<any>((resolve, reject) => {
+          api.getUserInfo(adminIds, (err: any, info: any) => {
+            if (err) reject(err);
+            else resolve(info || {});
+          });
+        });
       } catch {
         // Continue even if user info fails
       }

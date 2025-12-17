@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetThreadInfo } from '../../lib/apiHelpers.js';
 
 const command: Command = {
   name: 'thread',
@@ -13,7 +14,7 @@ const command: Command = {
     
     try {
       const threadId = ('' + event.threadID).trim();
-      const threadInfo = await api.getThreadInfo(threadId);
+      const threadInfo = await safeGetThreadInfo(api, threadId);
       
       const admins = threadInfo.adminIDs?.map((a: any) => a.id) || [];
       

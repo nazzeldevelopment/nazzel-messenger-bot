@@ -1,4 +1,5 @@
 import type { Command, CommandContext } from '../../types/index.js';
+import { safeGetThreadInfo } from '../../lib/apiHelpers.js';
 import config from '../../../config.json' with { type: 'json' };
 import { database } from '../../database/index.js';
 
@@ -56,7 +57,7 @@ const command: Command = {
     
     let isAdmin = false;
     try {
-      const threadInfo = await api.getThreadInfo(threadId);
+      const threadInfo = await safeGetThreadInfo(api, threadId);
       const adminIds = threadInfo.adminIDs?.map((a: any) => String(a.id)) || [];
       isAdmin = adminIds.includes(senderId);
     } catch (e) {}

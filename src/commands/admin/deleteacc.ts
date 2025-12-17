@@ -1,4 +1,5 @@
 import type { Command } from '../../types/index.js';
+import { safeGetUserInfo } from '../../lib/apiHelpers.js';
 import { database } from '../../database/index.js';
 
 export const command: Command = {
@@ -54,7 +55,7 @@ export const command: Command = {
     }
 
     try {
-      const userInfo = await api.getUserInfo(targetId);
+      const userInfo = await safeGetUserInfo(api, targetId);
       const userName = userInfo[targetId]?.name || 'Unknown';
       const user = await database.getUser(targetId);
       
